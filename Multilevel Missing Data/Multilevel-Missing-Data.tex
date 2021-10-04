@@ -1,0 +1,113 @@
+\documentclass[
+]{jss}
+
+\usepackage[utf8]{inputenc}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\author{
+Hanne Oberman\\Utrecht University \And Gerko Vink\\Utrecht
+University \And Thomas Debray\\University Medical Centre Utrecht
+}
+\title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
+
+\Plainauthor{Hanne Oberman, Gerko Vink, Thomas Debray}
+\Plaintitle{Imputation of Incomplete Multilevel Data with mice}
+\Shorttitle{\pkg{mice}: Multilevel}
+
+
+\Abstract{
+Tutorial paper on imputing incomplete multilevel data with \pkg{mice}.
+Including methods for ignorable and non-ignorable missingness.
+}
+
+\Keywords{missing data, multilevel, clustering, \proglang{R}}
+\Plainkeywords{missing data, multilevel, clustering, R}
+
+%% publication information
+%% \Volume{50}
+%% \Issue{9}
+%% \Month{June}
+%% \Year{2012}
+%% \Submitdate{}
+%% \Acceptdate{2012-06-04}
+
+\Address{
+    Hanne Oberman\\
+    Utrecht University\\
+    First line\\
+Second line\\
+  E-mail: \email{name@company.com}\\
+  URL: \url{http://rstudio.com}\\~\\
+      }
+
+% Pandoc syntax highlighting
+
+% Pandoc citation processing
+
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+This template demonstrates some of the basic LaTeX that you need to know
+to create a JSS article.
+
+\hypertarget{code-formatting}{%
+\subsection{Code formatting}\label{code-formatting}}
+
+In general, don't use Markdown, but use the more precise LaTeX commands
+instead:
+
+\begin{itemize}
+\item
+  \proglang{Java}
+\item
+  \pkg{plyr}
+\end{itemize}
+
+One exception is inline code, which can be written inside a pair of
+backticks (i.e., using the Markdown syntax).
+
+If you want to use LaTeX commands in headers, you need to provide a
+\texttt{short-title} attribute. You can also provide a custom identifier
+if necessary. See the header of Section \ref{r-code} for example.
+
+\section[R code]{\proglang{R} code}\label{r-code}
+
+Can be inserted in regular R markdown blocks.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> x <- 1:10
+R> x
+\end{CodeInput}
+\begin{CodeOutput}
+ [1]  1  2  3  4  5  6  7  8  9 10
+\end{CodeOutput}
+\end{CodeChunk}
+
+\subsection[Features specific to rticles]{Features specific to
+\pkg{rticles}}\label{features-specific-to}
+
+\begin{itemize}
+\tightlist
+\item
+  Adding short titles to section headers is a feature specific to
+  \pkg{rticles} (implemented via a Pandoc Lua filter). This feature is
+  currently not supported by Pandoc and we will update this template if
+  \href{https://github.com/jgm/pandoc/issues/4409}{it is officially
+  supported in the future}.
+\item
+  Using the \texttt{\textbackslash{}AND} syntax in the \texttt{author}
+  field to add authors on a new line. This is a specific to the
+  \texttt{rticles::jss\_article} format.
+\end{itemize}
+
+
+
+\end{document}
