@@ -1,0 +1,87 @@
+\documentclass[
+]{jss}
+
+\usepackage[utf8]{inputenc}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\author{
+Hanne Oberman\\Utrecht University \And Gerko Vink\\Utrecht
+University \And Thomas Debray\\University Medical Centre Utrecht
+}
+\title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
+
+\Plainauthor{Hanne Oberman, Gerko Vink, Thomas Debray}
+\Plaintitle{Imputation of Incomplete Multilevel Data with mice}
+\Shorttitle{\pkg{mice}: Multilevel}
+
+
+\Abstract{
+Tutorial paper on imputing incomplete multilevel data with \pkg{mice}.
+Including methods for ignorable and non-ignorable missingness. AKA
+missing on so many levels.
+}
+
+\Keywords{missing data, multilevel, clustering, \proglang{R}}
+\Plainkeywords{missing data, multilevel, clustering, R}
+
+%% publication information
+%% \Volume{50}
+%% \Issue{9}
+%% \Month{June}
+%% \Year{2012}
+%% \Submitdate{}
+%% \Acceptdate{2012-06-04}
+
+\Address{
+    Hanne Oberman\\
+    Utrecht University\\
+    First line\\
+Second line\\
+  E-mail: \email{h.i.oberman@uu.nl}\\
+  URL: \url{https://hanneoberman.github.io/}\\~\\
+      }
+
+% Pandoc syntax highlighting
+
+% Pandoc citation processing
+
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\hypertarget{outline-door-thomas}{%
+\section{Outline door Thomas}\label{outline-door-thomas}}
+
+\begin{itemize}
+\item
+  Waarom zijn standaard (ad hoc) methoden niet geschikt?
+\item
+  Wat is heterogeniteit? (i.e.~variability binnen studies
+  vs.~variability tussen studies). Random effects voor intercept term,
+  predictor effects, en/of variance residual error
+\item
+  JOMO aanpak (misschien buiten beschouwing laten?)
+\item
+  MICE aanpak: one-stage imputation versus two-stage imputation methods
+\item
+  Imputatie van studie-level versus patient-level covariates
+\item
+  Omgaan met MNAR
+\end{itemize}
+
+\hypertarget{references}{%
+\section{References}\label{references}}
+
+\begin{itemize}
+\item
+  \href{Chapter:\%20Dealing\%20with\%20Missing\%20Data\%20in\%20an\%20IPD\%20Meta-analysis}{https://onlinelibrary.wiley.com/doi/abs/10.1002/9781119333784.ch18}
+\item
+  \href{Vignette:\%20gerkovink.com/miceVignettes/Multi_level}{https://www.gerkovink.com/miceVignettes/Multi\_level/Multi\_level\_data.html}
+\end{itemize}
+
+
+
+\end{document}

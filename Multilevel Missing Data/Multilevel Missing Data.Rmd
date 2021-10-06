@@ -1,0 +1,68 @@
+---
+documentclass: jss
+author:
+  - name: Hanne Oberman
+    affiliation: Utrecht University
+    # use this syntax to add text on several lines
+    address: |
+      | First line
+      | Second line
+    email: \email{h.i.oberman@uu.nl}
+    url: https://hanneoberman.github.io/
+  - name: Gerko Vink
+    affiliation: 'Utrecht University'
+    # To add another line, use \AND at the end of the previous one as above
+  - name: Thomas Debray
+    # address: |
+    #   | Department of Statistics and Mathematics,
+    #   | Faculty of Biosciences,
+    #   | Universitat Autònoma de Barcelona
+    affiliation: |
+      | University Medical Centre Utrecht
+    # use a different affiliation in adress field (differently formated here)
+    affiliation2: Universitat Autònoma de Barcelona
+title:
+  formatted: "Imputation of Incomplete Multilevel Data with \\pkg{mice}"
+  # If you use tex in the formatted title, also supply version without
+  plain:     "Imputation of Incomplete Multilevel Data with mice"
+  # For running headers, if needed
+  short:     "\\pkg{mice}: Multilevel"
+abstract: >
+  Tutorial paper on imputing incomplete multilevel data with \pkg{mice}. Including methods for ignorable and non-ignorable missingness. AKA missing on so many levels.
+keywords:
+  # at least one keyword must be supplied
+  formatted: [missing data, multilevel, clustering, "\\proglang{R}"]
+  plain:     [missing data, multilevel, clustering, R]
+preamble: >
+  \usepackage{amsmath}
+output: rticles::jss_article
+---
+
+```{r, setup, include=FALSE}
+options(prompt = 'R> ', continue = '+ ')
+```
+
+# Outline door Thomas
+
+-	Waarom zijn standaard (ad hoc) methoden niet geschikt?
+
+-	Wat is heterogeniteit? (i.e. variability binnen studies vs. variability tussen studies). Random effects voor intercept term, predictor effects, en/of variance residual error
+
+-	JOMO aanpak (misschien buiten beschouwing laten?)
+
+-	MICE aanpak: one-stage imputation versus two-stage imputation methods
+
+-	Imputatie van studie-level versus patient-level covariates
+
+-	Omgaan met MNAR
+
+
+# References
+
+- [https://onlinelibrary.wiley.com/doi/abs/10.1002/9781119333784.ch18](Chapter: Dealing with Missing Data in an IPD Meta-analysis)
+
+- [https://www.gerkovink.com/miceVignettes/Multi_level/Multi_level_data.html](Vignette: gerkovink.com/miceVignettes/Multi_level)
+
+# Introduction
+
+
