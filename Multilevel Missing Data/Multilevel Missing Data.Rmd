@@ -7,8 +7,8 @@ author:
     address: |
       | First line
       | Second line
-    email: \email{name@company.com}
-    url: http://rstudio.com
+    email: \email{h.i.oberman@uu.nl}
+    url: https://hanneoberman.github.io/
   - name: Gerko Vink
     affiliation: 'Utrecht University'
     # To add another line, use \AND at the end of the previous one as above
@@ -28,7 +28,7 @@ title:
   # For running headers, if needed
   short:     "\\pkg{mice}: Multilevel"
 abstract: >
-  Tutorial paper on imputing incomplete multilevel data with \pkg{mice}. Including methods for ignorable and non-ignorable missingness.
+  Tutorial paper on imputing incomplete multilevel data with \pkg{mice}. Including methods for ignorable and non-ignorable missingness. AKA missing on so many levels.
 keywords:
   # at least one keyword must be supplied
   formatted: [missing data, multilevel, clustering, "\\proglang{R}"]
@@ -42,31 +42,27 @@ output: rticles::jss_article
 options(prompt = 'R> ', continue = '+ ')
 ```
 
+# Outline door Thomas
+
+-	Waarom zijn standaard (ad hoc) methoden niet geschikt?
+
+-	Wat is heterogeniteit? (i.e. variability binnen studies vs. variability tussen studies). Random effects voor intercept term, predictor effects, en/of variance residual error
+
+-	JOMO aanpak (misschien buiten beschouwing laten?)
+
+-	MICE aanpak: one-stage imputation versus two-stage imputation methods
+
+-	Imputatie van studie-level versus patient-level covariates
+
+-	Omgaan met MNAR
+
+
+# References
+
+- [https://onlinelibrary.wiley.com/doi/abs/10.1002/9781119333784.ch18](Chapter: Dealing with Missing Data in an IPD Meta-analysis)
+
+- [https://www.gerkovink.com/miceVignettes/Multi_level/Multi_level_data.html](Vignette: gerkovink.com/miceVignettes/Multi_level)
+
 # Introduction
 
-This template demonstrates some of the basic LaTeX that you need to know to create a JSS article.
 
-## Code formatting
-
-In general, don't use Markdown, but use the more precise LaTeX commands instead:
-
-* \proglang{Java}
-* \pkg{plyr}
-
-One exception is inline code, which can be written inside a pair of backticks (i.e., using the Markdown syntax).
-
-If you want to use LaTeX commands in headers, you need to provide a `short-title` attribute. You can also provide a custom identifier if necessary. See the header of Section \ref{r-code} for example.
-
-# \proglang{R} code {short-title="R code" #r-code}
-
-Can be inserted in regular R markdown blocks.
-
-```{r}
-x <- 1:10
-x
-```
-
-## Features specific to \pkg{rticles} {short-title="Features specific to rticles"}
-
-* Adding short titles to section headers is a feature specific to \pkg{rticles} (implemented via a Pandoc Lua filter). This feature is currently not supported by Pandoc and we will update this template if [it is officially supported in the future](https://github.com/jgm/pandoc/issues/4409).
-* Using the `\AND` syntax in the `author` field to add authors on a new line. This is a specific to the `rticles::jss_article` format.
