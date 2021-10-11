@@ -44,18 +44,23 @@ options(prompt = 'R> ', continue = '+ ')
 
 # Outline door Thomas
 
--	Waarom zijn standaard (ad hoc) methoden niet geschikt?
+-	Why are standard (ad hoc) methods not well suited?
 
--	Wat is heterogeniteit? (i.e. variability binnen studies vs. variability tussen studies). Random effects voor intercept term, predictor effects, en/of variance residual error
+-	What is heterogeniety? (i.e. variability within studies vs. variability between studies). Random effects for intercept term, predictor effects, and/or variance residual error
 
--	JOMO aanpak (misschien buiten beschouwing laten?)
+- Systematic vs sporadic missingness
 
--	MICE aanpak: one-stage imputation versus two-stage imputation methods
+-	MICE approach: one-stage imputation versus two-stage imputation methods
 
--	Imputatie van studie-level versus patient-level covariates
+-	Imputation of study level versus patient-level covariates
 
--	Omgaan met MNAR
+-	Handling MNAR
 
+- Case study: metamisc::impact()
+
+# Think about adding
+
+- JOMO in mice
 
 # References
 
