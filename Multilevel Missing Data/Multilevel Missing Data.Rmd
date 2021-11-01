@@ -3,24 +3,22 @@ documentclass: jss
 author:
   - name: Hanne Oberman
     affiliation: Utrecht University
-    # use this syntax to add text on several lines
     address: |
-      | First line
-      | Second line
+      | Padualaan 14
+      | 3584 CH Utrecht
     email: \email{h.i.oberman@uu.nl}
     url: https://hanneoberman.github.io/
+  - name: Johanna Munoz Avila
+    affiliation: University Medical Center Utrecht \AND
+  - name: Valentijn de Jong
+    affiliation: University Medical Center Utrecht 
   - name: Gerko Vink
-    affiliation: 'Utrecht University'
-    # To add another line, use \AND at the end of the previous one as above
+    affiliation: Utrecht University \AND
   - name: Thomas Debray
-    # address: |
-    #   | Department of Statistics and Mathematics,
-    #   | Faculty of Biosciences,
-    #   | Universitat Autònoma de Barcelona
-    affiliation: |
-      | University Medical Centre Utrecht
-    # use a different affiliation in adress field (differently formated here)
-    affiliation2: Universitat Autònoma de Barcelona
+    affiliation: University Medical Center Utrecht 
+      # | Julius Center for Health Sciences and Primary Care, 
+      # | University Medical Center Utrecht, Utrecht, The Netherlands
+    #affiliation2:
 title:
   formatted: "Imputation of Incomplete Multilevel Data with \\pkg{mice}"
   # If you use tex in the formatted title, also supply version without
@@ -28,46 +26,148 @@ title:
   # For running headers, if needed
   short:     "\\pkg{mice}: Multilevel"
 abstract: >
-  Tutorial paper on imputing incomplete multilevel data with \pkg{mice}. Including methods for ignorable and non-ignorable missingness. AKA missing on so many levels.
+  Tutorial paper on imputing incomplete multilevel data with \pkg{mice}. Including methods for ignorable and non-ignorable missingness. 
 keywords:
   # at least one keyword must be supplied
-  formatted: [missing data, multilevel, clustering, "\\proglang{R}"]
-  plain:     [missing data, multilevel, clustering, R]
+  formatted: [missing data, multilevel, clustering, "\\pkg{mice}", "\\proglang{R}"]
+  plain:     [missing data, multilevel, clustering, mice, R]
 preamble: >
   \usepackage{amsmath}
 output: rticles::jss_article
+bibliography: ../References/multilevelmice.bib
 ---
 
 ```{r, setup, include=FALSE}
 options(prompt = 'R> ', continue = '+ ')
+library(tidyverse)
+library(mice)
+library(metamisc)
 ```
-
-# Outline door Thomas
-
--	Why are standard (ad hoc) methods not well suited?
-
--	What is heterogeniety? (i.e. variability within studies vs. variability between studies). Random effects for intercept term, predictor effects, and/or variance residual error
-
-- Systematic vs sporadic missingness
-
--	MICE approach: one-stage imputation versus two-stage imputation methods
-
--	Imputation of study level versus patient-level covariates
-
--	Handling MNAR
-
-- Case study: metamisc::impact()
-
-# Think about adding
-
-- JOMO in mice
-
-# References
-
-- [https://onlinelibrary.wiley.com/doi/abs/10.1002/9781119333784.ch18](Chapter: Dealing with Missing Data in an IPD Meta-analysis)
-
-- [https://www.gerkovink.com/miceVignettes/Multi_level/Multi_level_data.html](Vignette: gerkovink.com/miceVignettes/Multi_level)
 
 # Introduction
 
+## Multilevel data
+
+- What is clustering/multilevel data? In this paper, we discuss grouped observations, not longitudinal data (within-patient clustering).  -> ADD: timeseries also in Discussion section.
+
+- What do we mean by clustering? In the medical field: Clustering by studies (IPDMA), hospitals in registries, multi-center studies etc. In other fields: e.g. official stats clustering at country-level, or social sciences clustering at school-level (related to the sampling design).
+
+- What is heterogeniety? I.e. variability within studies vs. variability between studies
+
+- What does multilevel data look like? ADD: figure to show difference between patient-level datapoints vs cluster-level datapoints. Maybe also add different data frame formats (or just explain in text that there's long and wide formats).
+
+- What methods are required to analyze multilevel data?	Add references, e.g. @hox17. At least explain difference random effects for intercept term, predictor effects, and/or variance residual error. 
+
+## Missing data
+
+- Why/where does missingness occur in multilevel data? I.e., not only patient-level but also cluster-level.
+
+- How can we categorize this? Systematic vs sporadic missingness, see @resc13. ADD: visualization of systematic vs sporadic missingness. Within systematic we have always missing (same value per cluster) and non-measured variables (may differ per patient). TODO: adjust md pattern to match text. -> syst may vary or same for all patients (observations/participants).
+
+```{r patterns, echo=FALSE}
+# monotone vs non-monotone
+patterns <- rbind(
+  tibble(pat = rep("Systematic", 5), rownr = 5:1, X = rep(1, 5), Y = c(1,1,1,0, 0), Z = c(1, rep(0,4))) %>% pivot_longer(cols = c(X, Y, Z)),
+  tibble(pat = rep("Sporadic", 5), rownr = 5:1, X = c(0, rep(1,4)), Y = c(1,1,1,0, 0), Z = c(1, rep(0,3), 1)) %>% pivot_longer(cols = c(X, Y, Z))) %>%
+  mutate(across(everything(), as.factor))
+ggplot(patterns, aes(x = name, y = rownr, fill = value, type = pat)) +
+  geom_tile(color = "black") +
+  scale_fill_brewer(palette = "Set1") +
+  facet_wrap(~pat) +
+  theme_void() +
+  theme(legend.position = "none") 
+```
+
+-	ADD: missingness mech here
+
+- Why are standard (ad hoc) missing data methods not well suited? 
+
+- What types of multilevel methods are available? General overview of approaches, see @audi18 @grun18. E.g., imputation of study level versus patient-level covariates, and one-stage imputation versus two-stage imputation methods.
+
+
+## Aim of this paper
+
+- Provide practical guidelines with code snippets for imputation of incomplete multilevel data. 
+
+- We focus on the workflow for conditional modeling (not JOMO) in `mice`. Refer to other packages: `mitml`, `miceadds`.
+
+- Case study options: `metamisc::impact` (real data on traumatic brain injuries, IPD), `mice::popularity` (simulated data with MNAR/MAR mixture, schools). -> Check Gelman's data/NSRI data.
+
+- Introduce case study and set scope of this tutorial: We're providing an overview of implementations. It's up-to the reader to decide which strategy suits their data. So we won't go into detail for the different methods (and equations). This paper is just a software tutorial. We'll keep it practical. -> ADD: some kind of help function that suggests a suitable pred matrix to the user, given a certain analysis model.
+
+
+# Workflows
+
+## Case study
+
+- We'll use the IMPACT data (`metamisc::impact`) and simulated MNAR data (based on `mice::popularity`).
+
+- IMPACT: A data frame with 11022 observations on the following 11 variables:
+`name` Name of the study,
+`type` Type of study, RCT: randomized controlled trial,OBS: observational cohort,
+`age` Age of the patient,
+`motor_score` Glasgow Coma Scale motor score,
+`pupil` Pupillary reactivity,
+`ct` Marshall Computerized Tomography classification,
+`hypox` Hypoxia (0=no, 1=yes),
+`hypots` Hypotension (0=no, 1=yes),
+`tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+`edh` Epidural hematoma (0=no, 1=yes),
+`mort` 6-month mortality (0=alive, 1=dead).
+
+
+```{r impact}
+# load data
+data("impact")
+# descriptive statistics
+psych::describe(impact)[,c(2:5,8:9)]
+```
+
+
+
+
+## Modeling choices
+
+- Which models will we discuss? We'll build the model to grow in complexity. The final model is the most complex but also the most versatile. 
+
+- Note on model complexity: Typically, we should at least use random intercepts, but often random slopes as well. Ideally we impute with random everything and heteroscedastic errors: most generic method (no worry about congeniality, but don't mention the term) ->  Refer to other papers for background, we'll focus just on the software implementation of the situations mentioned there. Sometimes there's little reason to assume some variable is affected by heterogeneity. -> Refer to Meng, Vincent, and a paper by Grund on congeniality and random slopes. 
+
+- Step 0: study as a predictor, AKA multilevel imputation for dummies. Doesn't work for syst missing. 
+
+## Conditional models
+
+- How to define the imputation model(s) in `mice`?
+
+- What do the different implementations look like?
+
+- Step 1: Intercept
+
+- Step 2: Slope
+
+- Step 3: Residuals
+
+- Heckman model for MNAR
+
+
+## Pooling
+
+- Analysis of scientific interest.
+
+- Pooling using `mitml`.
+
+- Pooling 'regular' parameters vs more 'exotic' parameters (SE of residual errors, or autocorreletion) 
+
+- ADD: export mids objects to other packages like `lme4` or `coxme`(?) 
+
+
+# Discussion
+
+- JOMO in `mice` --> on the side for now
+
+- Additional levels of clustering
+
+- Timeseries: and polynomial relationship in the clustering.
+
+
+# References
 
