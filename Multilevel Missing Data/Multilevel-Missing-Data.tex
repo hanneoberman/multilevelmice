@@ -130,22 +130,13 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
   incomplete multilevel data.
 \item
   We focus on the workflow for conditional modeling (not JOMO) in
-  \texttt{mice}. Refer to other packages: \texttt{mitml}.
+  \texttt{mice}. Refer to other packages: \texttt{mitml},
+  \texttt{miceadds}.
 \item
   Case study options: \texttt{metamisc::impact} (real data on traumatic
   brain injuries, IPD), \texttt{mice::popularity} (simulated data with
   MNAR/MAR mixture, schools). -\textgreater{} Check Gelman's data/NSRI
   data.
-\end{itemize}
-
-\hypertarget{workflows}{%
-\section{Workflows}\label{workflows}}
-
-\hypertarget{case-study}{%
-\subsection{Case study}\label{case-study}}
-
-\begin{itemize}
-\tightlist
 \item
   Introduce case study and set scope of this tutorial: We're providing
   an overview of implementations. It's up-to the reader to decide which
@@ -155,6 +146,52 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
   help function that suggests a suitable pred matrix to the user, given
   a certain analysis model.
 \end{itemize}
+
+\hypertarget{workflows}{%
+\section{Workflows}\label{workflows}}
+
+\hypertarget{case-study}{%
+\subsection{Case study}\label{case-study}}
+
+\begin{itemize}
+\item
+  We'll use the IMPACT data (\texttt{metamisc::impact}) and simulated
+  MNAR data (based on \texttt{mice::popularity}).
+\item
+  IMPACT: A data frame with 11022 observations on the following 11
+  variables: \texttt{name} Name of the study, \texttt{type} Type of
+  study, RCT: randomized controlled trial,OBS: observational cohort,
+  \texttt{age} Age of the patient, \texttt{motor\_score} Glasgow Coma
+  Scale motor score, \texttt{pupil} Pupillary reactivity, \texttt{ct}
+  Marshall Computerized Tomography classification, \texttt{hypox}
+  Hypoxia (0=no, 1=yes), \texttt{hypots} Hypotension (0=no, 1=yes),
+  \texttt{tsah} Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+  \texttt{edh} Epidural hematoma (0=no, 1=yes), \texttt{mort} 6-month
+  mortality (0=alive, 1=dead).
+\end{itemize}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # load data
+R> data("impact")
+R> # descriptive statistics
+R> psych::describe(impact)[,c(2:5,8:9)]
+\end{CodeInput}
+\begin{CodeOutput}
+                 n  mean    sd median min max
+name*        11022  8.32  4.37      8   1  15
+type*        11022  1.73  0.44      2   1   2
+age          11022 34.93 15.89     31  14  93
+motor_score* 11022  2.59  1.18      3   1   4
+pupil*       11022  1.46  0.71      1   1   3
+ct*          11022  1.98  0.89      2   1   3
+hypox        11022  0.22  0.41      0   0   1
+hypots       11022  0.17  0.38      0   0   1
+tsah         11022  0.45  0.50      0   0   1
+edh          11022  0.13  0.34      0   0   1
+mort         11022  0.26  0.44      0   0   1
+\end{CodeOutput}
+\end{CodeChunk}
 
 \hypertarget{modeling-choices}{%
 \subsection{Modeling choices}\label{modeling-choices}}
@@ -218,7 +255,7 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 
 \begin{itemize}
 \item
-  JOMO in mice --\textgreater{} on the side for now
+  JOMO in \texttt{mice} --\textgreater{} on the side for now
 \item
   Additional levels of clustering
 \item

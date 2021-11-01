@@ -40,7 +40,8 @@ bibliography: ../References/multilevelmice.bib
 ```{r, setup, include=FALSE}
 options(prompt = 'R> ', continue = '+ ')
 library(tidyverse)
-
+library(mice)
+library(metamisc)
 ```
 
 # Introduction
@@ -92,12 +93,37 @@ ggplot(patterns, aes(x = name, y = rownr, fill = value, type = pat)) +
 
 - Case study options: `metamisc::impact` (real data on traumatic brain injuries, IPD), `mice::popularity` (simulated data with MNAR/MAR mixture, schools). -> Check Gelman's data/NSRI data.
 
+- Introduce case study and set scope of this tutorial: We're providing an overview of implementations. It's up-to the reader to decide which strategy suits their data. So we won't go into detail for the different methods (and equations). This paper is just a software tutorial. We'll keep it practical. -> ADD: some kind of help function that suggests a suitable pred matrix to the user, given a certain analysis model.
+
 
 # Workflows
 
 ## Case study
 
-- Introduce case study and set scope of this tutorial: We're providing an overview of implementations. It's up-to the reader to decide which strategy suits their data. So we won't go into detail for the different methods (and equations). This paper is just a software tutorial. We'll keep it practical. -> ADD: some kind of help function that suggests a suitable pred matrix to the user, given a certain analysis model.
+- We'll use the IMPACT data (`metamisc::impact`) and simulated MNAR data (based on `mice::popularity`).
+
+- IMPACT: A data frame with 11022 observations on the following 11 variables:
+`name` Name of the study,
+`type` Type of study, RCT: randomized controlled trial,OBS: observational cohort,
+`age` Age of the patient,
+`motor_score` Glasgow Coma Scale motor score,
+`pupil` Pupillary reactivity,
+`ct` Marshall Computerized Tomography classification,
+`hypox` Hypoxia (0=no, 1=yes),
+`hypots` Hypotension (0=no, 1=yes),
+`tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+`edh` Epidural hematoma (0=no, 1=yes),
+`mort` 6-month mortality (0=alive, 1=dead).
+
+
+```{r impact}
+# load data
+data("impact")
+# descriptive statistics
+psych::describe(impact)[,c(2:5,8:9)]
+```
+
+
 
 
 ## Modeling choices
