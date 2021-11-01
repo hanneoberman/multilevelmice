@@ -8,26 +8,26 @@
 
 \author{
 Hanne Oberman\\Utrecht University \And Johanna Munoz Avila\\University
-Medical Center Utrecht \And Valentijn\\University Medical Center Utrecht
-\AND Gerko Vink\\Utrecht University \And Thomas Debray\\University
-Medical Center Utrecht
+Medical Center Utrecht \AND Valentijn de Jong\\University Medical
+Center Utrecht \And Gerko Vink\\Utrecht University \AND Thomas
+Debray\\University Medical Center Utrecht
 }
 \title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
 
-\Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn, Gerko
-Vink, Thomas Debray}
+\Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn de
+Jong, Gerko Vink, Thomas Debray}
 \Plaintitle{Imputation of Incomplete Multilevel Data with mice}
 \Shorttitle{\pkg{mice}: Multilevel}
 
 
 \Abstract{
 Tutorial paper on imputing incomplete multilevel data with \pkg{mice}.
-Including methods for ignorable and non-ignorable missingness. AKA
-missing on so many levels.
+Including methods for ignorable and non-ignorable missingness.
 }
 
-\Keywords{missing data, multilevel, clustering, \proglang{R}}
-\Plainkeywords{missing data, multilevel, clustering, R}
+\Keywords{missing
+data, multilevel, clustering, \pkg{mice}, \proglang{R}}
+\Plainkeywords{missing data, multilevel, clustering, mice, R}
 
 %% publication information
 %% \Volume{50}
@@ -64,20 +64,26 @@ missing on so many levels.
 \begin{itemize}
 \item
   What is clustering/multilevel data? In this paper, we discuss grouped
-  observations, not longitudinal data (within-patient clustering). What
-  do we mean by clustering? In the medical field: Clustering by studies
-  (IPDMA), hospitals in registries, multi-center studies etc. In other
-  fields: e.g.~official stats clustering at country-level, or social
-  sciences clustering at school-level (related to the sampling design).
+  observations, not longitudinal data (within-patient clustering).
+  -\textgreater{} ADD: timeseries also in Discussion section.
 \item
-  What is heterogeniety (i.e.~variability within studies vs.~variability
-  between studies)? ADD: Figure to show difference between patient-level
-  datapoints vs cluster-level datapoints. And different data frame
-  formats.
+  What do we mean by clustering? In the medical field: Clustering by
+  studies (IPDMA), hospitals in registries, multi-center studies etc. In
+  other fields: e.g.~official stats clustering at country-level, or
+  social sciences clustering at school-level (related to the sampling
+  design).
 \item
-  What methods are required to analyze multilevel data? Random effects
-  for intercept term, predictor effects, and/or variance residual error.
-  Add references, e.g. \citet{hox17}.
+  What is heterogeniety? I.e. variability within studies vs.~variability
+  between studies
+\item
+  What does multilevel data look like? ADD: figure to show difference
+  between patient-level datapoints vs cluster-level datapoints. Maybe
+  also add different data frame formats (or just explain in text that
+  there's long and wide formats).
+\item
+  What methods are required to analyze multilevel data? Add references,
+  e.g. \citet{hox17}. At least explain difference random effects for
+  intercept term, predictor effects, and/or variance residual error.
 \end{itemize}
 
 \hypertarget{missing-data}{%
@@ -85,14 +91,15 @@ missing on so many levels.
 
 \begin{itemize}
 \item
-  Why/where does missingness occur? I.e., not only patient-level but
-  also cluster-level.
+  Why/where does missingness occur in multilevel data? I.e., not only
+  patient-level but also cluster-level.
 \item
   How can we categorize this? Systematic vs sporadic missingness, see
   \citet{resc13}. ADD: visualization of systematic vs sporadic
   missingness. Within systematic we have always missing (same value per
   cluster) and non-measured variables (may differ per patient). TODO:
-  adjust md pattern to match text.
+  adjust md pattern to match text. -\textgreater{} syst may vary or same
+  for all patients (observations/participants).
 \end{itemize}
 
 \begin{CodeChunk}
@@ -104,14 +111,14 @@ missing on so many levels.
 
 \begin{itemize}
 \item
+  ADD: missingness mech here
+\item
   Why are standard (ad hoc) missing data methods not well suited?
 \item
-  What other methods are available? General overview of approaches, see
-  \citet{audi18} \citet{grun18}. E.g., imputation of study level versus
-  patient-level covariates, and one-stage imputation versus two-stage
-  imputation methods.
-\item
-  Additional problem addressed in this paper: handling MNAR.
+  What types of multilevel methods are available? General overview of
+  approaches, see \citet{audi18} \citet{grun18}. E.g., imputation of
+  study level versus patient-level covariates, and one-stage imputation
+  versus two-stage imputation methods.
 \end{itemize}
 
 \hypertarget{aim-of-this-paper}{%
@@ -122,31 +129,54 @@ missing on so many levels.
   Provide practical guidelines with code snippets for imputation of
   incomplete multilevel data.
 \item
-  Case study options: metamisc::impact (IPD), GREAT (IPD).
+  We focus on the workflow for conditional modeling (not JOMO) in
+  \texttt{mice}. Refer to other packages: \texttt{mitml}.
+\item
+  Case study options: \texttt{metamisc::impact} (real data on traumatic
+  brain injuries, IPD), \texttt{mice::popularity} (simulated data with
+  MNAR/MAR mixture, schools). -\textgreater{} Check Gelman's data/NSRI
+  data.
 \end{itemize}
 
 \hypertarget{workflows}{%
 \section{Workflows}\label{workflows}}
+
+\hypertarget{case-study}{%
+\subsection{Case study}\label{case-study}}
+
+\begin{itemize}
+\tightlist
+\item
+  Introduce case study and set scope of this tutorial: We're providing
+  an overview of implementations. It's up-to the reader to decide which
+  strategy suits their data. So we won't go into detail for the
+  different methods (and equations). This paper is just a software
+  tutorial. We'll keep it practical. -\textgreater{} ADD: some kind of
+  help function that suggests a suitable pred matrix to the user, given
+  a certain analysis model.
+\end{itemize}
 
 \hypertarget{modeling-choices}{%
 \subsection{Modeling choices}\label{modeling-choices}}
 
 \begin{itemize}
 \item
-  ADD: Section with more in-depth info on different data types and
-  suitable methods. Add some equations, but not too much -\textgreater{}
-  grow in complexity.
+  Which models will we discuss? We'll build the model to grow in
+  complexity. The final model is the most complex but also the most
+  versatile.
 \item
-  Ideally we impute with random everything and heteroscedastic errors:
-  most generic method (no worry about congeneiality) --\textgreater{}
-  explain predictor matrix. Just mention that we should think about
-  random intercept/slope, but just refer to other papers. This paper is
-  just a software tutorial. --\textgreater{} Typically, at least random
-  intercepts, but often random slopes as well. Refer to other papers for
-  background, we'll focus just on the software implementation of the
-  situations mentioned there. Sometimes there's little reason to assume
-  some variable is affected by heterogeniety. We won't focus on
-  congeneiality, that's too complex for 2-3 papers.
+  Note on model complexity: Typically, we should at least use random
+  intercepts, but often random slopes as well. Ideally we impute with
+  random everything and heteroscedastic errors: most generic method (no
+  worry about congeniality, but don't mention the term) -\textgreater{}
+  Refer to other papers for background, we'll focus just on the software
+  implementation of the situations mentioned there. Sometimes there's
+  little reason to assume some variable is affected by heterogeneity.
+  -\textgreater{} Refer to Meng, Vincent, and a paper by Grund on
+  congeniality and random slopes.
+\item
+  Step 0: study as a predictor, AKA multilevel imputation for dummies.
+  Doesn't work for syst missing.
 \end{itemize}
 
 \hypertarget{conditional-models}{%
@@ -154,9 +184,17 @@ missing on so many levels.
 
 \begin{itemize}
 \item
-  How to define the imputation model(s) in mice?
+  How to define the imputation model(s) in \texttt{mice}?
 \item
   What do the different implementations look like?
+\item
+  Step 1: Intercept
+\item
+  Step 2: Slope
+\item
+  Step 3: Residuals
+\item
+  Heckman model for MNAR
 \end{itemize}
 
 \hypertarget{pooling}{%
@@ -164,20 +202,27 @@ missing on so many levels.
 
 \begin{itemize}
 \item
+  Analysis of scientific interest.
+\item
+  Pooling using \texttt{mitml}.
+\item
   Pooling `regular' parameters vs more `exotic' parameters (SE of
   residual errors, or autocorreletion)
 \item
-  ADD: export mids objects to other packages like lme4 or coxme(?)
+  ADD: export mids objects to other packages like \texttt{lme4} or
+  \texttt{coxme}(?)
 \end{itemize}
 
-\hypertarget{think-about-adding}{%
-\section{Think about adding}\label{think-about-adding}}
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
 
 \begin{itemize}
 \item
   JOMO in mice --\textgreater{} on the side for now
 \item
   Additional levels of clustering
+\item
+  Timeseries: and polynomial relationship in the clustering.
 \end{itemize}
 
 \renewcommand\refname{References}

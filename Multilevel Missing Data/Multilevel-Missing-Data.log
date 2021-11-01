@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.10.4)  18 OCT 2021 10:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.10.4)  1 NOV 2021 10:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -448,7 +448,7 @@ LaTeX Info: Redefining \nameref on input line 56.
 \@outlinefile=\write4
 \openout4 = `Multilevel-Missing-Data.out'.
 
-<jsslogo.jpg, id=40, 540.0175pt x 393.47pt>
+<jsslogo.jpg, id=44, 540.0175pt x 393.47pt>
 File: jsslogo.jpg Graphic file (type jpg)
 <use jsslogo.jpg>
 Package pdftex.def Info: jsslogo.jpg  used on input line 56.
@@ -495,34 +495,37 @@ LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 6
 6.
 (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-
-Package natbib Warning: Citation `hox17' on page 1 undefined on input line 80.
-
-[1
+) [1
 
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdf
 tex.map} <./jsslogo.jpg>]
-<Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf, id=60, 353.32pt x 2
+
+Package natbib Warning: Citation `hox17' on page 2 undefined on input line 85.
+
+<Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf, id=64, 353.32pt x 2
 64.99pt>
 File: Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf Graphic file (t
 ype pdf)
 <use Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf>
 Package pdftex.def Info: Multilevel-Missing-Data_files/figure-latex/patterns-1.
-pdf  used on input line 101.
+pdf  used on input line 108.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 2 []
  []
 
-[2 <./Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf>] (./Multilevel
--Missing-Data.bbl
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 2
-0.
+[2 <./Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf>]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
+33.
 (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 3
+ []
+
+[3] (./Multilevel-Missing-Data.bbl
 Underfull \hbox (badness 8056) in paragraph at lines 14--23
 []\T1/lmr/m/n/10.95 Audigier V, White IR, Jolani S, De-bray TPA, Quartagno M, C
 ar-pen-ter J,
@@ -559,40 +562,40 @@ Overfull \hbox (15.44873pt too wide) in paragraph at lines 14--23
 tinuous-[]and-[]Binary-[]Variables /
  []
 
-
-Overfull \hbox (5.47499pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 3
- []
-
-[3])
+)
 
 Package natbib Warning: There were undefined citations.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 187--187
+Underfull \hbox (badness 10000) in paragraph at lines 232--232
 
  []
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 187.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 232.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 4 []
  []
 
-[4] (./Multilevel-Missing-Data.aux)
+[4]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 5
+ []
+
+[5] (./Multilevel-Missing-Data.aux)
 Package rerunfilecheck Info: File `Multilevel-Missing-Data.out' has not changed
 .
-(rerunfilecheck)             Checksum: 5BEECBC8BE2C278A135D47B27A3E8240;1350.
+(rerunfilecheck)             Checksum: 0DC14C8870A7EBE1A843B42A0467DEF8;1432.
  ) 
 Here is how much of TeX's memory you used:
- 9744 strings out of 480559
- 147719 string characters out of 5901612
- 449312 words of memory out of 5000000
- 27164 multiletter control sequences out of 15000+600000
- 472246 words of font info for 62 fonts, out of 8000000 for 9000
+ 9751 strings out of 480559
+ 147798 string characters out of 5901612
+ 449407 words of memory out of 5000000
+ 27167 multiletter control sequences out of 15000+600000
+ 475248 words of font info for 63 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,9n,80p,297b,427s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 75i,9n,80p,297b,388s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec
 .enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm
 -ts1.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/b
@@ -608,10 +611,10 @@ Data/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/4216
 318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Use
 rs/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.
 pfb>
-Output written on Multilevel-Missing-Data.pdf (4 pages, 272424 bytes).
+Output written on Multilevel-Missing-Data.pdf (5 pages, 274810 bytes).
 PDF statistics:
- 176 PDF objects out of 1000 (max. 8388607)
- 144 compressed objects within 2 object streams
- 35 named destinations out of 1000 (max. 500000)
- 83 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 187 PDF objects out of 1000 (max. 8388607)
+ 154 compressed objects within 2 object streams
+ 39 named destinations out of 1000 (max. 500000)
+ 91 words of extra memory for PDF output out of 10000 (max. 10000000)
 
