@@ -39,9 +39,19 @@ bibliography: ../References/multilevelmice.bib
 
 ```{r, setup, include=FALSE}
 options(prompt = 'R> ', continue = '+ ')
+
+# packages
 library(tidyverse)
 library(mice)
+library(miceadds)
 library(metamisc)
+library(pan)
+
+# functions
+miceadds::source.all(path = "../R")
+
+# plot parameters
+plot_col <- mice:::mdc(1:2) %>% setNames(c("observed", "missing"))
 ```
 
 # Introduction
@@ -67,22 +77,46 @@ library(metamisc)
 ```{r patterns, echo=FALSE}
 # monotone vs non-monotone
 patterns <- rbind(
-  tibble(pat = rep("Systematic", 5), rownr = 5:1, X = rep(1, 5), Y = c(1,1,1,0, 0), Z = c(1, rep(0,4))) %>% pivot_longer(cols = c(X, Y, Z)),
-  tibble(pat = rep("Sporadic", 5), rownr = 5:1, X = c(0, rep(1,4)), Y = c(1,1,1,0, 0), Z = c(1, rep(0,3), 1)) %>% pivot_longer(cols = c(X, Y, Z))) %>%
-  mutate(across(everything(), as.factor))
-ggplot(patterns, aes(x = name, y = rownr, fill = value, type = pat)) +
+  tibble(
+    pat = rep("systematic", 5),
+    rownr = 5:1,
+    X1 = rep("observed", 5),
+    X2 = c(rep("observed", 3), rep("missing", 2)),
+    X3 = c(rep("missing", 3),  rep("observed", 2))
+  ) %>% pivot_longer(cols = c(X1, X2, X3)),
+  tibble(
+    pat = rep("sporadic", 5),
+    rownr = 5:1,
+    X1 = c("observed", "missing", rep("observed", 3)),
+    X2 = c(rep("observed", 2), rep("missing", 3)),
+    X3 = c(rep("missing", 3),  rep("observed", 2))
+  ) %>% pivot_longer(cols = c(X1, X2, X3))
+) %>%
+  mutate(across(everything(), as.factor),
+         pat = factor(pat, levels = c("systematic", "sporadic"), labels = c("Systematic missingness", "Sporadic missingness"), ordered = TRUE))
+# plot
+ggplot(patterns, aes(
+  x = name,
+  y = rownr,
+  fill = value,
+  type = pat
+)) +
   geom_tile(color = "black") +
-  scale_fill_brewer(palette = "Set1") +
-  facet_wrap(~pat) +
-  theme_void() +
-  theme(legend.position = "none") 
+  scale_y_discrete(labels = c(2, 2, 1, 1, 1)) +
+  scale_fill_manual(values = plot_col, name = "Datapoint") +
+  facet_wrap( ~ pat, ncol = 2) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  labs(x = "Variable", y = "Cluster")
 ```
 
--	ADD: missingness mech here
+-	What kinds of missingness are there? ADD: missingness mechanisms here.
 
 - Why are standard (ad hoc) missing data methods not well suited? 
 
 - What types of multilevel methods are available? General overview of approaches, see @audi18 @grun18. E.g., imputation of study level versus patient-level covariates, and one-stage imputation versus two-stage imputation methods.
+
+- Additional difficulty that is addressed in this tutorial: MNAR data.
 
 
 ## Aim of this paper
@@ -100,30 +134,48 @@ ggplot(patterns, aes(x = name, y = rownr, fill = value, type = pat)) +
 
 ## Case study
 
-- We'll use the IMPACT data (`metamisc::impact`) and simulated MNAR data (based on `mice::popularity`).
+- We'll use the IMPACT data (`metamisc::impact`) and a MAR/MNAR version of the `mice::popmis` data (i.e., a variation on the Hox (2010) popularity data, where the missingness in the variables is either missing at random (MAR) or missing not at random (MNAR)).
 
-- IMPACT: A data frame with 11022 observations on the following 11 variables:
-`name` Name of the study,
-`type` Type of study, RCT: randomized controlled trial,OBS: observational cohort,
-`age` Age of the patient,
-`motor_score` Glasgow Coma Scale motor score,
-`pupil` Pupillary reactivity,
-`ct` Marshall Computerized Tomography classification,
-`hypox` Hypoxia (0=no, 1=yes),
-`hypots` Hypotension (0=no, 1=yes),
-`tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
-`edh` Epidural hematoma (0=no, 1=yes),
-`mort` 6-month mortality (0=alive, 1=dead).
+- `impact` is traumatic brain injury data with patients clustered in studies, $n_{\text{participants}} = 11022$ and $n_{\text{clusters}} = 15$, on the following 11 variables:
+    * `name` Name of the study,
+    * `type` Type of study (RCT: randomized controlled trial, OBS: observational cohort),
+    * `age` Age of the patient,
+    * `motor_score` Glasgow Coma Scale motor score,
+    * `pupil` Pupillary reactivity,
+    * `ct` Marshall Computerized Tomography classification,
+    * `hypox` Hypoxia (0=no, 1=yes),
+    * `hypots` Hypotension (0=no, 1=yes),
+    * `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+    * `edh` Epidural hematoma (0=no, 1=yes),
+    * `mort` 6-month mortality (0=alive, 1=dead).
 
 
 ```{r impact}
 # load data
 data("impact")
-# descriptive statistics
-psych::describe(impact)[,c(2:5,8:9)]
+# # descriptive statistics
+# by(impact, impact$name, summary) 
+# psych::describe(impact)[,c(2:5,8:9)]
+# missingness
+md_pat(impact)
 ```
+-> Why are there no missings? According to the [vignette](https://cran.r-project.org/web/packages/metamisc/metamisc.pdf), the data is already imputed (Steyerberg et al, 2008).
 
+- `popNCR` is a simulated dataset with pupils clustered in classes, $n_{\text{participants}} = 2000$, $n_{\text{clusters}} = 100$, on 7 variables: 
+    * `pupil`	Pupil number within class,
+    * `class`	Class number,
+    * `extrav`	Pupil extraversion,
+    * `sex`	Pupil gender,
+    * `texp`	Teacher experience (years),
+    * `popular`	Pupil popularity,
+    * `popteach`	Teacher popularity.
 
+```{r pop}
+# load data
+pop <- readRDS("../Data/popNCR.RDS")
+# missingness
+md_pat(pop)
+```
 
 
 ## Modeling choices

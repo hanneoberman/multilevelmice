@@ -111,7 +111,7 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 
 \begin{itemize}
 \item
-  ADD: missingness mech here
+  What kinds of missingness are there? ADD: missingness mechanisms here.
 \item
   Why are standard (ad hoc) missing data methods not well suited?
 \item
@@ -119,6 +119,8 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
   approaches, see \citet{audi18} \citet{grun18}. E.g., imputation of
   study level versus patient-level covariates, and one-stage imputation
   versus two-stage imputation methods.
+\item
+  Additional difficulty that is addressed in this tutorial: MNAR data.
 \end{itemize}
 
 \hypertarget{aim-of-this-paper}{%
@@ -155,42 +157,109 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 
 \begin{itemize}
 \item
-  We'll use the IMPACT data (\texttt{metamisc::impact}) and simulated
-  MNAR data (based on \texttt{mice::popularity}).
+  We'll use the IMPACT data (\texttt{metamisc::impact}) and a MAR/MNAR
+  version of the \texttt{mice::popmis} data (i.e., a variation on the
+  Hox (2010) popularity data, where the missingness in the variables is
+  either missing at random (MAR) or missing not at random (MNAR)).
 \item
-  IMPACT: A data frame with 11022 observations on the following 11
-  variables: \texttt{name} Name of the study, \texttt{type} Type of
-  study, RCT: randomized controlled trial,OBS: observational cohort,
-  \texttt{age} Age of the patient, \texttt{motor\_score} Glasgow Coma
-  Scale motor score, \texttt{pupil} Pupillary reactivity, \texttt{ct}
-  Marshall Computerized Tomography classification, \texttt{hypox}
-  Hypoxia (0=no, 1=yes), \texttt{hypots} Hypotension (0=no, 1=yes),
-  \texttt{tsah} Traumatic subarachnoid hemorrhage (0=no, 1=yes),
-  \texttt{edh} Epidural hematoma (0=no, 1=yes), \texttt{mort} 6-month
-  mortality (0=alive, 1=dead).
+  \texttt{impact} is traumatic brain injury data with patients clustered
+  in studies, \(n_{\text{participants}} = 11022\) and
+  \(n_{\text{clusters}} = 15\), on the following 11 variables:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{name} Name of the study,
+  \item
+    \texttt{type} Type of study (RCT: randomized controlled trial, OBS:
+    observational cohort),
+  \item
+    \texttt{age} Age of the patient,
+  \item
+    \texttt{motor\_score} Glasgow Coma Scale motor score,
+  \item
+    \texttt{pupil} Pupillary reactivity,
+  \item
+    \texttt{ct} Marshall Computerized Tomography classification,
+  \item
+    \texttt{hypox} Hypoxia (0=no, 1=yes),
+  \item
+    \texttt{hypots} Hypotension (0=no, 1=yes),
+  \item
+    \texttt{tsah} Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+  \item
+    \texttt{edh} Epidural hematoma (0=no, 1=yes),
+  \item
+    \texttt{mort} 6-month mortality (0=alive, 1=dead).
+  \end{itemize}
 \end{itemize}
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> # load data
 R> data("impact")
-R> # descriptive statistics
-R> psych::describe(impact)[,c(2:5,8:9)]
+R> # # descriptive statistics
+R> # by(impact, impact$name, summary) 
+R> # psych::describe(impact)[,c(2:5,8:9)]
+R> # missingness
+R> md_pat(impact)
 \end{CodeInput}
 \begin{CodeOutput}
-                 n  mean    sd median min max
-name*        11022  8.32  4.37      8   1  15
-type*        11022  1.73  0.44      2   1   2
-age          11022 34.93 15.89     31  14  93
-motor_score* 11022  2.59  1.18      3   1   4
-pupil*       11022  1.46  0.71      1   1   3
-ct*          11022  1.98  0.89      2   1   3
-hypox        11022  0.22  0.41      0   0   1
-hypots       11022  0.17  0.38      0   0   1
-tsah         11022  0.45  0.50      0   0   1
-edh          11022  0.13  0.34      0   0   1
-mort         11022  0.26  0.44      0   0   1
+ /\     /\
+{  `---'  }
+{  O   O  }
+==>  V <==  No need for mice. This data set is completely observed.
+ \  \|/  /
+  `-----'
 \end{CodeOutput}
+\begin{CodeOutput}
+      name type age motor_score pupil ct hypox hypots tsah edh mort  
+11022    1    1   1           1     1  1     1      1    1   1    1 0
+         0    0   0           0     0  0     0      0    0   0    0 0
+\end{CodeOutput}
+\end{CodeChunk}
+
+-\textgreater{} Why are there no missings? According to the
+\href{https://cran.r-project.org/web/packages/metamisc/metamisc.pdf}{vignette},
+the data is already imputed (Steyerberg et al, 2008).
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{popNCR} is a simulated dataset with pupils clustered in
+  classes, \(n_{\text{participants}} = 2000\),
+  \(n_{\text{clusters}} = 100\), on 7 variables:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{pupil} Pupil number within class,
+  \item
+    \texttt{class} Class number,
+  \item
+    \texttt{extrav} Pupil extraversion,
+  \item
+    \texttt{sex} Pupil gender,
+  \item
+    \texttt{texp} Teacher experience (years),
+  \item
+    \texttt{popular} Pupil popularity,
+  \item
+    \texttt{popteach} Teacher popularity.
+  \end{itemize}
+\end{itemize}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # load data
+R> pop <- readRDS("../Data/popNCR.RDS")
+R> # missingness
+R> md_pat(pop)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/pop-1} \end{center}
+
 \end{CodeChunk}
 
 \hypertarget{modeling-choices}{%

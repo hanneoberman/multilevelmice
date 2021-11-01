@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.10.4)  1 NOV 2021 11:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.10.4)  1 NOV 2021 16:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -515,7 +515,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 
 [2 <./Manuscript_files/figure-latex/patterns-1.pdf>]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-33.
+35.
 (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -524,11 +524,26 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [3]
+<Manuscript_files/figure-latex/pop-1.pdf, id=102, 353.32pt x 264.99pt>
+File: Manuscript_files/figure-latex/pop-1.pdf Graphic file (type pdf)
+<use Manuscript_files/figure-latex/pop-1.pdf>
+Package pdftex.def Info: Manuscript_files/figure-latex/pop-1.pdf  used on input
+ line 261.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 4 []
  []
 
-[4] (./Manuscript.bbl
+[4]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 5
+ []
+
+[5 <./Manuscript_files/figure-latex/pop-1.pdf>] (./Manuscript.bbl
 Underfull \hbox (badness 8056) in paragraph at lines 14--23
 []\T1/lmr/m/n/10.95 Audigier V, White IR, Jolani S, De-bray TPA, Quartagno M, C
 ar-pen-ter J,
@@ -570,49 +585,58 @@ tinuous-[]and-[]Binary-[]Variables /
 Package natbib Warning: There were undefined citations.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 269--269
+Underfull \hbox (badness 10000) in paragraph at lines 338--338
 
  []
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 269.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 338.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 5
+\T1/lmr/m/n/10.95 6 []
  []
 
-[5] (./Manuscript.aux)
+[6]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 7
+ []
+
+[7] (./Manuscript.aux)
 Package rerunfilecheck Info: File `Manuscript.out' has not changed.
 (rerunfilecheck)             Checksum: 0DC14C8870A7EBE1A843B42A0467DEF8;1432.
  ) 
 Here is how much of TeX's memory you used:
- 9753 strings out of 480559
- 147436 string characters out of 5901612
+ 9768 strings out of 480559
+ 147866 string characters out of 5901612
  449342 words of memory out of 5000000
- 27168 multiletter control sequences out of 15000+600000
- 475569 words of font info for 64 fonts, out of 8000000 for 9000
+ 27178 multiletter control sequences out of 15000+600000
+ 481549 words of font info for 66 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,9n,80p,284b,498s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 75i,9n,80p,284b,507s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec
 .enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm
--ts1.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/b
-ase/8r.enc}<c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/pub
-lic/lm/lmb10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/typ
-e1/public/lm/lmbo10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fo
-nts/type1/public/lm/lmbx10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-
-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX
-/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/4216318/AppData/Roaming/T
-inyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/4216318/AppData/Ro
-aming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/4216318/App
-Data/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/4216
-318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Use
-rs/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb
-><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/zapfchan/
-uzcmi8a.pfb>
-Output written on Manuscript.pdf (5 pages, 304294 bytes).
+-rm.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm
+/lm-mathit.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/d
+vips/lm/lm-ts1.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/e
+nc/dvips/base/8r.enc}<c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts
+/type1/public/lm/lmb10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist
+/fonts/type1/public/lm/lmbo10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/tex
+mf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/4216318/AppData/Roaming/Tiny
+TeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/4216318/AppData/Roami
+ng/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/4216318/AppDat
+a/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/4216318/
+AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/421
+6318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Us
+ers/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb
+><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lms
+s10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public
+/lm/lmtt10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1
+/public/lm/lmtto10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fon
+ts/type1/urw/zapfchan/uzcmi8a.pfb>
+Output written on Manuscript.pdf (7 pages, 344972 bytes).
 PDF statistics:
- 192 PDF objects out of 1000 (max. 8388607)
- 157 compressed objects within 2 object streams
- 39 named destinations out of 1000 (max. 500000)
- 91 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 230 PDF objects out of 1000 (max. 8388607)
+ 186 compressed objects within 2 object streams
+ 41 named destinations out of 1000 (max. 500000)
+ 96 words of extra memory for PDF output out of 10000 (max. 10000000)
 
