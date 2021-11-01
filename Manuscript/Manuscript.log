@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.10.4)  1 NOV 2021 10:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.10.4)  1 NOV 2021 11:16
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**Multilevel-Missing-Data.tex
-(./Multilevel-Missing-Data.tex
+**Manuscript.tex
+(./Manuscript.tex
 LaTeX2e <2021-06-01> patch level 1
 L3 programming layer <2021-08-27> (./jss.cls
 Document Class: jss 2020/12/09 3.2 jss class by Achim Zeileis
@@ -383,8 +383,8 @@ end-pdftex.def
 File: l3backend-pdftex.def 2021-08-04 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count282
 \l__pdf_internal_box=\box53
-) (./Multilevel-Missing-Data.aux)
-\openout1 = `Multilevel-Missing-Data.aux'.
+) (./Manuscript.aux)
+\openout1 = `Manuscript.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
 LaTeX Font Info:    ... okay on input line 56.
@@ -444,9 +444,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 56.
 LaTeX Info: Redefining \pageref on input line 56.
 LaTeX Info: Redefining \nameref on input line 56.
-(./Multilevel-Missing-Data.out) (./Multilevel-Missing-Data.out)
+(./Manuscript.out) (./Manuscript.out)
 \@outlinefile=\write4
-\openout4 = `Multilevel-Missing-Data.out'.
+\openout4 = `Manuscript.out'.
 
 <jsslogo.jpg, id=44, 540.0175pt x 393.47pt>
 File: jsslogo.jpg Graphic file (type jpg)
@@ -502,20 +502,18 @@ tex.map} <./jsslogo.jpg>]
 
 Package natbib Warning: Citation `hox17' on page 2 undefined on input line 85.
 
-<Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf, id=64, 353.32pt x 2
-64.99pt>
-File: Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf Graphic file (t
-ype pdf)
-<use Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf>
-Package pdftex.def Info: Multilevel-Missing-Data_files/figure-latex/patterns-1.
-pdf  used on input line 108.
+<Manuscript_files/figure-latex/patterns-1.pdf, id=64, 353.32pt x 264.99pt>
+File: Manuscript_files/figure-latex/patterns-1.pdf Graphic file (type pdf)
+<use Manuscript_files/figure-latex/patterns-1.pdf>
+Package pdftex.def Info: Manuscript_files/figure-latex/patterns-1.pdf  used on 
+input line 108.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 2 []
  []
 
-[2 <./Multilevel-Missing-Data_files/figure-latex/patterns-1.pdf>]
+[2 <./Manuscript_files/figure-latex/patterns-1.pdf>]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
 33.
 (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
@@ -530,7 +528,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 4 []
  []
 
-[4] (./Multilevel-Missing-Data.bbl
+[4] (./Manuscript.bbl
 Underfull \hbox (badness 8056) in paragraph at lines 14--23
 []\T1/lmr/m/n/10.95 Audigier V, White IR, Jolani S, De-bray TPA, Quartagno M, C
 ar-pen-ter J,
@@ -583,19 +581,18 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 5
  []
 
-[5] (./Multilevel-Missing-Data.aux)
-Package rerunfilecheck Info: File `Multilevel-Missing-Data.out' has not changed
-.
+[5] (./Manuscript.aux)
+Package rerunfilecheck Info: File `Manuscript.out' has not changed.
 (rerunfilecheck)             Checksum: 0DC14C8870A7EBE1A843B42A0467DEF8;1432.
  ) 
 Here is how much of TeX's memory you used:
  9753 strings out of 480559
- 147826 string characters out of 5901612
- 449407 words of memory out of 5000000
+ 147436 string characters out of 5901612
+ 449342 words of memory out of 5000000
  27168 multiletter control sequences out of 15000+600000
  475569 words of font info for 64 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,9n,80p,297b,498s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 75i,9n,80p,284b,498s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec
 .enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm
 -ts1.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/b
@@ -612,7 +609,7 @@ Data/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/4216
 rs/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb
 ><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/zapfchan/
 uzcmi8a.pfb>
-Output written on Multilevel-Missing-Data.pdf (5 pages, 304310 bytes).
+Output written on Manuscript.pdf (5 pages, 304294 bytes).
 PDF statistics:
  192 PDF objects out of 1000 (max. 8388607)
  157 compressed objects within 2 object streams
