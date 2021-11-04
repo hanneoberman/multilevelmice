@@ -162,29 +162,42 @@ missing at random (MAR) or missing not at random (MNAR)).
 \hypertarget{case-study-i-impact}{%
 \subsection{Case study I: IMPACT}\label{case-study-i-impact}}
 
-\texttt{impact} is traumatic brain injury data with patients clustered
-in studies, \(n_{\text{participants}} = 11022\) and
-\(n_{\text{clusters}} = 15\), on the following 11 variables: *
-\texttt{name} Name of the study, * \texttt{type} Type of study (RCT:
-randomized controlled trial, OBS: observational cohort), * \texttt{age}
-Age of the patient, * \texttt{motor\_score} Glasgow Coma Scale motor
-score, * \texttt{pupil} Pupillary reactivity, * \texttt{ct} Marshall
-Computerized Tomography classification, * \texttt{hypox} Hypoxia (0=no,
-1=yes), * \texttt{hypots} Hypotension (0=no, 1=yes), * \texttt{tsah}
-Traumatic subarachnoid hemorrhage (0=no, 1=yes), * \texttt{edh} Epidural
-hematoma (0=no, 1=yes), * \texttt{mort} 6-month mortality (0=alive,
-1=dead).
+\begin{itemize}
+\item
+  What does the data look like? \texttt{impact} is traumatic brain
+  injury data with patients clustered in studies,
+  \(n_{\text{participants}} = 11022\) and \(n_{\text{clusters}} = 15\),
+  on the following 11 variables:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{name} Name of the study,
+  \item
+    \texttt{type} Type of study (RCT: randomized controlled trial, OBS:
+    observational cohort),
+  \item
+    \texttt{age} Age of the patient,
+  \item
+    \texttt{motor\_score} Glasgow Coma Scale motor score,
+  \item
+    \texttt{pupil} Pupillary reactivity,
+  \item
+    \texttt{ct} Marshall Computerized Tomography classification,
+  \item
+    \texttt{hypox} Hypoxia (0=no, 1=yes),
+  \item
+    \texttt{hypots} Hypotension (0=no, 1=yes),
+  \item
+    \texttt{tsah} Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+  \item
+    \texttt{edh} Epidural hematoma (0=no, 1=yes),
+  \item
+    \texttt{mort} 6-month mortality (0=alive, 1=dead).
+  \end{itemize}
+\end{itemize}
 
 \begin{CodeChunk}
-\begin{CodeInput}
-R> # load data
-R> data("impact")
-R> # # descriptive statistics
-R> # by(impact, impact$name, summary) 
-R> # psych::describe(impact)[,c(2:5,8:9)]
-R> # missingness
-R> md_pat(impact)
-\end{CodeInput}
 \begin{CodeOutput}
  /\     /\
 {  `---'  }
@@ -206,23 +219,68 @@ the data is already imputed (Steyerberg et al, 2008).
 \hypertarget{case-study-ii-popularity}{%
 \subsection{Case Study II: Popularity}\label{case-study-ii-popularity}}
 
-\texttt{popNCR} is a simulated dataset with pupils clustered in classes,
-\(n_{\text{participants}} = 2000\), \(n_{\text{clusters}} = 100\), on 7
-variables: * \texttt{pupil} Pupil number within class, * \texttt{class}
-Class number, * \texttt{extrav} Pupil extraversion, * \texttt{sex} Pupil
-gender, * \texttt{texp} Teacher experience (years), * \texttt{popular}
-Pupil popularity, * \texttt{popteach} Teacher popularity.
+\begin{itemize}
+\item
+  What does the data look like? \texttt{popNCR} is a simulated dataset
+  with pupils clustered in classes, \(n_{\text{participants}} = 2000\),
+  \(n_{\text{clusters}} = 100\), on 7 variables:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{pupil} Pupil number within class,
+  \item
+    \texttt{class} Class number,
+  \item
+    \texttt{extrav} Pupil extraversion,
+  \item
+    \texttt{sex} Pupil gender,
+  \item
+    \texttt{texp} Teacher experience (years),
+  \item
+    \texttt{popular} Pupil popularity,
+  \item
+    \texttt{popteach} Teacher popularity.
+  \end{itemize}
+\item
+  What are the ICCs? For \texttt{popular} the ICC is 0.33. For
+  \texttt{popteach} it is 0.31.
+\item
+  What does the missingness look like? Induced MAR/MNAR missingness.
+  Missing data pattern:
+\end{itemize}
 
 \begin{CodeChunk}
-\begin{CodeInput}
-R> # load data
-R> pop <- readRDS("../Data/popNCR.RDS")
-R> # missingness
-R> md_pat(pop)
-\end{CodeInput}
 
 
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop-1} \end{center}
+\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_pat-1} \end{center}
+
+\end{CodeChunk}
+
+\begin{itemize}
+\item
+  Does the missing data of popular depend on popteach? One could for
+  example check this by making a histogram of popteach separately for
+  the pupils with known popularity and missing popularity. We do see
+  that the histogram for the missing popular (TRUE) is further to the
+  right than the histogram for observed popular (FALSE). This would
+  indicate a right-tailed MAR missingness. In fact this is exactly what
+  happens, because we created the missingness in these data ourselves.
+  But we can make it observable by examining the relations between the
+  missingness in popular and the observed data in popteach.
+\item
+  Does the missingness in teacher popularity depend on pupil popularity?
+  Yes: there is a dependency. The relation seems to be right-tailed.
+\end{itemize}
+
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_dist-1} \end{center}
+
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_dist-2} \end{center}
 
 \end{CodeChunk}
 
@@ -245,26 +303,37 @@ R> md_pat(pop)
   -\textgreater{} Refer to Meng, Vincent, and a paper by Grund on
   congeniality and random slopes.
 \item
-  Step 0: study as a predictor, AKA multilevel imputation for dummies.
-  Doesn't work for syst missing.
-\end{itemize}
-
-\hypertarget{conditional-models}{%
-\subsection{Conditional models}\label{conditional-models}}
-
-\begin{itemize}
+  Step 0: As predictor
 \item
-  How to define the imputation model(s) in \texttt{mice}?
+  Step 1: Random intercepts
 \item
-  What do the different implementations look like?
-\item
-  Step 1: Intercept
-\item
-  Step 2: Slope
+  Step 2: Random slopes
 \item
   Step 3: Residuals
 \item
   Heckman model for MNAR
+\item
+  What do the different implementations look like? How to define the
+  imputation model(s) in \texttt{mice}?
+\end{itemize}
+
+\hypertarget{step-0}{%
+\subsection{Step 0}\label{step-0}}
+
+\begin{itemize}
+\item
+  AKA multilevel imputation for dummies.
+\item
+  Doesn't work for systematic missingness.
+\end{itemize}
+
+\hypertarget{step-1-3}{%
+\subsection{Step 1-3}\label{step-1-3}}
+
+\begin{itemize}
+\tightlist
+\item
+  TODO: fill in.
 \end{itemize}
 
 \hypertarget{pooling}{%

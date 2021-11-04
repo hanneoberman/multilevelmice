@@ -1,5 +1,5 @@
 # missing data pattern
-md_pat <- function(dat) {
+plot_md_pat <- function(dat) {
   # get md pattern and store additional info
   pat <- mice::md.pattern(dat, plot = FALSE)
   vrb <- colnames(pat)[-ncol(pat)]
@@ -92,3 +92,78 @@ md_pat <- function(dat) {
   # output
   return(p)
 }
+
+#' Title Create a histogram/bar plot of a variable conditional on missingness in another variable
+#'
+#' @param dat An incomplete dataset of class dataframe
+#' @param x A variable to plot
+#' @param z A second variable to plot
+#'
+#' @return A ggplot object with two facets (variable z observed vs. missing)
+#' @export
+plot_NA_cond <- function(dat, x, z, bins = NULL) {
+  # define graphing elements to add to plot
+  if (is.numeric(dat[[x]])) {
+    # for continuous variables
+    geom <- ggplot2::geom_histogram(fill = "white", binwidth = bins)
+  } else {
+    # for categorical variables
+    geom <- ggplot2::geom_bar(fill = "white")
+  }
+  # create facet labels
+  facet_labs <- c(paste(z, "observed"), paste(z, "missing")) %>%
+    setNames(c("observed", "missing"))
+  # preprocess the data
+  d <- dat[!is.na(dat[[x]]),] %>%
+    dplyr::mutate(conditional = factor(
+      is.na(.data[[z]]),
+      levels = c(FALSE, TRUE),
+      labels = c("observed", "missing")
+    )) 
+  
+  # plot
+  p <- d %>% ggplot2::ggplot(ggplot2::aes(x = .data[[x]],
+                                          color = conditional,
+                                          fill = "white")) +
+    geom +
+    # split by conditional variable
+    ggplot2::facet_wrap(
+      ~ conditional,
+      ncol = 1,
+      scales = "free_y",
+      labeller = ggplot2::labeller(conditional = facet_labs)
+    ) +
+    # style
+    ggplot2::scale_color_manual(
+        values = c(
+          "observed" = mice:::mdc(1),
+          "missing" = mice:::mdc(2),
+          "imputed" = mice:::mdc(2)
+        )
+      ) +
+      ggplot2::scale_fill_manual(
+        values = c(
+          "observed" = mice:::mdc(1),
+          "missing" = mice:::mdc(2),
+          "imputed" = mice:::mdc(2)
+        )
+      ) +
+      ggplot2::scale_size_manual(values = c(
+        "observed" = 1,
+        "imputed" = 0.5
+      )) +
+      ggplot2::labs(
+        color = NULL,
+        fill = NULL,
+        size = NULL
+      ) +
+    theme_classic() +
+    ggplot2::theme(
+      legend.position = "none",
+      strip.background = ggplot2::element_rect(size = 0.5)
+    ) +
+    labs(title = paste("Distribution of", x, "given missingness in", z))
+  # output
+  return(p)
+}
+

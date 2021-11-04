@@ -138,48 +138,71 @@ We'll use the IMPACT data (`metamisc::impact`) and a MAR/MNAR version of the `mi
 ## Case study I: IMPACT
 
 
-`impact` is traumatic brain injury data with patients clustered in studies, $n_{\text{participants}} = 11022$ and $n_{\text{clusters}} = 15$, on the following 11 variables:
-    * `name` Name of the study,
-    * `type` Type of study (RCT: randomized controlled trial, OBS: observational cohort),
-    * `age` Age of the patient,
-    * `motor_score` Glasgow Coma Scale motor score,
-    * `pupil` Pupillary reactivity,
-    * `ct` Marshall Computerized Tomography classification,
-    * `hypox` Hypoxia (0=no, 1=yes),
-    * `hypots` Hypotension (0=no, 1=yes),
-    * `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
-    * `edh` Epidural hematoma (0=no, 1=yes),
-    * `mort` 6-month mortality (0=alive, 1=dead).
+- What does the data look like? `impact` is traumatic brain injury data with patients clustered in studies, $n_{\text{participants}} = 11022$ and $n_{\text{clusters}} = 15$, on the following 11 variables:
+
+  - `name` Name of the study,
+  - `type` Type of study (RCT: randomized controlled trial, OBS: observational cohort),
+  - `age` Age of the patient,
+  - `motor_score` Glasgow Coma Scale motor score,
+  - `pupil` Pupillary reactivity,
+  - `ct` Marshall Computerized Tomography classification,
+  - `hypox` Hypoxia (0=no, 1=yes),
+  - `hypots` Hypotension (0=no, 1=yes),
+  - `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+  - `edh` Epidural hematoma (0=no, 1=yes),
+  - `mort` 6-month mortality (0=alive, 1=dead).
 
 
-```{r impact}
+```{r impact, echo=FALSE}
 # load data
 data("impact")
 # # descriptive statistics
 # by(impact, impact$name, summary) 
 # psych::describe(impact)[,c(2:5,8:9)]
 # missingness
-md_pat(impact)
+plot_md_pat(impact)
 ```
 -> Why are there no missings? According to the [vignette](https://cran.r-project.org/web/packages/metamisc/metamisc.pdf), the data is already imputed (Steyerberg et al, 2008).
 
 
 ## Case Study II: Popularity
 
-`popNCR` is a simulated dataset with pupils clustered in classes, $n_{\text{participants}} = 2000$, $n_{\text{clusters}} = 100$, on 7 variables: 
-    * `pupil`	Pupil number within class,
-    * `class`	Class number,
-    * `extrav`	Pupil extraversion,
-    * `sex`	Pupil gender,
-    * `texp`	Teacher experience (years),
-    * `popular`	Pupil popularity,
-    * `popteach`	Teacher popularity.
+- What does the data look like? `popNCR` is a simulated dataset with pupils clustered in classes, $n_{\text{participants}} = 2000$, $n_{\text{clusters}} = 100$, on 7 variables: 
 
-```{r pop}
+  - `pupil`	Pupil number within class,
+  - `class`	Class number,
+  - `extrav`	Pupil extraversion,
+  - `sex`	Pupil gender,
+  - `texp`	Teacher experience (years),
+  - `popular`	Pupil popularity,
+  - `popteach`	Teacher popularity.
+  
+
+```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
 # load data
 pop <- readRDS("../Data/popNCR.RDS")
+# ICCs
+icc_pop <- multilevel::ICC1(aov(popular ~ as.factor(class), data = pop))
+icc_teach <- multilevel::ICC1(aov(popteach ~ as.factor(class), data = pop))
+```
+- What are the ICCs? For `popular` the ICC is `r round(icc_pop, 2)`. For `popteach` it is `r round(icc_teach, 2)`.
+
+- What does the missingness look like? Induced MAR/MNAR missingness. Missing data pattern:
+
+```{r pop_pat, echo=FALSE, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
 # missingness
-md_pat(pop)
+plot_md_pat(pop)
+```
+
+- Does the missing data of popular depend on popteach? One could for example check this by making a histogram of popteach separately for the pupils with known popularity and missing popularity. We do see that the histogram for the missing popular (TRUE) is further to the right than the histogram for observed popular (FALSE). This would indicate a right-tailed MAR missingness. In fact this is exactly what happens, because we created the missingness in these data ourselves. But we can make it observable by examining the relations between the missingness in popular and the observed data in popteach.
+
+- Does the missingness in teacher popularity depend on pupil popularity? Yes: there is a dependency. The relation seems to be right-tailed.
+
+
+```{r pop_dist, echo=FALSE, message=FALSE, warning=FALSE}
+# distributions
+plot_NA_cond(pop, x = "popteach", z = "popular", bins = 1)
+plot_NA_cond(pop, x = "popular", z = "popteach", bins = 1)
 ```
 
 
@@ -189,22 +212,27 @@ md_pat(pop)
 
 - Note on model complexity: Typically, we should at least use random intercepts, but often random slopes as well. Ideally we impute with random everything and heteroscedastic errors: most generic method (no worry about congeniality, but don't mention the term) ->  Refer to other papers for background, we'll focus just on the software implementation of the situations mentioned there. Sometimes there's little reason to assume some variable is affected by heterogeneity. -> Refer to Meng, Vincent, and a paper by Grund on congeniality and random slopes. 
 
-- Step 0: study as a predictor, AKA multilevel imputation for dummies. Doesn't work for syst missing. 
+- Step 0: As predictor
 
-## Conditional models
+- Step 1: Random intercepts
 
-- How to define the imputation model(s) in `mice`?
-
-- What do the different implementations look like?
-
-- Step 1: Intercept
-
-- Step 2: Slope
+- Step 2: Random slopes
 
 - Step 3: Residuals
 
 - Heckman model for MNAR
 
+- What do the different implementations look like? How to define the imputation model(s) in `mice`?
+
+## Step 0
+
+- AKA multilevel imputation for dummies. 
+
+- Doesn't work for systematic missingness. 
+
+## Step 1-3
+
+- TODO: fill in.
 
 ## Pooling
 
