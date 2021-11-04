@@ -62,11 +62,11 @@ plot_col <- mice:::mdc(1:2) %>% setNames(c("observed", "missing"))
 
 - What do we mean by clustering? In the medical field: Clustering by studies (IPDMA), hospitals in registries, multi-center studies etc. In other fields: e.g. official stats clustering at country-level, or social sciences clustering at school-level (related to the sampling design).
 
-- What is heterogeniety? I.e. variability within studies vs. variability between studies
+- What is heterogeneity? I.e. variability within studies vs. variability between studies
 
 - What does multilevel data look like? ADD: figure to show difference between patient-level datapoints vs cluster-level datapoints. Maybe also add different data frame formats (or just explain in text that there's long and wide formats).
 
-- What methods are required to analyze multilevel data?	Add references, e.g. @hox17. At least explain difference random effects for intercept term, predictor effects, and/or variance residual error. 
+- What methods are required to analyze multilevel data?	Add references, e.g. @hox17 and @jong21. At least explain difference random effects for intercept term, predictor effects, and/or variance residual error. 
 
 ## Missing data
 
@@ -110,11 +110,11 @@ ggplot(patterns, aes(
   labs(x = "Variable", y = "Cluster")
 ```
 
--	What kinds of missingness are there? ADD: missingness mechanisms here.
+-	What kinds of missingness are there? ADD: missingness mechanisms here. See e.g. @yuce08 and @hox15.
 
 - Why are standard (ad hoc) missing data methods not well suited? 
 
-- What types of multilevel methods are available? General overview of approaches, see @audi18 @grun18. E.g., imputation of study level versus patient-level covariates, and one-stage imputation versus two-stage imputation methods.
+- What types of multilevel methods are available? General overview of approaches, see @audi18 and @grun18. E.g., imputation of study level versus patient-level covariates, and one-stage imputation versus two-stage imputation methods.
 
 - Additional difficulty that is addressed in this tutorial: MNAR data.
 
@@ -123,20 +123,22 @@ ggplot(patterns, aes(
 
 - Provide practical guidelines with code snippets for imputation of incomplete multilevel data. 
 
-- We focus on the workflow for conditional modeling (not JOMO) in `mice`. Refer to other packages: `mitml`, `miceadds`.
+- We focus on the workflow for conditional modeling (not JOMO) in `mice`. Refer to other packages: `mitml`, `miceadds`, `mdmb`.
 
-- Case study options: `metamisc::impact` (real data on traumatic brain injuries, IPD), `mice::popularity` (simulated data with MNAR/MAR mixture, schools). -> Check Gelman's data/NSRI data.
+- Case study options: `metamisc::impact` (real IPD on traumatic brain injuries, without `NA`s), `mice::popularity` (simulated data on school kids, with MNAR/MAR mixture). TODO: Check example data Gelman.
 
-- Introduce case study and set scope of this tutorial: We're providing an overview of implementations. It's up-to the reader to decide which strategy suits their data. So we won't go into detail for the different methods (and equations). This paper is just a software tutorial. We'll keep it practical. -> ADD: some kind of help function that suggests a suitable pred matrix to the user, given a certain analysis model.
+- Introduce case study and set scope of this tutorial: We're providing an overview of implementations. It's up-to the reader to decide which strategy suits their data. So we won't go into detail for the different methods (and equations). This paper is just a software tutorial. We'll keep it practical. -> ADD: some kind of help function that suggests a suitable predictor matrix to the user, given a certain analysis model.
 
 
 # Workflows
 
-## Case study
+We'll use the IMPACT data (`metamisc::impact`) and a MAR/MNAR version of the `mice::popmis` data (i.e., a variation on the Hox (2010) popularity data, where the missingness in the variables is either missing at random (MAR) or missing not at random (MNAR)).
 
-- We'll use the IMPACT data (`metamisc::impact`) and a MAR/MNAR version of the `mice::popmis` data (i.e., a variation on the Hox (2010) popularity data, where the missingness in the variables is either missing at random (MAR) or missing not at random (MNAR)).
 
-- `impact` is traumatic brain injury data with patients clustered in studies, $n_{\text{participants}} = 11022$ and $n_{\text{clusters}} = 15$, on the following 11 variables:
+## Case study I: IMPACT
+
+
+`impact` is traumatic brain injury data with patients clustered in studies, $n_{\text{participants}} = 11022$ and $n_{\text{clusters}} = 15$, on the following 11 variables:
     * `name` Name of the study,
     * `type` Type of study (RCT: randomized controlled trial, OBS: observational cohort),
     * `age` Age of the patient,
@@ -161,7 +163,10 @@ md_pat(impact)
 ```
 -> Why are there no missings? According to the [vignette](https://cran.r-project.org/web/packages/metamisc/metamisc.pdf), the data is already imputed (Steyerberg et al, 2008).
 
-- `popNCR` is a simulated dataset with pupils clustered in classes, $n_{\text{participants}} = 2000$, $n_{\text{clusters}} = 100$, on 7 variables: 
+
+## Case Study II: Popularity
+
+`popNCR` is a simulated dataset with pupils clustered in classes, $n_{\text{participants}} = 2000$, $n_{\text{clusters}} = 100$, on 7 variables: 
     * `pupil`	Pupil number within class,
     * `class`	Class number,
     * `extrav`	Pupil extraversion,
@@ -207,9 +212,9 @@ md_pat(pop)
 
 - Pooling using `mitml`.
 
-- Pooling 'regular' parameters vs more 'exotic' parameters (SE of residual errors, or autocorreletion) 
+- Pooling 'regular' parameters vs more 'exotic' parameters (SE of residual errors, or autocorrelation) 
 
-- ADD: export mids objects to other packages like `lme4` or `coxme`(?) 
+- ADD: export `mids` objects to other packages like `lme4` or `coxme`? 
 
 
 # Discussion

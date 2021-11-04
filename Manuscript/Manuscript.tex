@@ -73,7 +73,7 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
   social sciences clustering at school-level (related to the sampling
   design).
 \item
-  What is heterogeniety? I.e. variability within studies vs.~variability
+  What is heterogeneity? I.e. variability within studies vs.~variability
   between studies
 \item
   What does multilevel data look like? ADD: figure to show difference
@@ -82,8 +82,9 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
   there's long and wide formats).
 \item
   What methods are required to analyze multilevel data? Add references,
-  e.g. \citet{hox17}. At least explain difference random effects for
-  intercept term, predictor effects, and/or variance residual error.
+  e.g. \citet{hox17} and \citet{jong21}. At least explain difference
+  random effects for intercept term, predictor effects, and/or variance
+  residual error.
 \end{itemize}
 
 \hypertarget{missing-data}{%
@@ -112,11 +113,12 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \begin{itemize}
 \item
   What kinds of missingness are there? ADD: missingness mechanisms here.
+  See e.g. \citet{yuce08} and \citet{hox15}.
 \item
   Why are standard (ad hoc) missing data methods not well suited?
 \item
   What types of multilevel methods are available? General overview of
-  approaches, see \citet{audi18} \citet{grun18}. E.g., imputation of
+  approaches, see \citet{audi18} and \citet{grun18}. E.g., imputation of
   study level versus patient-level covariates, and one-stage imputation
   versus two-stage imputation methods.
 \item
@@ -133,66 +135,45 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \item
   We focus on the workflow for conditional modeling (not JOMO) in
   \texttt{mice}. Refer to other packages: \texttt{mitml},
-  \texttt{miceadds}.
+  \texttt{miceadds}, \texttt{mdmb}.
 \item
-  Case study options: \texttt{metamisc::impact} (real data on traumatic
-  brain injuries, IPD), \texttt{mice::popularity} (simulated data with
-  MNAR/MAR mixture, schools). -\textgreater{} Check Gelman's data/NSRI
-  data.
+  Case study options: \texttt{metamisc::impact} (real IPD on traumatic
+  brain injuries, without \texttt{NA}s), \texttt{mice::popularity}
+  (simulated data on school kids, with MNAR/MAR mixture). TODO: Check
+  example data Gelman.
 \item
   Introduce case study and set scope of this tutorial: We're providing
   an overview of implementations. It's up-to the reader to decide which
   strategy suits their data. So we won't go into detail for the
   different methods (and equations). This paper is just a software
   tutorial. We'll keep it practical. -\textgreater{} ADD: some kind of
-  help function that suggests a suitable pred matrix to the user, given
-  a certain analysis model.
+  help function that suggests a suitable predictor matrix to the user,
+  given a certain analysis model.
 \end{itemize}
 
 \hypertarget{workflows}{%
 \section{Workflows}\label{workflows}}
 
-\hypertarget{case-study}{%
-\subsection{Case study}\label{case-study}}
+We'll use the IMPACT data (\texttt{metamisc::impact}) and a MAR/MNAR
+version of the \texttt{mice::popmis} data (i.e., a variation on the Hox
+(2010) popularity data, where the missingness in the variables is either
+missing at random (MAR) or missing not at random (MNAR)).
 
-\begin{itemize}
-\item
-  We'll use the IMPACT data (\texttt{metamisc::impact}) and a MAR/MNAR
-  version of the \texttt{mice::popmis} data (i.e., a variation on the
-  Hox (2010) popularity data, where the missingness in the variables is
-  either missing at random (MAR) or missing not at random (MNAR)).
-\item
-  \texttt{impact} is traumatic brain injury data with patients clustered
-  in studies, \(n_{\text{participants}} = 11022\) and
-  \(n_{\text{clusters}} = 15\), on the following 11 variables:
+\hypertarget{case-study-i-impact}{%
+\subsection{Case study I: IMPACT}\label{case-study-i-impact}}
 
-  \begin{itemize}
-  \tightlist
-  \item
-    \texttt{name} Name of the study,
-  \item
-    \texttt{type} Type of study (RCT: randomized controlled trial, OBS:
-    observational cohort),
-  \item
-    \texttt{age} Age of the patient,
-  \item
-    \texttt{motor\_score} Glasgow Coma Scale motor score,
-  \item
-    \texttt{pupil} Pupillary reactivity,
-  \item
-    \texttt{ct} Marshall Computerized Tomography classification,
-  \item
-    \texttt{hypox} Hypoxia (0=no, 1=yes),
-  \item
-    \texttt{hypots} Hypotension (0=no, 1=yes),
-  \item
-    \texttt{tsah} Traumatic subarachnoid hemorrhage (0=no, 1=yes),
-  \item
-    \texttt{edh} Epidural hematoma (0=no, 1=yes),
-  \item
-    \texttt{mort} 6-month mortality (0=alive, 1=dead).
-  \end{itemize}
-\end{itemize}
+\texttt{impact} is traumatic brain injury data with patients clustered
+in studies, \(n_{\text{participants}} = 11022\) and
+\(n_{\text{clusters}} = 15\), on the following 11 variables: *
+\texttt{name} Name of the study, * \texttt{type} Type of study (RCT:
+randomized controlled trial, OBS: observational cohort), * \texttt{age}
+Age of the patient, * \texttt{motor\_score} Glasgow Coma Scale motor
+score, * \texttt{pupil} Pupillary reactivity, * \texttt{ct} Marshall
+Computerized Tomography classification, * \texttt{hypox} Hypoxia (0=no,
+1=yes), * \texttt{hypots} Hypotension (0=no, 1=yes), * \texttt{tsah}
+Traumatic subarachnoid hemorrhage (0=no, 1=yes), * \texttt{edh} Epidural
+hematoma (0=no, 1=yes), * \texttt{mort} 6-month mortality (0=alive,
+1=dead).
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -212,42 +193,25 @@ R> md_pat(impact)
  \  \|/  /
   `-----'
 \end{CodeOutput}
-\begin{CodeOutput}
-      name type age motor_score pupil ct hypox hypots tsah edh mort  
-11022    1    1   1           1     1  1     1      1    1   1    1 0
-         0    0   0           0     0  0     0      0    0   0    0 0
-\end{CodeOutput}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-1} \end{center}
+
 \end{CodeChunk}
 
 -\textgreater{} Why are there no missings? According to the
 \href{https://cran.r-project.org/web/packages/metamisc/metamisc.pdf}{vignette},
 the data is already imputed (Steyerberg et al, 2008).
 
-\begin{itemize}
-\tightlist
-\item
-  \texttt{popNCR} is a simulated dataset with pupils clustered in
-  classes, \(n_{\text{participants}} = 2000\),
-  \(n_{\text{clusters}} = 100\), on 7 variables:
+\hypertarget{case-study-ii-popularity}{%
+\subsection{Case Study II: Popularity}\label{case-study-ii-popularity}}
 
-  \begin{itemize}
-  \tightlist
-  \item
-    \texttt{pupil} Pupil number within class,
-  \item
-    \texttt{class} Class number,
-  \item
-    \texttt{extrav} Pupil extraversion,
-  \item
-    \texttt{sex} Pupil gender,
-  \item
-    \texttt{texp} Teacher experience (years),
-  \item
-    \texttt{popular} Pupil popularity,
-  \item
-    \texttt{popteach} Teacher popularity.
-  \end{itemize}
-\end{itemize}
+\texttt{popNCR} is a simulated dataset with pupils clustered in classes,
+\(n_{\text{participants}} = 2000\), \(n_{\text{clusters}} = 100\), on 7
+variables: * \texttt{pupil} Pupil number within class, * \texttt{class}
+Class number, * \texttt{extrav} Pupil extraversion, * \texttt{sex} Pupil
+gender, * \texttt{texp} Teacher experience (years), * \texttt{popular}
+Pupil popularity, * \texttt{popteach} Teacher popularity.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -313,10 +277,10 @@ R> md_pat(pop)
   Pooling using \texttt{mitml}.
 \item
   Pooling `regular' parameters vs more `exotic' parameters (SE of
-  residual errors, or autocorreletion)
+  residual errors, or autocorrelation)
 \item
-  ADD: export mids objects to other packages like \texttt{lme4} or
-  \texttt{coxme}(?)
+  ADD: export \texttt{mids} objects to other packages like \texttt{lme4}
+  or \texttt{coxme}?
 \end{itemize}
 
 \hypertarget{discussion}{%

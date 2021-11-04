@@ -3,7 +3,7 @@ md_pat <- function(dat) {
   # get md pattern and store additional info
   pat <- mice::md.pattern(dat, plot = FALSE)
   vrb <- colnames(pat)[-ncol(pat)]
-  vrb_labs <- abbreviate(vrb)
+  vrb_labs <- abbreviate(vrb, minlength = 3)
   vrb_caption <- purrr::map2_chr(vrb_labs, vrb, ~{paste(.x, " = ", .y)}) %>% paste(collapse = ", ")
   colnames(pat) <- c(vrb, "NA_per_pat")
   pat_freq <- as.numeric(rownames(pat))[-nrow(pat)]
@@ -63,7 +63,7 @@ md_pat <- function(dat) {
       subtitle = paste0("Total number of missing entries: ",
                         NA_total,
                         "\n\n"),
-      caption = paste("\n Note.", vrb_caption)
+      caption = stringr::str_wrap(paste("\n\nNote.", vrb_caption))
     ) +
     ggplot2::geom_text(
       ggplot2::aes(
@@ -84,6 +84,7 @@ md_pat <- function(dat) {
         r = 10,
         unit = "pt"
       ),
+      plot.caption.position = "plot",
       axis.title.y.right = ggplot2::element_text(margin = ggplot2::margin(l = 10)),
       panel.grid = ggplot2::element_blank()
     ) +
