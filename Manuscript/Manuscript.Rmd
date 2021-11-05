@@ -39,9 +39,19 @@ bibliography: ../References/multilevelmice.bib
 
 ```{r, setup, include=FALSE}
 options(prompt = 'R> ', continue = '+ ')
+
+# packages
 library(tidyverse)
 library(mice)
+library(miceadds)
 library(metamisc)
+library(pan)
+
+# functions
+miceadds::source.all(path = "../R")
+
+# plot parameters
+plot_col <- mice:::mdc(1:2) %>% setNames(c("observed", "missing"))
 ```
 
 # Introduction
@@ -52,11 +62,11 @@ library(metamisc)
 
 - What do we mean by clustering? In the medical field: Clustering by studies (IPDMA), hospitals in registries, multi-center studies etc. In other fields: e.g. official stats clustering at country-level, or social sciences clustering at school-level (related to the sampling design).
 
-- What is heterogeniety? I.e. variability within studies vs. variability between studies
+- What is heterogeneity? I.e. variability within studies vs. variability between studies
 
 - What does multilevel data look like? ADD: figure to show difference between patient-level datapoints vs cluster-level datapoints. Maybe also add different data frame formats (or just explain in text that there's long and wide formats).
 
-- What methods are required to analyze multilevel data?	Add references, e.g. @hox17. At least explain difference random effects for intercept term, predictor effects, and/or variance residual error. 
+- What methods are required to analyze multilevel data?	Add references, e.g. @hox17 and @jong21. At least explain difference random effects for intercept term, predictor effects, and/or variance residual error. 
 
 ## Missing data
 
@@ -67,63 +77,133 @@ library(metamisc)
 ```{r patterns, echo=FALSE}
 # monotone vs non-monotone
 patterns <- rbind(
-  tibble(pat = rep("Systematic", 5), rownr = 5:1, X = rep(1, 5), Y = c(1,1,1,0, 0), Z = c(1, rep(0,4))) %>% pivot_longer(cols = c(X, Y, Z)),
-  tibble(pat = rep("Sporadic", 5), rownr = 5:1, X = c(0, rep(1,4)), Y = c(1,1,1,0, 0), Z = c(1, rep(0,3), 1)) %>% pivot_longer(cols = c(X, Y, Z))) %>%
-  mutate(across(everything(), as.factor))
-ggplot(patterns, aes(x = name, y = rownr, fill = value, type = pat)) +
+  tibble(
+    pat = rep("systematic", 5),
+    rownr = 5:1,
+    X1 = rep("observed", 5),
+    X2 = c(rep("observed", 3), rep("missing", 2)),
+    X3 = c(rep("missing", 3),  rep("observed", 2))
+  ) %>% pivot_longer(cols = c(X1, X2, X3)),
+  tibble(
+    pat = rep("sporadic", 5),
+    rownr = 5:1,
+    X1 = c("observed", "missing", rep("observed", 3)),
+    X2 = c(rep("observed", 2), rep("missing", 3)),
+    X3 = c(rep("missing", 3),  rep("observed", 2))
+  ) %>% pivot_longer(cols = c(X1, X2, X3))
+) %>%
+  mutate(across(everything(), as.factor),
+         pat = factor(pat, levels = c("systematic", "sporadic"), labels = c("Systematic missingness", "Sporadic missingness"), ordered = TRUE))
+# plot
+ggplot(patterns, aes(
+  x = name,
+  y = rownr,
+  fill = value,
+  type = pat
+)) +
   geom_tile(color = "black") +
-  scale_fill_brewer(palette = "Set1") +
-  facet_wrap(~pat) +
-  theme_void() +
-  theme(legend.position = "none") 
+  scale_y_discrete(labels = c(2, 2, 1, 1, 1)) +
+  scale_fill_manual(values = plot_col, name = "Datapoint") +
+  facet_wrap( ~ pat, ncol = 2) +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  labs(x = "Variable", y = "Cluster")
 ```
 
--	ADD: missingness mech here
+-	What kinds of missingness are there? ADD: missingness mechanisms here. See e.g. @yuce08 and @hox15.
 
 - Why are standard (ad hoc) missing data methods not well suited? 
 
-- What types of multilevel methods are available? General overview of approaches, see @audi18 @grun18. E.g., imputation of study level versus patient-level covariates, and one-stage imputation versus two-stage imputation methods.
+- What types of multilevel methods are available? General overview of approaches, see @audi18 and @grun18. E.g., imputation of study level versus patient-level covariates, and one-stage imputation versus two-stage imputation methods.
+
+- Additional difficulty that is addressed in this tutorial: MNAR data.
 
 
 ## Aim of this paper
 
 - Provide practical guidelines with code snippets for imputation of incomplete multilevel data. 
 
-- We focus on the workflow for conditional modeling (not JOMO) in `mice`. Refer to other packages: `mitml`, `miceadds`.
+- We focus on the workflow for conditional modeling (not JOMO) in `mice`. Refer to other packages: `mitml`, `miceadds`, `mdmb`.
 
-- Case study options: `metamisc::impact` (real data on traumatic brain injuries, IPD), `mice::popularity` (simulated data with MNAR/MAR mixture, schools). -> Check Gelman's data/NSRI data.
+- Case study options: `metamisc::impact` (real IPD on traumatic brain injuries, without `NA`s), `mice::popularity` (simulated data on school kids, with MNAR/MAR mixture). TODO: Check example data Gelman.
 
-- Introduce case study and set scope of this tutorial: We're providing an overview of implementations. It's up-to the reader to decide which strategy suits their data. So we won't go into detail for the different methods (and equations). This paper is just a software tutorial. We'll keep it practical. -> ADD: some kind of help function that suggests a suitable pred matrix to the user, given a certain analysis model.
+- Introduce case study and set scope of this tutorial: We're providing an overview of implementations. It's up-to the reader to decide which strategy suits their data. So we won't go into detail for the different methods (and equations). This paper is just a software tutorial. We'll keep it practical. -> ADD: some kind of help function that suggests a suitable predictor matrix to the user, given a certain analysis model.
 
 
 # Workflows
 
-## Case study
-
-- We'll use the IMPACT data (`metamisc::impact`) and simulated MNAR data (based on `mice::popularity`).
-
-- IMPACT: A data frame with 11022 observations on the following 11 variables:
-`name` Name of the study,
-`type` Type of study, RCT: randomized controlled trial,OBS: observational cohort,
-`age` Age of the patient,
-`motor_score` Glasgow Coma Scale motor score,
-`pupil` Pupillary reactivity,
-`ct` Marshall Computerized Tomography classification,
-`hypox` Hypoxia (0=no, 1=yes),
-`hypots` Hypotension (0=no, 1=yes),
-`tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
-`edh` Epidural hematoma (0=no, 1=yes),
-`mort` 6-month mortality (0=alive, 1=dead).
+We'll use the IMPACT data (`metamisc::impact`) and a MAR/MNAR version of the `mice::popmis` data (i.e., a variation on the Hox (2010) popularity data, where the missingness in the variables is either missing at random (MAR) or missing not at random (MNAR)).
 
 
-```{r impact}
+## Case study I: IMPACT
+
+
+- What does the data look like? `impact` is traumatic brain injury data with patients clustered in studies, $n_{\text{participants}} = 11022$ and $n_{\text{clusters}} = 15$, on the following 11 variables:
+
+  - `name` Name of the study,
+  - `type` Type of study (RCT: randomized controlled trial, OBS: observational cohort),
+  - `age` Age of the patient,
+  - `motor_score` Glasgow Coma Scale motor score,
+  - `pupil` Pupillary reactivity,
+  - `ct` Marshall Computerized Tomography classification,
+  - `hypox` Hypoxia (0=no, 1=yes),
+  - `hypots` Hypotension (0=no, 1=yes),
+  - `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+  - `edh` Epidural hematoma (0=no, 1=yes),
+  - `mort` 6-month mortality (0=alive, 1=dead).
+
+
+```{r impact, echo=FALSE}
 # load data
 data("impact")
-# descriptive statistics
-psych::describe(impact)[,c(2:5,8:9)]
+# # descriptive statistics
+# by(impact, impact$name, summary) 
+# psych::describe(impact)[,c(2:5,8:9)]
+# missingness
+plot_md_pat(impact)
+```
+-> Why are there no missings? According to the [vignette](https://cran.r-project.org/web/packages/metamisc/metamisc.pdf), the data is already imputed (Steyerberg et al, 2008).
+
+
+## Case Study II: Popularity
+
+- What does the data look like? `popNCR` is a simulated dataset with pupils clustered in classes, $n_{\text{participants}} = 2000$, $n_{\text{clusters}} = 100$, on 7 variables: 
+
+  - `pupil`	Pupil number within class,
+  - `class`	Class number,
+  - `extrav`	Pupil extraversion,
+  - `sex`	Pupil gender,
+  - `texp`	Teacher experience (years),
+  - `popular`	Pupil popularity,
+  - `popteach`	Teacher popularity.
+  
+
+```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
+# load data
+pop <- readRDS("../Data/popNCR.RDS")
+# ICCs
+icc_pop <- multilevel::ICC1(aov(popular ~ as.factor(class), data = pop))
+icc_teach <- multilevel::ICC1(aov(popteach ~ as.factor(class), data = pop))
+```
+- What are the ICCs? For `popular` the ICC is `r round(icc_pop, 2)`. For `popteach` it is `r round(icc_teach, 2)`.
+
+- What does the missingness look like? Induced MAR/MNAR missingness. Missing data pattern:
+
+```{r pop_pat, echo=FALSE, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+# missingness
+plot_md_pat(pop)
 ```
 
+- Does the missing data of popular depend on popteach? One could for example check this by making a histogram of popteach separately for the pupils with known popularity and missing popularity. We do see that the histogram for the missing popular (TRUE) is further to the right than the histogram for observed popular (FALSE). This would indicate a right-tailed MAR missingness. In fact this is exactly what happens, because we created the missingness in these data ourselves. But we can make it observable by examining the relations between the missingness in popular and the observed data in popteach.
 
+- Does the missingness in teacher popularity depend on pupil popularity? Yes: there is a dependency. The relation seems to be right-tailed.
+
+
+```{r pop_dist, echo=FALSE, message=FALSE, warning=FALSE}
+# distributions
+plot_NA_cond(pop, x = "popteach", z = "popular", bins = 1)
+plot_NA_cond(pop, x = "popular", z = "popteach", bins = 1)
+```
 
 
 ## Modeling choices
@@ -132,22 +212,27 @@ psych::describe(impact)[,c(2:5,8:9)]
 
 - Note on model complexity: Typically, we should at least use random intercepts, but often random slopes as well. Ideally we impute with random everything and heteroscedastic errors: most generic method (no worry about congeniality, but don't mention the term) ->  Refer to other papers for background, we'll focus just on the software implementation of the situations mentioned there. Sometimes there's little reason to assume some variable is affected by heterogeneity. -> Refer to Meng, Vincent, and a paper by Grund on congeniality and random slopes. 
 
-- Step 0: study as a predictor, AKA multilevel imputation for dummies. Doesn't work for syst missing. 
+- Step 0: As predictor
 
-## Conditional models
+- Step 1: Random intercepts
 
-- How to define the imputation model(s) in `mice`?
-
-- What do the different implementations look like?
-
-- Step 1: Intercept
-
-- Step 2: Slope
+- Step 2: Random slopes
 
 - Step 3: Residuals
 
 - Heckman model for MNAR
 
+- What do the different implementations look like? How to define the imputation model(s) in `mice`?
+
+## Step 0
+
+- AKA multilevel imputation for dummies. 
+
+- Doesn't work for systematic missingness. 
+
+## Step 1-3
+
+- TODO: fill in.
 
 ## Pooling
 
@@ -155,9 +240,9 @@ psych::describe(impact)[,c(2:5,8:9)]
 
 - Pooling using `mitml`.
 
-- Pooling 'regular' parameters vs more 'exotic' parameters (SE of residual errors, or autocorreletion) 
+- Pooling 'regular' parameters vs more 'exotic' parameters (SE of residual errors, or autocorrelation) 
 
-- ADD: export mids objects to other packages like `lme4` or `coxme`(?) 
+- ADD: export `mids` objects to other packages like `lme4` or `coxme`? 
 
 
 # Discussion
