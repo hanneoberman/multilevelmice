@@ -80,34 +80,49 @@ patterns <- rbind(
   tibble(
     pat = rep("systematic", 5),
     rownr = 5:1,
+    # obs = rep("observed", 5),
+    cluster = rep("observed", 5),
     X1 = rep("observed", 5),
     X2 = c(rep("observed", 3), rep("missing", 2)),
     X3 = c(rep("missing", 3),  rep("observed", 2))
-  ) %>% pivot_longer(cols = c(X1, X2, X3)),
+  ) %>% pivot_longer(cols = c(cluster, X1, X2, X3)),
   tibble(
     pat = rep("sporadic", 5),
     rownr = 5:1,
+    # obs = rep("observed", 5),
+    cluster = rep("observed", 5),
     X1 = c("observed", "missing", rep("observed", 3)),
     X2 = c(rep("observed", 2), rep("missing", 3)),
     X3 = c(rep("missing", 3),  rep("observed", 2))
-  ) %>% pivot_longer(cols = c(X1, X2, X3))
+  ) %>% pivot_longer(cols = c(cluster, X1, X2, X3))
 ) %>%
   mutate(across(everything(), as.factor),
-         pat = factor(pat, levels = c("systematic", "sporadic"), labels = c("Systematic missingness", "Sporadic missingness"), ordered = TRUE))
+         pat = factor(pat, levels = c("systematic", "sporadic"), labels = c("Systematic missingness", "Sporadic missingness"), ordered = TRUE),
+         text = rep(c(rep(c("1","", "", ""), 3), rep(c("2","", "", ""), 2)),2))
 # plot
 ggplot(patterns, aes(
   x = name,
   y = rownr,
-  fill = value,
-  type = pat
+  color = value,
+  type = pat,
+  width = 0.8, 
+  height = 0.8,
+  label = text
 )) +
-  geom_tile(color = "black") +
-  scale_y_discrete(labels = c(2, 2, 1, 1, 1)) +
-  scale_fill_manual(values = plot_col, name = "Datapoint") +
-  facet_wrap( ~ pat, ncol = 2) +
+  geom_tile(fill = "white", size = 2) +
+  geom_text() +
+  scale_x_discrete(position = "top") +
+  scale_y_discrete(labels = 5:1) +
+  scale_color_manual(values = plot_col, name = "Datapoint") +
+  facet_wrap( ~ pat, ncol = 2, strip.position = "bottom") +
   theme_minimal() +
-  theme(legend.position = "bottom") +
-  labs(x = "Variable", y = "Cluster")
+  theme(
+    legend.position = "none", 
+    panel.grid.major = element_blank()) +
+  labs(x = "", y = "Observation (e.g., patient)")
+# TODO: add patient nr and cluster
+# TODO: add grid.lines = "none"
+
 ```
 
 -	What kinds of missingness are there? ADD: missingness mechanisms here. See e.g. @yuce08 and @hox15.
@@ -132,7 +147,17 @@ ggplot(patterns, aes(
 
 # Workflows
 
-We'll use the IMPACT data (`metamisc::impact`) and a MAR/MNAR version of the `mice::popmis` data (i.e., a variation on the Hox (2010) popularity data, where the missingness in the variables is either missing at random (MAR) or missing not at random (MNAR)).
+We'll use the IMPACT data (`metamisc::impact`) and a MAR/MNAR version of the `mice::popmis` data (i.e., a variation on the Hox (2010) popularity data, where the missingness in the variables is either missing at random (MAR) or missing not at random (MNAR)). -> ask whether we can use the Heckman repo data or simulate data ourselves
+
+Heckman options:
+
+- leiden85
+
+- GJRM::hiv (https://rdrr.io/github/egeminiani/GJRM/man/hiv.html)
+
+- simulating
+
+- IMPACT
 
 
 ## Case study I: IMPACT
@@ -161,9 +186,13 @@ data("impact")
 # psych::describe(impact)[,c(2:5,8:9)]
 # missingness
 plot_md_pat(impact)
+# TODO: rotate variable labels
 ```
 -> Why are there no missings? According to the [vignette](https://cran.r-project.org/web/packages/metamisc/metamisc.pdf), the data is already imputed (Steyerberg et al, 2008).
 
+- MAR miss varying by cluster. Obs data patt differ per cluster. E.g., in cluster 1 miss depends on age but not in cluster two. Split the dataframe and run `ampute()` on each cluster. -> TODO: also make MNAR missingness to heckman model. Maybe based on `ct` variable? Inclusion-selection variable. -> otherwise: use `leiden85` data on blood pressure with MNAR. Then run cox regression like the boshuizen article but with living situation as clusters. -> TODO: get analyses from https://www.gerkovink.com/mimp/Contents/Exercises/Day%203%20-%20Wednesday/Sensitivity_analysis/Sensitivity_analysis.html.
+
+- ADD: `multilevel_ampute()` wrapper function in `mice`.
 
 ## Case Study II: Popularity
 
@@ -185,34 +214,45 @@ pop <- readRDS("../Data/popNCR.RDS")
 icc_pop <- multilevel::ICC1(aov(popular ~ as.factor(class), data = pop))
 icc_teach <- multilevel::ICC1(aov(popteach ~ as.factor(class), data = pop))
 ```
-- What are the ICCs? For `popular` the ICC is `r round(icc_pop, 2)`. For `popteach` it is `r round(icc_teach, 2)`.
+- What are the ICCs? For `popular` the ICC is `r round(icc_pop, 2)`. For `popteach` it is `r round(icc_teach, 2)`. It would be wise to use multilevel modeling.
 
 - What does the missingness look like? Induced MAR/MNAR missingness. Missing data pattern:
 
 ```{r pop_pat, echo=FALSE, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
 # missingness
 plot_md_pat(pop)
+# TODO: add pattern by cluster, text mining example square size
+# TODO: try to make it a shepley plot 
 ```
 
-- Does the missing data of popular depend on popteach? One could for example check this by making a histogram of popteach separately for the pupils with known popularity and missing popularity. We do see that the histogram for the missing popular (TRUE) is further to the right than the histogram for observed popular (FALSE). This would indicate a right-tailed MAR missingness. In fact this is exactly what happens, because we created the missingness in these data ourselves. But we can make it observable by examining the relations between the missingness in popular and the observed data in popteach.
-
-- Does the missingness in teacher popularity depend on pupil popularity? Yes: there is a dependency. The relation seems to be right-tailed.
+- Does the missing data of `popular` depend on `popteach`? One could for example check this by making a histogram of `popteach` separately for the pupils with known popularity and missing popularity. And the other way around: Does the missingness in teacher popularity depend on pupil popularity? 
 
 
 ```{r pop_dist, echo=FALSE, message=FALSE, warning=FALSE}
 # distributions
 plot_NA_cond(pop, x = "popteach", z = "popular", bins = 1)
 plot_NA_cond(pop, x = "popular", z = "popteach", bins = 1)
+# TODO: check if up-side-down plot works
+# or maybe overlapping densities
+# TODO: check smoothing in geom_density function and make it the inverse of the sample size
+# TODO: add functions to mice
 ```
+
+-  We do see that the histogram for the missing `popular` is further to the right than the histogram for observed `popular`. This would indicate a right-tailed MAR missingness. In fact this is exactly what happens, because we created the missingness in these data ourselves. But we made it observable by examining the relations between the missingness in popular and the observed data in `popteach`. There is also a dependency between the missingness in teacher popularity and pupil popularity. The relation seems to be right-tailed.
+
+
+## Amputation
+
+- 
 
 
 ## Modeling choices
 
 - Which models will we discuss? We'll build the model to grow in complexity. The final model is the most complex but also the most versatile. 
 
-- Note on model complexity: Typically, we should at least use random intercepts, but often random slopes as well. Ideally we impute with random everything and heteroscedastic errors: most generic method (no worry about congeniality, but don't mention the term) ->  Refer to other papers for background, we'll focus just on the software implementation of the situations mentioned there. Sometimes there's little reason to assume some variable is affected by heterogeneity. -> Refer to Meng, Vincent, and a paper by Grund on congeniality and random slopes. 
+- Note on model complexity: Typically, we should at least use random intercepts, but often random slopes as well. Ideally we impute with random everything and heteroscedastic errors: most generic method (no worry about congeniality, but don't mention the term) ->  Refer to other papers for background, we'll focus just on the software implementation of the situations mentioned there. Sometimes there's little reason to assume some variable is affected by heterogeneity. -> Refer to @meng94, an Audigier paper, and a paper by Grund on congeniality and random slopes. 
 
-- Step 0: As predictor
+- Step 0: As predictor + CCA to scare off users
 
 - Step 1: Random intercepts
 
@@ -230,7 +270,7 @@ plot_NA_cond(pop, x = "popular", z = "popteach", bins = 1)
 
 - Doesn't work for systematic missingness. 
 
-## Step 1-3
+## Step 1-3 + MNAR
 
 - TODO: fill in.
 

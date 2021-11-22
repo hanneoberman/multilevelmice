@@ -158,6 +158,21 @@ We'll use the IMPACT data (\texttt{metamisc::impact}) and a MAR/MNAR
 version of the \texttt{mice::popmis} data (i.e., a variation on the Hox
 (2010) popularity data, where the missingness in the variables is either
 missing at random (MAR) or missing not at random (MNAR)).
+-\textgreater{} ask whether we can use the Heckman repo data or simulate
+data ourselves
+
+Heckman options:
+
+\begin{itemize}
+\item
+  leiden85
+\item
+  GJRM::hiv
+\item
+  simulating
+\item
+  IMPACT
+\end{itemize}
 
 \hypertarget{case-study-i-impact}{%
 \subsection{Case study I: IMPACT}\label{case-study-i-impact}}
@@ -216,6 +231,21 @@ missing at random (MAR) or missing not at random (MNAR)).
 \href{https://cran.r-project.org/web/packages/metamisc/metamisc.pdf}{vignette},
 the data is already imputed (Steyerberg et al, 2008).
 
+\begin{itemize}
+\item
+  MAR miss varying by cluster. Obs data patt differ per cluster. E.g.,
+  in cluster 1 miss depends on age but not in cluster two. Split the
+  dataframe and run \texttt{ampute()} on each cluster. -\textgreater{}
+  TODO: also make MNAR missingness to heckman model. Maybe based on
+  \texttt{ct} variable? Inclusion-selection variable. -\textgreater{}
+  otherwise: use \texttt{leiden85} data on blood pressure with MNAR.
+  Then run cox regression like the boshuizen article but with living
+  situation as clusters. -\textgreater{} TODO: get analyses from
+  \url{https://www.gerkovink.com/mimp/Contents/Exercises/Day\%203\%20-\%20Wednesday/Sensitivity_analysis/Sensitivity_analysis.html}.
+\item
+  ADD: \texttt{multilevel\_ampute()} wrapper function in \texttt{mice}.
+\end{itemize}
+
 \hypertarget{case-study-ii-popularity}{%
 \subsection{Case Study II: Popularity}\label{case-study-ii-popularity}}
 
@@ -244,7 +274,8 @@ the data is already imputed (Steyerberg et al, 2008).
   \end{itemize}
 \item
   What are the ICCs? For \texttt{popular} the ICC is 0.33. For
-  \texttt{popteach} it is 0.31.
+  \texttt{popteach} it is 0.31. It would be wise to use multilevel
+  modeling.
 \item
   What does the missingness look like? Induced MAR/MNAR missingness.
   Missing data pattern:
@@ -258,19 +289,13 @@ the data is already imputed (Steyerberg et al, 2008).
 \end{CodeChunk}
 
 \begin{itemize}
+\tightlist
 \item
-  Does the missing data of popular depend on popteach? One could for
-  example check this by making a histogram of popteach separately for
-  the pupils with known popularity and missing popularity. We do see
-  that the histogram for the missing popular (TRUE) is further to the
-  right than the histogram for observed popular (FALSE). This would
-  indicate a right-tailed MAR missingness. In fact this is exactly what
-  happens, because we created the missingness in these data ourselves.
-  But we can make it observable by examining the relations between the
-  missingness in popular and the observed data in popteach.
-\item
-  Does the missingness in teacher popularity depend on pupil popularity?
-  Yes: there is a dependency. The relation seems to be right-tailed.
+  Does the missing data of \texttt{popular} depend on \texttt{popteach}?
+  One could for example check this by making a histogram of
+  \texttt{popteach} separately for the pupils with known popularity and
+  missing popularity. And the other way around: Does the missingness in
+  teacher popularity depend on pupil popularity?
 \end{itemize}
 
 \begin{CodeChunk}
@@ -283,6 +308,28 @@ the data is already imputed (Steyerberg et al, 2008).
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_dist-2} \end{center}
 
 \end{CodeChunk}
+
+\begin{itemize}
+\tightlist
+\item
+  We do see that the histogram for the missing \texttt{popular} is
+  further to the right than the histogram for observed \texttt{popular}.
+  This would indicate a right-tailed MAR missingness. In fact this is
+  exactly what happens, because we created the missingness in these data
+  ourselves. But we made it observable by examining the relations
+  between the missingness in popular and the observed data in
+  \texttt{popteach}. There is also a dependency between the missingness
+  in teacher popularity and pupil popularity. The relation seems to be
+  right-tailed.
+\end{itemize}
+
+\hypertarget{amputation}{%
+\subsection{Amputation}\label{amputation}}
+
+\begin{itemize}
+\tightlist
+\item
+\end{itemize}
 
 \hypertarget{modeling-choices}{%
 \subsection{Modeling choices}\label{modeling-choices}}
@@ -300,10 +347,10 @@ the data is already imputed (Steyerberg et al, 2008).
   Refer to other papers for background, we'll focus just on the software
   implementation of the situations mentioned there. Sometimes there's
   little reason to assume some variable is affected by heterogeneity.
-  -\textgreater{} Refer to Meng, Vincent, and a paper by Grund on
-  congeniality and random slopes.
+  -\textgreater{} Refer to \citet{meng94}, an Audigier paper, and a
+  paper by Grund on congeniality and random slopes.
 \item
-  Step 0: As predictor
+  Step 0: As predictor + CCA to scare off users
 \item
   Step 1: Random intercepts
 \item
@@ -327,8 +374,8 @@ the data is already imputed (Steyerberg et al, 2008).
   Doesn't work for systematic missingness.
 \end{itemize}
 
-\hypertarget{step-1-3}{%
-\subsection{Step 1-3}\label{step-1-3}}
+\hypertarget{step-1-3-mnar}{%
+\subsection{Step 1-3 + MNAR}\label{step-1-3-mnar}}
 
 \begin{itemize}
 \tightlist
