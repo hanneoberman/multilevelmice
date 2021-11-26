@@ -209,7 +209,7 @@ plot_md_pat(impact)
 
 ```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
 # load data
-pop <- readRDS("../Data/popNCR.RDS")
+pop <- readRDS("Data/popNCR.RDS")
 # ICCs
 icc_pop <- multilevel::ICC1(aov(popular ~ as.factor(class), data = pop))
 icc_teach <- multilevel::ICC1(aov(popteach ~ as.factor(class), data = pop))
@@ -225,21 +225,110 @@ plot_md_pat(pop)
 # TODO: try to make it a shepley plot 
 ```
 
-- Does the missing data of `popular` depend on `popteach`? One could for example check this by making a histogram of `popteach` separately for the pupils with known popularity and missing popularity. And the other way around: Does the missingness in teacher popularity depend on pupil popularity? 
+- Does the missing data of `popular` depend on `popteach`? Does the missingness in teacher popularity depend on pupil popularity? -> Check this by making a histogram of `popteach` separately for the pupils with known popularity and missing popularity, and the other way around. 
 
 
 ```{r pop_dist, echo=FALSE, message=FALSE, warning=FALSE}
 # distributions
-plot_NA_cond(pop, x = "popteach", z = "popular", bins = 1)
-plot_NA_cond(pop, x = "popular", z = "popteach", bins = 1)
+# plot_NA_cond(pop, x = "popteach", z = "popular", bins = 1)
+# plot_NA_cond(pop, x = "popular", z = "popteach", bins = 1)
 # TODO: check if up-side-down plot works
 # or maybe overlapping densities
 # TODO: check smoothing in geom_density function and make it the inverse of the sample size
 # TODO: add functions to mice
+
+miss_col <- mice:::mdc(1:2) %>% setNames(c("FALSE", "TRUE"))
+
+# x = "popular"
+# z = "popteach"
+plot_conditional <- function(data, x, z, ...){
+  ggplot(data, aes(x = get(x), color = !is.na(get(z)))) +
+  geom_density() +
+  scale_color_manual(values = miss_col, name = paste("Missing", z)) +
+  theme_classic() +
+  theme(legend.position = "bottom") +
+  labs(x = x)
+}
+plot_conditional(pop, x = "popular", z = "popteach")
+plot_conditional(pop, x = "popteach", z = "popular")
 ```
 
--  We do see that the histogram for the missing `popular` is further to the right than the histogram for observed `popular`. This would indicate a right-tailed MAR missingness. In fact this is exactly what happens, because we created the missingness in these data ourselves. But we made it observable by examining the relations between the missingness in popular and the observed data in `popteach`. There is also a dependency between the missingness in teacher popularity and pupil popularity. The relation seems to be right-tailed.
+-  We do see that the distribution for the missing `popular` is further to the right than the distribution for observed `popular`. This would indicate a right-tailed MAR missingness. In fact this is exactly what happens, because we created the missingness in these data ourselves. But we made it observable by examining the relations between the missingness in popular and the observed data in `popteach`. There is also a dependency between the missingness in teacher popularity and pupil popularity. The relation seems to be right-tailed as well.
 
+- We can impute the missingness the 'standard' way, ignoring the multilevel structure of the data. This is surely invalid, given the high ICCs, but we'll do it anyways.
+
+- We'll use Bayesian linear regression to impute the continuous variables, and logistic regression to impute the binary variable `sex`. We do not use the observation identifier `pupil` or cluster identifier `class` as predictors to impute other variables.
+
+```{r pop-ignore}
+# dry run to get imputation parameters
+ini <- mice(pop, maxit = 0)
+
+# extract imputation methods and adjust
+(meth <- ini$meth)
+meth[c("extrav", "texp", "popular", "popteach")] <- "norm"
+
+# extract predictor matrix and adjust
+(pred <- ini$pred)
+pred[, c("class", "pupil")] <- 0
+
+# impute the data, ignoring the cluster structure
+imp_ignore <- mice(pop, m = 10, meth = meth, pred = pred, print = FALSE)
+
+# check convergence of the imputation model
+plot(imp_ignore)
+
+# compare descriptives before and after imputation
+psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
+psych::describe(mice::complete(imp_ignore))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
+
+# compare ICCs before and after imputation
+data.frame(vars = names(pop[c(6, 7, 5)]), 
+           observed = c(multilevel::ICC1(aov(popular ~ class, pop)), 
+                        multilevel::ICC1(aov(popteach ~ class, pop)), 
+                        multilevel::ICC1(aov(texp ~ class, pop))), 
+           norm     = c(multilevel::ICC1(aov(popular ~ class, complete(imp_ignore))), 
+                        multilevel::ICC1(aov(popteach ~ class, complete(imp_ignore))), 
+                        multilevel::ICC1(aov(texp ~ class, complete(imp_ignore)))))
+
+# further inspection of the imputations
+densityplot(imp_ignore)
+```
+
+- As the ICCs show, 100% of the variance in `texp` can be attributed to the clustering variable `class`. This tells us that the multilevel structure of the data should be taken into account. If we don't, we'll end up with incorrect imputations, biasing the effect of the clusters towards zero.
+
+- We can also observe that the teacher experience increases slightly after imputation. This is due to the MNAR missingness in `texp`. Higher values for `texp` have a larger probability to be missing. This may not a problem, however, if at least one pupil in each class has teacher experience recorded, we can deductively impute the correct (i.e. true) value for every pupil in the class. 
+
+- We'll now use `class` as a predictor to impute all other variables.
+
+```{r pop-predictor}
+# adjust the predictor matrix
+pred <- ini$pred 
+pred[, "pupil"] <- 0
+
+# impute the data, cluster as predictor
+imp_predictor <- mice(pop, m = 10, meth = meth, pred = pred, print = FALSE)
+
+# check convergence of the imputation model
+plot(imp_predictor)
+
+# compare descriptives before and after imputation
+psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
+psych::describe(mice::complete(imp_predictor))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
+
+# compare ICCs before and after imputation
+data.frame(vars = names(pop[c(6, 7, 5)]), 
+           observed = c(multilevel::ICC1(aov(popular ~ class, pop)), 
+                        multilevel::ICC1(aov(popteach ~ class, pop)), 
+                        multilevel::ICC1(aov(texp ~ class, pop))), 
+           norm     = c(multilevel::ICC1(aov(popular ~ class, complete(imp_predictor))), 
+                        multilevel::ICC1(aov(popteach ~ class, complete(imp_predictor))), 
+                        multilevel::ICC1(aov(texp ~ class, complete(imp_predictor)))))
+
+# further inspection of the imputations
+densityplot(imp_predictor)
+```
+
+- Now, we can clearly see that the imputed values of `texp` are higher than the observed values, which is in line with right-tailed MNAR. 
 
 ## Amputation
 
