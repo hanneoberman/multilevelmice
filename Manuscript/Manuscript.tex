@@ -61,31 +61,34 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \hypertarget{multilevel-data}{%
 \subsection{Multilevel data}\label{multilevel-data}}
 
-\begin{itemize}
-\item
-  What is clustering/multilevel data? In this paper, we discuss grouped
-  observations, not longitudinal data (within-patient clustering).
-  -\textgreater{} ADD: timeseries also in Discussion section.
-\item
-  What do we mean by clustering? In the medical field: Clustering by
-  studies (IPDMA), hospitals in registries, multi-center studies etc. In
-  other fields: e.g.~official stats clustering at country-level, or
-  social sciences clustering at school-level (related to the sampling
-  design).
-\item
-  What is heterogeneity? I.e. variability within studies vs.~variability
-  between studies
-\item
-  What does multilevel data look like? ADD: figure to show difference
-  between patient-level datapoints vs cluster-level datapoints. Maybe
-  also add different data frame formats (or just explain in text that
-  there's long and wide formats).
-\item
-  What methods are required to analyze multilevel data? Add references,
-  e.g. \citet{hox17} and \citet{jong21}. At least explain difference
-  random effects for intercept term, predictor effects, and/or variance
-  residual error.
-\end{itemize}
+We talk of multilevel data when there is some kind of hierarchy or
+clustering in a dataset. In the typical case, individuals are nested
+within groups, but there are many different types of multilevel data. In
+the medical field clustering occurs at e.g., the hospitals/center level
+in registry data, or at the study-level in meta-analyses (IPDMA). In the
+social sciences and official statistics we can find clustering e.g.~at
+the country-level, or as imposed by the sampling design. In this paper,
+we will refer to the grouping variable as `cluster', and the grouped
+variable as `(sample) unit'. For reasons of brevity, we only discuss
+clustering between units, not longitudinal data (within-unit
+clustering).
+
+Multilevel data requires special care when doing any sort of analysis.
+The cluster to which a unit belongs may influence the unit-level
+observations, and since clusters are made up of units, clusters depend
+on units as well \citep{hox17}. {[}Explain ICC here? The percentage of
+variance attributed to the cluster-level is expressed by the intra-class
+coefficient (ICC). The ICC can also be interpreted as the expected
+correlation between two randomly sampled units in same cluster.{]} These
+relations can and should be taken into account when developing analysis
+models for multilevel data. At least, such models include a separate
+intercept term for each cluster. But there may also be random predictor
+effects and/or random error terms (residual error variances), see e.g.
+\citet{hox17} and \citet{jong21}. Heterogeneity refers to variability
+within clusters vs.~variability between clusters. There are many names
+for models that take clustering into account. Some popular examples are
+`multilevel models', `hierarchical models', `mixed effect models' and
+`random effect models'.
 
 \hypertarget{missing-data}{%
 \subsection{Missing data}\label{missing-data}}
@@ -96,11 +99,16 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
   patient-level but also cluster-level.
 \item
   How can we categorize this? Systematic vs sporadic missingness, see
-  \citet{resc13}. ADD: visualization of systematic vs sporadic
-  missingness. Within systematic we have always missing (same value per
-  cluster) and non-measured variables (may differ per patient). TODO:
-  adjust md pattern to match text. -\textgreater{} syst may vary or same
-  for all patients (observations/participants).
+  \citet{resc13}. Within systematic we have two flavors: unobserved
+  constants (same value per cluster) and non-measured random variables
+  (which may differ per unit within clusters). In figure 1, we show a
+  dataset with units in the rows and variables in the columns, there are
+  5 units nested within 2 clusters, and 3 variables of interest.
+  Variable \texttt{X1} is completely observed. Variable \texttt{X2} is
+  systematically missing, \texttt{X3} is sporadically missing. The
+  unobserved value for units 4 and 5 on variable \texttt{X2} may be the
+  same or different, defining which type of systematic missingness is
+  happening.
 \end{itemize}
 
 \begin{CodeChunk}
@@ -343,14 +351,15 @@ R> pred[, c("class", "pupil")] <- 0
 R> pred 
 \end{CodeInput}
 \begin{CodeOutput}
-         pupil class extrav sex texp popular popteach
-pupil        0     0      1   1    1       1        1
-class        0     0      1   1    1       1        1
-extrav       0     0      0   1    1       1        1
-sex          0     0      1   0    1       1        1
-texp         0     0      1   1    0       1        1
-popular      0     0      1   1    1       0        1
-popteach     0     0      1   1    1       1        0
+         pupil class extrav sex texp popular popteach school
+pupil        0     0      1   1    1       1        1      1
+class        0     0      1   1    1       1        1      1
+extrav       0     0      0   1    1       1        1      1
+sex          0     0      1   0    1       1        1      1
+texp         0     0      1   1    0       1        1      1
+popular      0     0      1   1    1       0        1      1
+popteach     0     0      1   1    1       1        0      1
+school       0     0      1   1    1       1        1      0
 \end{CodeOutput}
 \begin{CodeInput}
 R> # impute the data, ignoring the cluster structure
@@ -380,6 +389,7 @@ sex*     1504  1.56    2.0   1   2.0  0.50
 texp     1024 11.80   12.0   2  25.0  6.26
 popular  1490  4.83    4.8   0   9.1  1.34
 popteach 1472  4.83    5.0   1  10.0  1.36
+school   2000  5.54    6.0   1  10.0  2.89
 \end{CodeOutput}
 \begin{CodeInput}
 R> psych::describe(mice::complete(imp_ignored))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
@@ -388,13 +398,19 @@ R> psych::describe(mice::complete(imp_ignored))[, c("n", "mean", "median", "min"
             n  mean median min   max    sd
 pupil    2000 10.65     11   1  26.0  5.97
 class*   2000 50.37     51   1 100.0 29.08
-extrav   2000  5.24      5   1  10.0  1.26
-sex*     2000  1.51      2   1   2.0  0.50
-texp     2000 12.63     13   2  25.0  6.27
-popular  2000  5.01      5   0   9.1  1.37
+extrav   2000  5.25      5   1  10.0  1.27
+sex*     2000  1.53      2   1   2.0  0.50
+texp     2000 12.48     12   2  25.0  6.29
+popular  2000  4.99      5   0   9.1  1.35
 popteach 2000  5.02      5   1  10.0  1.39
+school   2000  5.54      6   1  10.0  2.89
 \end{CodeOutput}
 \begin{CodeInput}
+R> # TODO: add stripplot with boxplot overlay instead of the tables (make pooled one thick on top)
+R> # TODO: pool mean median and sd
+R> # feedback Stef: numbers, continuous statistics such as means, and uncertainty estimates. So we can pool the sd's. And leave out the min and max, because those are not normally distr.
+R> # TODO: add FMI for each of the estimates? at least for the mean
+R> 
 R> # further inspection of the imputations
 R> densityplot(imp_ignored)
 \end{CodeInput}
@@ -417,9 +433,9 @@ R> ICCs
 \end{CodeInput}
 \begin{CodeOutput}
       vars incomplete   ignored
-1  popular  0.3280070 0.2743092
-2 popteach  0.3138658 0.2479930
-3     texp  1.0000000 0.4510366
+1  popular  0.3280070 0.2716802
+2 popteach  0.3138658 0.2528468
+3     texp  1.0000000 0.4395296
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -451,34 +467,42 @@ R> pred[, "pupil"] <- 0
 R> pred
 \end{CodeInput}
 \begin{CodeOutput}
-         pupil class extrav sex texp popular popteach
-pupil        0     1      1   1    1       1        1
-class        0     0      1   1    1       1        1
-extrav       0     1      0   1    1       1        1
-sex          0     1      1   0    1       1        1
-texp         0     1      1   1    0       1        1
-popular      0     1      1   1    1       0        1
-popteach     0     1      1   1    1       1        0
+         pupil class extrav sex texp popular popteach school
+pupil        0     1      1   1    1       1        1      1
+class        0     0      1   1    1       1        1      1
+extrav       0     1      0   1    1       1        1      1
+sex          0     1      1   0    1       1        1      1
+texp         0     1      1   1    0       1        1      1
+popular      0     1      1   1    1       0        1      1
+popteach     0     1      1   1    1       1        0      1
+school       0     1      1   1    1       1        1      0
 \end{CodeOutput}
 \begin{CodeInput}
 R> # impute the data, cluster as predictor
 R> imp_predictor <- mice(pop, maxit = 10, pred = pred, print = FALSE)
 \end{CodeInput}
 \begin{CodeOutput}
-Warning: Number of logged events: 190
+Warning: Number of logged events: 325
 \end{CodeOutput}
 \begin{CodeInput}
 R> # check logged events
 R> head(imp_predictor$loggedEvents)
 \end{CodeInput}
 \begin{CodeOutput}
-  it im      dep meth  out
-1  1  1  popular  pmm texp
-2  1  1 popteach  pmm texp
-3  1  2  popular  pmm texp
-4  1  2 popteach  pmm texp
-5  1  3  popular  pmm texp
-6  1  3 popteach  pmm texp
+  it im      dep   meth
+1  1  1   extrav    pmm
+2  1  1      sex logreg
+3  1  1     texp    pmm
+4  1  1  popular    pmm
+5  1  1 popteach    pmm
+6  1  1 popteach    pmm
+                                                                                                                                                                                                                                                       out
+1                                                                                                                                                                                                                                                   school
+2                                                                                                                                                                                                                                                   school
+3                                                                                                                                                                                                                                                   school
+4                                                                                                                                                                                                                                             texp, school
+5                                                                                                                                                                                                                                                     texp
+6 mice detected that your data are (nearly) multi-collinear.\nIt applied a ridge penalty to continue calculations, but the results can be unstable.\nDoes your dataset contain duplicates, linear transformation, or factors with unique respondent names?
 \end{CodeOutput}
 \begin{CodeInput}
 R> ## "The mice() function detects multicollinearity, and solves the problem by removing one or more predictors for the model", in this case texp is removed as predictor of popular and popteach.
@@ -507,19 +531,21 @@ sex*     1504  1.56    2.0   1   2.0  0.50
 texp     1024 11.80   12.0   2  25.0  6.26
 popular  1490  4.83    4.8   0   9.1  1.34
 popteach 1472  4.83    5.0   1  10.0  1.36
+school   2000  5.54    6.0   1  10.0  2.89
 \end{CodeOutput}
 \begin{CodeInput}
 R> psych::describe(mice::complete(imp_predictor))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
 \end{CodeInput}
 \begin{CodeOutput}
             n  mean median min   max    sd
-pupil    2000 10.65   11.0   1  26.0  5.97
-class*   2000 50.37   51.0   1 100.0 29.08
-extrav   2000  5.20    5.0   1  10.0  1.28
-sex*     2000  1.52    2.0   1   2.0  0.50
-texp     2000 14.26   15.0   2  25.0  6.55
-popular  2000  5.05    5.1   0   9.1  1.38
-popteach 2000  5.03    5.0   1  10.0  1.39
+pupil    2000 10.65     11   1  26.0  5.97
+class*   2000 50.37     51   1 100.0 29.08
+extrav   2000  6.20      6   1  10.0  2.00
+sex*     2000  1.52      2   1   2.0  0.50
+texp     2000 14.26     15   2  25.0  6.55
+popular  2000  5.03      5   0   9.1  1.35
+popteach 2000  5.03      5   1  10.0  1.38
+school   2000  5.54      6   1  10.0  2.89
 \end{CodeOutput}
 \begin{CodeInput}
 R> # further inspection of the imputations
@@ -540,9 +566,9 @@ R> ICCs
 \end{CodeInput}
 \begin{CodeOutput}
       vars incomplete   ignored predictor
-1  popular  0.3280070 0.2743092 0.3694899
-2 popteach  0.3138658 0.2479930 0.3335612
-3     texp  1.0000000 0.4510366 1.0000000
+1  popular  0.3280070 0.2716802 0.3550567
+2 popteach  0.3138658 0.2528468 0.3306035
+3     texp  1.0000000 0.4395296 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -642,7 +668,8 @@ R> ICCs
 \item
   Additional levels of clustering
 \item
-  Timeseries: and polynomial relationship in the clustering.
+  More complex data types: timeseries and polynomial relationship in the
+  clustering.
 \end{itemize}
 
 \renewcommand\refname{References}

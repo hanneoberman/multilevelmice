@@ -49,6 +49,7 @@ library(pan)
 
 # functions
 miceadds::source.all(path = "../R")
+icc <- function(formula, data){multilevel::ICC1(aov(formula, data))}
 
 # plot parameters
 plot_col <- mice:::mdc(1:2) %>% setNames(c("observed", "missing"))
@@ -58,68 +59,53 @@ plot_col <- mice:::mdc(1:2) %>% setNames(c("observed", "missing"))
 
 ## Multilevel data
 
-- What is clustering/multilevel data? In this paper, we discuss grouped observations, not longitudinal data (within-patient clustering).  -> ADD: timeseries also in Discussion section.
+We talk of multilevel data when there is some kind of hierarchy or clustering in a dataset. In the typical case, individuals are nested within groups, but there are many different types of multilevel data. In the medical field clustering occurs at e.g., the hospitals/center level in registry data, or at the study-level in meta-analyses (IPDMA). In the social sciences and official statistics we can find clustering e.g. at the country-level, or as imposed by the sampling design. In this paper, we will refer to the grouping variable as 'cluster', and the grouped variable as '(sample) unit'. For reasons of brevity, we only discuss clustering between units, not longitudinal data (within-unit clustering).
 
-- What do we mean by clustering? In the medical field: Clustering by studies (IPDMA), hospitals in registries, multi-center studies etc. In other fields: e.g. official stats clustering at country-level, or social sciences clustering at school-level (related to the sampling design).
-
-- What is heterogeneity? I.e. variability within studies vs. variability between studies
-
-- What does multilevel data look like? ADD: figure to show difference between patient-level datapoints vs cluster-level datapoints. Maybe also add different data frame formats (or just explain in text that there's long and wide formats).
-
-- What methods are required to analyze multilevel data?	Add references, e.g. @hox17 and @jong21. At least explain difference random effects for intercept term, predictor effects, and/or variance residual error. 
+Multilevel data requires special care when doing any sort of analysis. The cluster to which a unit belongs may influence the unit-level observations, and since clusters are made up of units, clusters depend on units as well [@hox17]. [Explain ICC here? The percentage of variance attributed to the cluster-level is expressed by the intra-class coefficient (ICC). The ICC can also be interpreted as the expected correlation between two randomly sampled units in same cluster.] These relations can and should be taken into account when developing analysis models for multilevel data. At least, such models include a separate intercept term for each cluster. But there may also be random predictor effects and/or random error terms (residual error variances), see e.g. @hox17 and @jong21. Heterogeneity refers to variability within clusters vs. variability between clusters. There are many names for models that take clustering into account. Some popular examples are 'multilevel models', 'hierarchical models', 'mixed effect models' and 'random effect models'.
 
 ## Missing data
 
 - Why/where does missingness occur in multilevel data? I.e., not only patient-level but also cluster-level.
 
-- How can we categorize this? Systematic vs sporadic missingness, see @resc13. ADD: visualization of systematic vs sporadic missingness. Within systematic we have always missing (same value per cluster) and non-measured variables (may differ per patient). TODO: adjust md pattern to match text. -> syst may vary or same for all patients (observations/participants).
+- How can we categorize this? Systematic vs sporadic missingness, see @resc13. Within systematic we have two flavors: unobserved constants (same value per cluster) and non-measured random variables (which may differ per unit within clusters). In figure 1, we show a dataset with units in the rows and variables in the columns, there are 5 units nested within 2 clusters, and 3 variables of interest. Variable `X1` is completely observed. Variable `X2` is systematically missing, `X3` is sporadically missing. The unobserved value for units 4 and 5 on variable `X2` may be the same or different, defining which type of systematic missingness is happening.
 
 ```{r patterns, echo=FALSE}
-# monotone vs non-monotone
-patterns <- rbind(
-  tibble(
-    pat = rep("systematic", 5),
+# missingness indicator plot (monotone vs non-monotone)
+miss_ind <- tibble(
     rownr = 5:1,
-    # obs = rep("observed", 5),
+    unit = rep("observed", 5),
     cluster = rep("observed", 5),
     X1 = rep("observed", 5),
     X2 = c(rep("observed", 3), rep("missing", 2)),
-    X3 = c(rep("missing", 3),  rep("observed", 2))
-  ) %>% pivot_longer(cols = c(cluster, X1, X2, X3)),
-  tibble(
-    pat = rep("sporadic", 5),
-    rownr = 5:1,
-    # obs = rep("observed", 5),
-    cluster = rep("observed", 5),
-    X1 = c("observed", "missing", rep("observed", 3)),
-    X2 = c(rep("observed", 2), rep("missing", 3)),
-    X3 = c(rep("missing", 3),  rep("observed", 2))
-  ) %>% pivot_longer(cols = c(cluster, X1, X2, X3))
-) %>%
-  mutate(across(everything(), as.factor),
-         pat = factor(pat, levels = c("systematic", "sporadic"), labels = c("Systematic missingness", "Sporadic missingness"), ordered = TRUE),
-         text = rep(c(rep(c("1","", "", ""), 3), rep(c("2","", "", ""), 2)),2))
+    X3 = c("missing", rep("observed", 3), "missing")
+  ) %>% pivot_longer(cols = c(unit, cluster, X1, X2, X3))
+
+# add text 
+miss_ind$text <- ""
+miss_ind[miss_ind$name == "unit", "text"] <- as.character(1:5)
+miss_ind[miss_ind$name == "cluster", "text"] <- as.character(c(1,1,1,2,2))
+  
 # plot
-ggplot(patterns, aes(
+miss_ind %>% 
+  mutate(name = factor(name, levels = unique(name))) %>% 
+ggplot(aes(
   x = name,
   y = rownr,
   color = value,
-  type = pat,
   width = 0.8, 
   height = 0.8,
   label = text
 )) +
   geom_tile(fill = "white", size = 2) +
-  geom_text() +
+  geom_text(show.legend = FALSE) +
   scale_x_discrete(position = "top") +
   scale_y_discrete(labels = 5:1) +
-  scale_color_manual(values = plot_col, name = "Datapoint") +
-  facet_wrap( ~ pat, ncol = 2, strip.position = "bottom") +
+  scale_color_manual(values = plot_col, name = "") +
   theme_minimal() +
   theme(
-    legend.position = "none", 
+    legend.position = "bottom", 
     panel.grid.major = element_blank()) +
-  labs(x = "", y = "Observation (e.g., patient)")
+  labs(x = "", y = "")
 # TODO: make it one plot with sporadic and systematic
 # TODO: participant/response/*sample units*/records instead of obs on the y axis
 
@@ -213,8 +199,9 @@ plot_md_pat(impact)
   
 
 ```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
-# load data
-pop <- readRDS("../Data/popNCR.RDS")
+# load data and merge classes into schools for this tutorial -> but this cannot work because how texp and popteach are defined...
+pop <- readRDS("../Data/popNCR.RDS") %>% mutate(school = round(0.5 + as.numeric(class)/10))
+
 # ICCs
 icc_pop <- multilevel::ICC1(aov(popular ~ as.factor(class), data = pop))
 icc_teach <- multilevel::ICC1(aov(popteach ~ as.factor(class), data = pop))
@@ -242,18 +229,21 @@ plot_md_pat(pop)
 # TODO: check smoothing in geom_density function and make it the inverse of the sample size
 # TODO: add functions to mice
 
-miss_col <- mice:::mdc(1:2) %>% setNames(c("FALSE", "TRUE"))
+plot_col <- mice:::mdc(c("obs", "mis")) %>% setNames(c("observed", "missing"))
 
 # x = "popular"
 # z = "popteach"
 plot_conditional <- function(data, x, z, cluster, ...){
-  ggplot(data, aes(x = get(x), color = !is.na(get(z)))) + # group = get(cluster)
-  geom_density(alpha = 0.01) +
-  scale_color_manual(values = miss_col, name = z) +
+  ggplot(data, aes(x = get(x), color = factor(is.na(get(z)), labels = c("missing", "observed")))) +
+  geom_density(data = data %>% filter(!is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[1], color = NA) +
+  geom_density(data = data %>% filter(is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[2], color = NA) +
+  geom_density() +
+  scale_color_manual(values = plot_col, name = z) +
   theme_classic() +
   theme(legend.position = "bottom") +
   labs(x = x)
 }
+
 plot_conditional(pop, x = "popular", z = "popteach", cluster = "class")
 plot_conditional(pop, x = "popteach", z = "popular", cluster = "class")
 # TODO: pooteach obs/mis
@@ -306,6 +296,7 @@ ICCs <- data.frame(
               multilevel::ICC1(aov(texp ~ class, complete(imp_ignored))))
   )
 ICCs
+
 
 ```
 
@@ -401,7 +392,7 @@ ICCs
 
 - Additional levels of clustering
 
-- Timeseries: and polynomial relationship in the clustering.
+- More complex data types: timeseries and polynomial relationship in the clustering.
 
 
 # References
