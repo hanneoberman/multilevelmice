@@ -97,6 +97,17 @@ models'.
 \hypertarget{missing-data}{%
 \subsection{Missing data}\label{missing-data}}
 
+\begin{CodeChunk}
+\begin{figure}
+
+{\centering \includegraphics{Manuscript_files/figure-latex/patterns-1} 
+
+}
+
+\caption[Missingness in multilevel data]{Missingness in multilevel data}\label{fig:patterns}
+\end{figure}
+\end{CodeChunk}
+
 Multilevel data is not spared the ubiquitous problem of missing
 information. Just as in single level data, missingness may occur at the
 unit level. But with multiple levels of data comes the potential for
@@ -130,13 +141,6 @@ yield valid inferences under many different missing data circumstances
 the context of multilevel data, under varying missing data
 mechanisms.\footnote{Discuss missingness mechanisms before this point,
   add references \citet{yuce08} and \citet{hox15}.}
-
-\begin{CodeChunk}
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/patterns-1} \end{center}
-
-\end{CodeChunk}
 
 \hypertarget{aim-of-this-paper}{%
 \subsection{Aim of this paper}\label{aim-of-this-paper}}
@@ -213,75 +217,81 @@ variables:
   \texttt{popteach} Teacher popularity.
 \end{itemize}
 
-\hypertarget{the-incomplete-data}{%
-\subsubsection{The incomplete data}\label{the-incomplete-data}}
-
-\begin{itemize}
-\tightlist
-\item
-  What does the missingness look like? Induced MAR/MNAR missingness.
-  Missing data pattern:
-\end{itemize}
+\hypertarget{incomplete-data}{%
+\subsubsection{Incomplete data}\label{incomplete-data}}
 
 \begin{CodeChunk}
+\begin{figure}
 
+{\centering \includegraphics{Manuscript_files/figure-latex/pop_pat-1} 
 
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_pat-1} \end{center}
+}
 
+\caption[Missing data pattern in the popularity data]{Missing data pattern in the popularity data}\label{fig:pop_pat}
+\end{figure}
 \end{CodeChunk}
 
-\begin{itemize}
-\item
-  What are the ICCs? For \texttt{popular} the ICC is 0.33. For
-  \texttt{popteach} it is 0.31. It would be wise to use multilevel
-  modeling.
-\item
-  Does the missing data of \texttt{popular} depend on \texttt{popteach}?
-  Does the missingness in teacher popularity depend on pupil popularity?
-  -\textgreater{} Check this by making a histogram of \texttt{popteach}
-  separately for the pupils with known popularity and missing
-  popularity, and the other way around.
-\end{itemize}
+The popularity data is created such that there are strong relations
+between the incomplete variables and the clustering variable
+\texttt{class}. We can express this using the intra-class correlation
+(ICC). For \texttt{popular} the ICC is 0.33. For \texttt{popteach} it is
+0.31. It would thus be wise to use multilevel modeling.
+
+The missingness in this dataset is induced conform MAR and MNAR
+mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows
+the systematic nature of the missingness.
+
+To develop the best imputation model, we need to know whether the
+missingness in one variable depends on the observed values of other
+variables. Visual inspection usually suffices. We'll highlight only two
+variables to illustrate, but ideally one would inspect all relations.
+The questions we'll ask are: `Does the missing data of \texttt{popular}
+depend on \texttt{popteach}?' and `Does the missingness in teacher
+popularity depend on pupil popularity?' We'll evaluate this by making a
+histogram of \texttt{popteach} separately for the pupils with known
+popularity and missing popularity, and the other way around.
+
+In Figure \ref{fig:pop_dist} we see that the distribution for the
+missing \texttt{popular} is further to the right than the distribution
+for observed \texttt{popular}. This would indicate a right-tailed MAR
+missingness. In fact, this is exactly what happens, because the
+missingness in these data was created manually. Now, we've made it
+observable by examining the relations between the missingness in popular
+and the observed data in \texttt{popteach}. There is also a dependency
+between the missingness in teacher popularity and pupil popularity. The
+relation seems to be right-tailed as well.
 
 \begin{CodeChunk}
+\begin{figure}
 
+{\centering \includegraphics{Manuscript_files/figure-latex/pop_dist-1} 
 
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_dist-1} \end{center}
+}
 
+\caption[Conditional distributions in the popularity data]{Conditional distributions in the popularity data}\label{fig:pop_dist-1}
+\end{figure}
+\begin{figure}
 
+{\centering \includegraphics{Manuscript_files/figure-latex/pop_dist-2} 
 
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_dist-2} \end{center}
+}
 
+\caption[Conditional distributions in the popularity data]{Conditional distributions in the popularity data}\label{fig:pop_dist-2}
+\end{figure}
 \end{CodeChunk}
 
-\begin{itemize}
-\tightlist
-\item
-  We do see that the distribution for the missing \texttt{popular} is
-  further to the right than the distribution for observed
-  \texttt{popular}. This would indicate a right-tailed MAR missingness.
-  In fact this is exactly what happens, because we created the
-  missingness in these data ourselves. But we made it observable by
-  examining the relations between the missingness in popular and the
-  observed data in \texttt{popteach}. There is also a dependency between
-  the missingness in teacher popularity and pupil popularity. The
-  relation seems to be right-tailed as well.
-\end{itemize}
+\hypertarget{imputation-model}{%
+\subsubsection{Imputation model}\label{imputation-model}}
 
-\hypertarget{the-imputation-model}{%
-\subsubsection{The imputation model}\label{the-imputation-model}}
+The first imputation model that we'll use is likely to be invalid. In
+this model, we ignore the multilevel structure of the data, despite the
+high ICCs. This is purely to illustrate the effects of ignoring the
+clustering in our imputation effort.
 
-\begin{itemize}
-\item
-  We could ignore the multilevel structure of the data. This is likely
-  invalid, given the high ICCs, but we'll do it anyways.
-\item
-  We'll use predictive mean matching to impute the continuous variables
-  (some appear to be somewhat ordinal), and logistic regression to
-  impute the binary variable \texttt{sex}. We do not use the observation
-  identifier \texttt{pupil} or cluster identifier \texttt{class} as
-  predictors to impute other variables.
-\end{itemize}
+We'll use predictive mean matching to impute the continuous variables
+and logistic regression to impute the binary variable \texttt{sex}. We
+do not use the observation identifier \texttt{pupil} or cluster
+identifier \texttt{class} as predictors to impute other variables.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -291,240 +301,78 @@ R>
 R> # extract predictor matrix and adjust
 R> pred <- ini$pred
 R> pred[, c("class", "pupil")] <- 0
-R> pred 
-\end{CodeInput}
-\begin{CodeOutput}
-         pupil class extrav sex texp popular popteach school
-pupil        0     0      1   1    1       1        1      1
-class        0     0      1   1    1       1        1      1
-extrav       0     0      0   1    1       1        1      1
-sex          0     0      1   0    1       1        1      1
-texp         0     0      1   1    0       1        1      1
-popular      0     0      1   1    1       0        1      1
-popteach     0     0      1   1    1       1        0      1
-school       0     0      1   1    1       1        1      0
-\end{CodeOutput}
-\begin{CodeInput}
+R> 
 R> # impute the data, ignoring the cluster structure
 R> imp_ignored <- mice(pop, maxit = 10, pred = pred, print = FALSE)
-R> 
-R> # check convergence of the imputation model
-R> plot(imp_ignored)
 \end{CodeInput}
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop-ignored-1} \end{center}
-
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop-ignored-2} \end{center}
-
-\begin{CodeInput}
-R> # compare descriptives before and after imputation
-R> psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
-\end{CodeInput}
-\begin{CodeOutput}
-            n  mean median min   max    sd
-pupil    2000 10.65   11.0   1  26.0  5.97
-class*   2000 50.37   51.0   1 100.0 29.08
-extrav   1484  5.31    5.0   1  10.0  1.29
-sex*     1504  1.56    2.0   1   2.0  0.50
-texp     1024 11.80   12.0   2  25.0  6.26
-popular  1490  4.83    4.8   0   9.1  1.34
-popteach 1472  4.83    5.0   1  10.0  1.36
-school   2000  5.54    6.0   1  10.0  2.89
-\end{CodeOutput}
-\begin{CodeInput}
-R> psych::describe(mice::complete(imp_ignored))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
-\end{CodeInput}
-\begin{CodeOutput}
-            n  mean median min   max    sd
-pupil    2000 10.65     11   1  26.0  5.97
-class*   2000 50.37     51   1 100.0 29.08
-extrav   2000  5.23      5   1  10.0  1.25
-sex*     2000  1.51      2   1   2.0  0.50
-texp     2000 12.55     12   2  25.0  6.27
-popular  2000  4.99      5   0   9.1  1.32
-popteach 2000  5.01      5   1  10.0  1.38
-school   2000  5.54      6   1  10.0  2.89
-\end{CodeOutput}
-\begin{CodeInput}
-R> # TODO: add stripplot with boxplot overlay instead of the tables (make pooled one thick on top)
-R> # TODO: pool mean median and sd
-R> # feedback Stef: numbers, continuous statistics such as means, and uncertainty estimates. So we can pool the sd's. And leave out the min and max, because those are not normally distr.
-R> # TODO: add FMI for each of the estimates? at least for the mean
-R> 
-R> # further inspection of the imputations
-R> densityplot(imp_ignored)
-\end{CodeInput}
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop-ignored-3} \end{center}
-
-\begin{CodeInput}
-R> # compare ICCs before and after imputation
-R> ICCs <- data.frame(
-+   vars = c("popular", "popteach", "texp"), 
-+   incomplete = c(multilevel::ICC1(aov(popular ~ class, pop)), 
-+                multilevel::ICC1(aov(popteach ~ class, pop)),
-+                multilevel::ICC1(aov(texp ~ class, pop))), 
-+   ignored = c(multilevel::ICC1(aov(popular ~ class, complete(imp_ignored))), 
-+               multilevel::ICC1(aov(popteach ~ class, complete(imp_ignored))), 
-+               multilevel::ICC1(aov(texp ~ class, complete(imp_ignored))))
-+   )
-R> ICCs
-\end{CodeInput}
-\begin{CodeOutput}
-      vars incomplete   ignored
-1  popular  0.3280070 0.2754195
-2 popteach  0.3138658 0.2467415
-3     texp  1.0000000 0.4443760
-\end{CodeOutput}
 \end{CodeChunk}
 
-\begin{itemize}
-\item
-  As the original ICCs show, 100\% of the variance in \texttt{texp} can
-  be attributed to the clustering variable \texttt{class}. This tells us
-  that the multilevel structure of the data should be taken into
-  account. If we don't, we'll end up with incorrect imputations, biasing
-  the effect of the clusters towards zero.
-\item
-  We can also observe that the teacher experience increases slightly
-  after imputation. This is due to the MNAR missingness in
-  \texttt{texp}. Higher values for \texttt{texp} have a larger
-  probability to be missing. This may not a problem, however, if at
-  least one pupil in each class has teacher experience recorded, we can
-  deductively impute the correct (i.e.~true) value for every pupil in
-  the class.
-\item
-  We'll now use \texttt{class} as a predictor to impute all other
-  variables.
-\end{itemize}
+\hypertarget{imputed-data}{%
+\subsubsection{Imputed data}\label{imputed-data}}
 
 \begin{CodeChunk}
-\begin{CodeInput}
-R> # adjust the predictor matrix
-R> pred <- ini$pred 
-R> pred[, "pupil"] <- 0
-R> pred
-\end{CodeInput}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_ignored_eval-1} \end{center}
+
 \begin{CodeOutput}
-         pupil class extrav sex texp popular popteach school
-pupil        0     1      1   1    1       1        1      1
-class        0     0      1   1    1       1        1      1
-extrav       0     1      0   1    1       1        1      1
-sex          0     1      1   0    1       1        1      1
-texp         0     1      1   1    0       1        1      1
-popular      0     1      1   1    1       0        1      1
-popteach     0     1      1   1    1       1        0      1
-school       0     1      1   1    1       1        1      0
-\end{CodeOutput}
-\begin{CodeInput}
-R> # impute the data, cluster as predictor
-R> imp_predictor <- mice(pop, maxit = 10, pred = pred, print = FALSE)
-\end{CodeInput}
-\begin{CodeOutput}
-Warning: Number of logged events: 312
-\end{CodeOutput}
-\begin{CodeInput}
-R> # check logged events
-R> head(imp_predictor$loggedEvents)
-\end{CodeInput}
-\begin{CodeOutput}
-  it im      dep   meth
-1  1  1   extrav    pmm
-2  1  1      sex logreg
-3  1  1     texp    pmm
-4  1  1  popular    pmm
-5  1  1  popular    pmm
-6  1  1 popteach    pmm
-                                                                                                                                                                                                                                                       out
-1                                                                                                                                                                                                                                                   school
-2                                                                                                                                                                                                                                                   school
-3                                                                                                                                                                                                                                                   school
-4                                                                                                                                                                                                                                                     texp
-5 mice detected that your data are (nearly) multi-collinear.\nIt applied a ridge penalty to continue calculations, but the results can be unstable.\nDoes your dataset contain duplicates, linear transformation, or factors with unique respondent names?
-6                                                                                                                                                                                                                                             texp, school
-\end{CodeOutput}
-\begin{CodeInput}
-R> ## "The mice() function detects multicollinearity, and solves the problem by removing one or more predictors for the model", in this case texp is removed as predictor of popular and popteach.
-R> 
-R> # check convergence of the imputation model
-R> plot(imp_predictor)
-\end{CodeInput}
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop-predictor-1} \end{center}
-
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop-predictor-2} \end{center}
-
-\begin{CodeInput}
-R> # compare descriptives before and after imputation
-R> psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
-\end{CodeInput}
-\begin{CodeOutput}
-            n  mean median min   max    sd
-pupil    2000 10.65   11.0   1  26.0  5.97
-class*   2000 50.37   51.0   1 100.0 29.08
-extrav   1484  5.31    5.0   1  10.0  1.29
-sex*     1504  1.56    2.0   1   2.0  0.50
-texp     1024 11.80   12.0   2  25.0  6.26
-popular  1490  4.83    4.8   0   9.1  1.34
-popteach 1472  4.83    5.0   1  10.0  1.36
-school   2000  5.54    6.0   1  10.0  2.89
-\end{CodeOutput}
-\begin{CodeInput}
-R> psych::describe(mice::complete(imp_predictor))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
-\end{CodeInput}
-\begin{CodeOutput}
-            n  mean median min   max    sd
-pupil    2000 10.65   11.0   1  26.0  5.97
-class*   2000 50.37   51.0   1 100.0 29.08
-extrav   2000  5.22    5.0   1  10.0  1.29
-sex*     2000  1.53    2.0   1   2.0  0.50
-texp     2000 14.26   15.0   2  25.0  6.55
-popular  2000  5.59    5.4   0   9.1  1.81
-popteach 2000  5.03    5.0   1  10.0  1.40
-school   2000  5.54    6.0   1  10.0  2.89
-\end{CodeOutput}
-\begin{CodeInput}
-R> # further inspection of the imputations
-R> densityplot(imp_predictor)
-\end{CodeInput}
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/pop-predictor-3} \end{center}
-
-\begin{CodeInput}
-R> # compare ICCs before and after imputation
-R> ICCs <- ICCs %>% cbind(
-+            predictor = c(multilevel::ICC1(aov(popular ~ class, complete(imp_predictor))), 
-+                         multilevel::ICC1(aov(popteach ~ class, complete(imp_predictor))), 
-+                         multilevel::ICC1(aov(texp ~ class, complete(imp_predictor))))
-+            )
-R> ICCs
-\end{CodeInput}
-\begin{CodeOutput}
-      vars incomplete   ignored predictor
-1  popular  0.3280070 0.2754195 0.2496278
-2 popteach  0.3138658 0.2467415 0.3483987
-3     texp  1.0000000 0.4443760 1.0000000
+      vars incomplete   ignored
+1  popular  0.3280070 0.2958571
+2 popteach  0.3138658 0.2561198
+3     texp  1.0000000 0.4696024
 \end{CodeOutput}
 \end{CodeChunk}
 
-\begin{itemize}
-\item
-  Now, we can clearly see that the imputed values of \texttt{texp} are
-  higher than the observed values, which is in line with right-tailed
-  MNAR.
-\item
-  The ICCs are way more in line with the ICCs in the incomplete data.
-  But this is a quick and dirty way of imputing multilevel data. We
-  \emph{should} be using a multilevel model.
-\end{itemize}
+As the original ICCs show, 100\% of the variance in \texttt{texp} can be
+attributed to the clustering variable \texttt{class}. This tells us that
+the multilevel structure of the data should be taken into account. If we
+don't, we'll end up with incorrect imputations, biasing the effect of
+the clusters towards zero.
+
+We can also observe that the teacher experience increases slightly after
+imputation. This is due to the MNAR missingness in \texttt{texp}. Higher
+values for \texttt{texp} have a larger probability to be missing. This
+may not a problem, however, if at least one pupil in each class has
+teacher experience recorded, we can deductively impute the correct
+(i.e.~true) value for every pupil in the class.
+
+\hypertarget{imputation-model-1}{%
+\subsubsection{Imputation model}\label{imputation-model-1}}
+
+We'll now use \texttt{class} as a predictor to impute all other
+variables. This is still not recommended practice, since it only works
+under certain circumstances and results may be biased. But at least, it
+includes some multilevel aspect. Colloquially, this is `multilevel
+imputation for dummies'.
+
+\hypertarget{imputed-data-1}{%
+\subsubsection{Imputed data}\label{imputed-data-1}}
+
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_predictor_eval-1} \end{center}
+
+\begin{CodeOutput}
+      vars incomplete   ignored predictor
+1  popular  0.3280070 0.2958571 0.3581435
+2 popteach  0.3138658 0.2561198 0.3446899
+3     texp  1.0000000 0.4696024 1.0000000
+\end{CodeOutput}
+\end{CodeChunk}
+
+Now, we can clearly see that the imputed values of \texttt{texp} are
+higher than the observed values, which is in line with right-tailed
+MNAR.
+
+The ICCs are way more in line with the ICCs in the incomplete data. But
+this is a quick and dirty way of imputing multilevel data. We
+\emph{should} be using a multilevel model.
+
+\hypertarget{imputation-model-2}{%
+\subsubsection{Imputation model}\label{imputation-model-2}}
+
+To include\ldots{}
 
 \hypertarget{case-study-ii-impact}{%
 \subsection{Case study II: IMPACT}\label{case-study-ii-impact}}
@@ -565,21 +413,6 @@ missingness ourselves. For example, MAR missingness varying by
 cluster.\footnote{Observed data pattern should differ per cluster. So,
   in cluster 1, the missingness would depend on age, but not in cluster
   two. Split the dataframe and run \texttt{ampute()} on each cluster.}
-
-\begin{CodeChunk}
-\begin{CodeOutput}
- /\     /\
-{  `---'  }
-{  O   O  }
-==>  V <==  No need for mice. This data set is completely observed.
- \  \|/  /
-  `-----'
-\end{CodeOutput}
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-1} \end{center}
-
-\end{CodeChunk}
 
 \hypertarget{pooling}{%
 \subsection{Pooling}\label{pooling}}

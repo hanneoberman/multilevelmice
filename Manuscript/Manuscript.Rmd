@@ -65,11 +65,7 @@ Analyzing multilevel data requires special care, compared to 'regular', single l
 
 ## Missing data
 
-Multilevel data is not spared the ubiquitous problem of missing information. Just as in single level data, missingness may occur at the unit level. But with multiple levels of data comes the potential for missingness at multiple levels. Missingness in multilevel data can be categorized into two general patterns: systematical missingness and sporadic missingness, see @resc13. In figure 1, we show a dataset with units in the rows and variables in the columns, there are 5 units nested within 2 clusters, and 3 variables of interest. Variable `X1` is completely observed. Variable `X2` is systematically missing, `X3` is sporadically missing.^[Explain why.] Systematic missingness can be further subdivided into unobserved constants (same value per cluster) and non-measured random variables (which may differ per unit within clusters). In Figure 1, the former implies that the unobserved values for units 4 and 5 on variable `X2` would be equal. With the latter, the values may differ. Depending on the missing data pattern, there are more or less optimal way of accommodating the missingness. 
-
-Ignoring missing data in research endeavors is almost never a good idea. Complete case analysis (i.e., excluding all units with one or more missing entries) can introduce bias in statistical inference and lowers statistical power. Instead, the missingness should be accommodated *before* or *within* the analysis of scientific interest. Especially the former is very generic and popular. Imputing (i.e., filling in) the missing values splits the missing data problem from the scientific problem. The \proglang{R} package \pkg{mice} has become the de-facto standard for imputation by chained equations, which solves the missingness one variable at a time, iteratively. \pkg{mice} is known to yield valid inferences under many different missing data circumstances [@buur18]. In this paper, we'll discuss how to use \pkg{mice} in the context of multilevel data, under varying missing data mechanisms.^[Discuss missingness mechanisms before this point, add references @yuce08 and @hox15.]
-
-```{r patterns, echo=FALSE}
+```{r patterns, fig.height=4, fig.width=3.5, fig.cap = "Missingness in multilevel data", echo=FALSE}
 # missingness indicator plot (monotone vs non-monotone)
 miss_ind <- tibble(
     rownr = 5:1,
@@ -111,7 +107,9 @@ ggplot(aes(
 
 ```
 
+Multilevel data is not spared the ubiquitous problem of missing information. Just as in single level data, missingness may occur at the unit level. But with multiple levels of data comes the potential for missingness at multiple levels. Missingness in multilevel data can be categorized into two general patterns: systematical missingness and sporadic missingness, see @resc13. In figure 1, we show a dataset with units in the rows and variables in the columns, there are 5 units nested within 2 clusters, and 3 variables of interest. Variable `X1` is completely observed. Variable `X2` is systematically missing, `X3` is sporadically missing.^[Explain why.] Systematic missingness can be further subdivided into unobserved constants (same value per cluster) and non-measured random variables (which may differ per unit within clusters). In Figure 1, the former implies that the unobserved values for units 4 and 5 on variable `X2` would be equal. With the latter, the values may differ. Depending on the missing data pattern, there are more or less optimal way of accommodating the missingness. 
 
+Ignoring missing data in research endeavors is almost never a good idea. Complete case analysis (i.e., excluding all units with one or more missing entries) can introduce bias in statistical inference and lowers statistical power. Instead, the missingness should be accommodated *before* or *within* the analysis of scientific interest. Especially the former is very generic and popular. Imputing (i.e., filling in) the missing values splits the missing data problem from the scientific problem. The \proglang{R} package \pkg{mice} has become the de-facto standard for imputation by chained equations, which solves the missingness one variable at a time, iteratively. \pkg{mice} is known to yield valid inferences under many different missing data circumstances [@buur18]. In this paper, we'll discuss how to use \pkg{mice} in the context of multilevel data, under varying missing data mechanisms.^[Discuss missingness mechanisms before this point, add references @yuce08 and @hox15.]
 
 <!-- -	What kinds of missingness are there? ADD: missingness mechanisms here. See e.g. @yuce08 and @hox15. -->
 
@@ -155,8 +153,16 @@ We introduce three case studies to illustrate the workflow. In the `mice::popmis
 
 For each case study we'll look at least at: 1) the incomplete data; 2) the imputation model; 3) the imputed data; and 4) how to obtain pooled estimates for the analysis of scientific interest.
 
-
 ## Case Study I: Popularity
+
+```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
+# load data and merge classes into schools for this tutorial -> but this cannot work because how texp and popteach are defined...
+pop <- readRDS("../Data/popNCR.RDS") %>% mutate(school = round(0.5 + as.numeric(class)/10))
+
+# ICCs
+icc_pop <- multilevel::ICC1(aov(popular ~ as.factor(class), data = pop))
+icc_teach <- multilevel::ICC1(aov(popteach ~ as.factor(class), data = pop))
+```
 
 `popNCR` is a simulated dataset with pupils clustered in classes, $n_{\text{participants}} = 2000$, $n_{\text{clusters}} = 100$, on 7 variables: 
 
@@ -168,32 +174,24 @@ For each case study we'll look at least at: 1) the incomplete data; 2) the imput
   - `popular`	Pupil popularity,
   - `popteach`	Teacher popularity.
   
-### The incomplete data
+### Incomplete data
 
-```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
-# load data and merge classes into schools for this tutorial -> but this cannot work because how texp and popteach are defined...
-pop <- readRDS("../Data/popNCR.RDS") %>% mutate(school = round(0.5 + as.numeric(class)/10))
-
-# ICCs
-icc_pop <- multilevel::ICC1(aov(popular ~ as.factor(class), data = pop))
-icc_teach <- multilevel::ICC1(aov(popteach ~ as.factor(class), data = pop))
-```
-
-- What does the missingness look like? Induced MAR/MNAR missingness. Missing data pattern:
-
-```{r pop_pat, echo=FALSE, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+```{r pop_pat, echo=FALSE, fig.height=6, fig.width=4, fig.cap = "Missing data pattern in the popularity data", message=FALSE, warning=FALSE}
 # missingness
 plot_md_pat(pop)
 # TODO: add pattern by cluster, text mining example square size
 # TODO: try to make it a shepley plot 
 ```
 
-- What are the ICCs? For `popular` the ICC is `r round(icc_pop, 2)`. For `popteach` it is `r round(icc_teach, 2)`. It would be wise to use multilevel modeling.
+The popularity data is created such that there are strong relations between the incomplete variables and the clustering variable `class`. We can express this using the intra-class correlation (ICC). For `popular` the ICC is `r round(icc_pop, 2)`. For `popteach` it is `r round(icc_teach, 2)`. It would thus be wise to use multilevel modeling.
 
-- Does the missing data of `popular` depend on `popteach`? Does the missingness in teacher popularity depend on pupil popularity? -> Check this by making a histogram of `popteach` separately for the pupils with known popularity and missing popularity, and the other way around. 
+The missingness in this dataset is induced conform MAR and MNAR mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows the systematic nature of the missingness.
 
+To develop the best imputation model, we need to know whether the missingness in one variable depends on the observed values of other variables. Visual inspection usually suffices. We'll highlight only two variables to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of `popular` depend on `popteach`?' and 'Does the missingness in teacher popularity depend on pupil popularity?' We'll evaluate this by making a histogram of `popteach` separately for the pupils with known popularity and missing popularity, and the other way around.
 
-```{r pop_dist, echo=FALSE, message=FALSE, warning=FALSE}
+In Figure \ref{fig:pop_dist} we see that the distribution for the missing `popular` is further to the right than the distribution for observed `popular`. This would indicate a right-tailed MAR missingness. In fact, this is exactly what happens, because the missingness in these data was created manually. Now, we've made it observable by examining the relations between the missingness in popular and the observed data in `popteach`. There is also a dependency between the missingness in teacher popularity and pupil popularity. The relation seems to be right-tailed as well.
+
+```{r pop_dist, fig.cap = "Conditional distributions in the popularity data", echo=FALSE, message=FALSE, warning=FALSE}
 # distributions
 # plot_NA_cond(pop, x = "popteach", z = "popular", bins = 1)
 # plot_NA_cond(pop, x = "popular", z = "popteach", bins = 1)
@@ -231,32 +229,34 @@ plot_conditional(pop, x = "popteach", z = "popular", cluster = "class")
 
 ```
 
--  We do see that the distribution for the missing `popular` is further to the right than the distribution for observed `popular`. This would indicate a right-tailed MAR missingness. In fact this is exactly what happens, because we created the missingness in these data ourselves. But we made it observable by examining the relations between the missingness in popular and the observed data in `popteach`. There is also a dependency between the missingness in teacher popularity and pupil popularity. The relation seems to be right-tailed as well.
 
-### The imputation model 
+### Imputation model  
 
-- We could ignore the multilevel structure of the data. This is likely invalid, given the high ICCs, but we'll do it anyways.
+The first imputation model that we'll use is likely to be invalid. In this model, we ignore the multilevel structure of the data, despite the high ICCs. This is purely to illustrate the effects of ignoring the clustering in our imputation effort.
 
-- We'll use predictive mean matching to impute the continuous variables (some appear to be somewhat ordinal), and logistic regression to impute the binary variable `sex`. We do not use the observation identifier `pupil` or cluster identifier `class` as predictors to impute other variables.
+We'll use predictive mean matching to impute the continuous variables and logistic regression to impute the binary variable `sex`. We do not use the observation identifier `pupil` or cluster identifier `class` as predictors to impute other variables.
 
-```{r pop-ignored}
+```{r pop_ignored, echo=TRUE, message=FALSE, warning=FALSE}
 # dry run to get imputation parameters
 ini <- mice(pop, maxit = 0)
 
 # extract predictor matrix and adjust
 pred <- ini$pred
 pred[, c("class", "pupil")] <- 0
-pred 
 
 # impute the data, ignoring the cluster structure
 imp_ignored <- mice(pop, maxit = 10, pred = pred, print = FALSE)
+```
 
-# check convergence of the imputation model
-plot(imp_ignored)
+### Imputed data
 
-# compare descriptives before and after imputation
-psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
-psych::describe(mice::complete(imp_ignored))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
+```{r pop_ignored_eval, echo=FALSE, message=FALSE, warning=FALSE}
+# # check convergence of the imputation model
+# plot(imp_ignored)
+
+# # compare descriptives before and after imputation
+# psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
+# psych::describe(mice::complete(imp_ignored))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
 # TODO: add stripplot with boxplot overlay instead of the tables (make pooled one thick on top)
 # TODO: pool mean median and sd
 # feedback Stef: numbers, continuous statistics such as means, and uncertainty estimates. So we can pool the sd's. And leave out the min and max, because those are not normally distr.
@@ -276,35 +276,39 @@ ICCs <- data.frame(
               multilevel::ICC1(aov(texp ~ class, complete(imp_ignored))))
   )
 ICCs
-
-
 ```
 
-- As the original ICCs show, 100% of the variance in `texp` can be attributed to the clustering variable `class`. This tells us that the multilevel structure of the data should be taken into account. If we don't, we'll end up with incorrect imputations, biasing the effect of the clusters towards zero.
+As the original ICCs show, 100% of the variance in `texp` can be attributed to the clustering variable `class`. This tells us that the multilevel structure of the data should be taken into account. If we don't, we'll end up with incorrect imputations, biasing the effect of the clusters towards zero.
 
-- We can also observe that the teacher experience increases slightly after imputation. This is due to the MNAR missingness in `texp`. Higher values for `texp` have a larger probability to be missing. This may not a problem, however, if at least one pupil in each class has teacher experience recorded, we can deductively impute the correct (i.e. true) value for every pupil in the class. 
+We can also observe that the teacher experience increases slightly after imputation. This is due to the MNAR missingness in `texp`. Higher values for `texp` have a larger probability to be missing. This may not a problem, however, if at least one pupil in each class has teacher experience recorded, we can deductively impute the correct (i.e. true) value for every pupil in the class. 
 
-- We'll now use `class` as a predictor to impute all other variables.
+### Imputation model
 
-```{r pop-predictor}
+We'll now use `class` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased. But at least, it includes some multilevel aspect. Colloquially, this is 'multilevel imputation for dummies'. 
+
+```{r pop_predictor, echo=FALSE, message=FALSE, warning=FALSE}
 # adjust the predictor matrix
 pred <- ini$pred 
 pred[, "pupil"] <- 0
-pred
 
 # impute the data, cluster as predictor
 imp_predictor <- mice(pop, maxit = 10, pred = pred, print = FALSE)
+```
 
-# check logged events
-head(imp_predictor$loggedEvents)
+
+### Imputed data
+
+```{r pop_predictor_eval, echo=FALSE, message=FALSE, warning=FALSE}
+# # check logged events
+# head(imp_predictor$loggedEvents)
 ## "The mice() function detects multicollinearity, and solves the problem by removing one or more predictors for the model", in this case texp is removed as predictor of popular and popteach.
 
-# check convergence of the imputation model
-plot(imp_predictor)
+# # check convergence of the imputation model
+# plot(imp_predictor)
 
-# compare descriptives before and after imputation
-psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
-psych::describe(mice::complete(imp_predictor))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
+# # compare descriptives before and after imputation
+# psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
+# psych::describe(mice::complete(imp_predictor))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
 
 # further inspection of the imputations
 densityplot(imp_predictor)
@@ -318,9 +322,15 @@ ICCs <- ICCs %>% cbind(
 ICCs
 ```
 
-- Now, we can clearly see that the imputed values of `texp` are higher than the observed values, which is in line with right-tailed MNAR. 
+Now, we can clearly see that the imputed values of `texp` are higher than the observed values, which is in line with right-tailed MNAR. 
 
-- The ICCs are way more in line with the ICCs in the incomplete data. But this is a quick and dirty way of imputing multilevel data. We *should* be using a multilevel model.
+The ICCs are way more in line with the ICCs in the incomplete data. But this is a quick and dirty way of imputing multilevel data. We *should* be using a multilevel model.
+
+
+### Imputation model
+
+To include...
+
 
 
 ## Case study II: IMPACT
@@ -347,8 +357,8 @@ data("impact")
 # # descriptive statistics
 # by(impact, impact$name, summary) 
 # psych::describe(impact)[,c(2:5,8:9)]
-# missingness
-plot_md_pat(impact)
+# # missingness
+# plot_md_pat(impact)
 # TODO: rotate variable labels
 
 # TODO: check md pattern in clusters, should differ, otherwise create new missingness
@@ -401,8 +411,6 @@ plot_md_pat(impact)
 - Pooling using `mitml`.
 
 - Pooling 'regular' parameters vs more 'exotic' parameters (SE of residual errors, or autocorrelation) 
-
-
 
 
 # Discussion
