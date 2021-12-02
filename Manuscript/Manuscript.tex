@@ -64,52 +64,72 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 We talk of multilevel data when there is some kind of hierarchy or
 clustering in a dataset. In the typical case, individuals are nested
 within groups, but there are many different types of multilevel data. In
-the medical field clustering occurs at e.g., the hospitals/center level
+the medical field, clustering occurs at e.g., the hospitals/center level
 in registry data, or at the study-level in meta-analyses (IPDMA). In the
 social sciences and official statistics we can find clustering e.g.~at
 the country-level, or as imposed by the sampling design. In this paper,
 we will refer to the grouping variable as `cluster', and the grouped
-variable as `(sample) unit'. For reasons of brevity, we only discuss
-clustering between units, not longitudinal data (within-unit
-clustering).
+variable as `(sample) unit'.\footnote{Add that we'll only discuss two
+  levels?} For reasons of brevity, we only discuss clustering between
+units, not within units (such as in timeseries or longitudinal data).
 
-Multilevel data requires special care when doing any sort of analysis.
-The cluster to which a unit belongs may influence the unit-level
-observations, and since clusters are made up of units, clusters depend
-on units as well \citep{hox17}. {[}Explain ICC here? The percentage of
-variance attributed to the cluster-level is expressed by the intra-class
-coefficient (ICC). The ICC can also be interpreted as the expected
-correlation between two randomly sampled units in same cluster.{]} These
-relations can and should be taken into account when developing analysis
-models for multilevel data. At least, such models include a separate
-intercept term for each cluster. But there may also be random predictor
-effects and/or random error terms (residual error variances), see e.g.
-\citet{hox17} and \citet{jong21}. Heterogeneity refers to variability
-within clusters vs.~variability between clusters. There are many names
-for models that take clustering into account. Some popular examples are
-`multilevel models', `hierarchical models', `mixed effect models' and
-`random effect models'.
+Analyzing multilevel data requires special care, compared to `regular',
+single level data. The cluster to which a unit belongs may influence the
+unit-level observations, and since clusters are made up of units,
+clusters depend on units as well \citep{hox17}. These relations can and
+should be taken into account when developing analysis models for
+multilevel data.\footnote{Explain ICC here? The percentage of variance
+  attributed to the cluster-level is expressed by the intra-class
+  coefficient (ICC). The ICC can also be interpreted as the expected
+  correlation between two randomly sampled units in same cluster. So if
+  the ICC is high, a lot of variability in a variable is due to the
+  clustering, which should be modeled accordingly.} Multilevel models
+typically include separate intercepts for each cluster, which relieves
+one restriction imposed by single-level models: equal group means across
+clusters. Additionally, there may be random predictor effects and/or
+random error terms (residual error variances), see e.g. \citet{hox17}
+and \citet{jong21}.\footnote{Add that heterogeneity refers to
+  variability within clusters.} There are many names for models that
+take clustering into account. Some popular examples are `multilevel
+models', `hierarchical models', `mixed effect models' and `random effect
+models'.
 
 \hypertarget{missing-data}{%
 \subsection{Missing data}\label{missing-data}}
 
-\begin{itemize}
-\item
-  Why/where does missingness occur in multilevel data? I.e., not only
-  patient-level but also cluster-level.
-\item
-  How can we categorize this? Systematic vs sporadic missingness, see
-  \citet{resc13}. Within systematic we have two flavors: unobserved
-  constants (same value per cluster) and non-measured random variables
-  (which may differ per unit within clusters). In figure 1, we show a
-  dataset with units in the rows and variables in the columns, there are
-  5 units nested within 2 clusters, and 3 variables of interest.
-  Variable \texttt{X1} is completely observed. Variable \texttt{X2} is
-  systematically missing, \texttt{X3} is sporadically missing. The
-  unobserved value for units 4 and 5 on variable \texttt{X2} may be the
-  same or different, defining which type of systematic missingness is
-  happening.
-\end{itemize}
+Multilevel data is not spared the ubiquitous problem of missing
+information. Just as in single level data, missingness may occur at the
+unit level. But with multiple levels of data comes the potential for
+missingness at multiple levels. Missingness in multilevel data can be
+categorized into two general patterns: systematical missingness and
+sporadic missingness, see \citet{resc13}. In figure 1, we show a dataset
+with units in the rows and variables in the columns, there are 5 units
+nested within 2 clusters, and 3 variables of interest. Variable
+\texttt{X1} is completely observed. Variable \texttt{X2} is
+systematically missing, \texttt{X3} is sporadically missing.\footnote{Explain
+  why.} Systematic missingness can be further subdivided into unobserved
+constants (same value per cluster) and non-measured random variables
+(which may differ per unit within clusters). In Figure 1, the former
+implies that the unobserved values for units 4 and 5 on variable
+\texttt{X2} would be equal. With the latter, the values may differ.
+Depending on the missing data pattern, there are more or less optimal
+way of accommodating the missingness.
+
+Ignoring missing data in research endeavors is almost never a good idea.
+Complete case analysis (i.e., excluding all units with one or more
+missing entries) can introduce bias in statistical inference and lowers
+statistical power. Instead, the missingness should be accommodated
+\emph{before} or \emph{within} the analysis of scientific interest.
+Especially the former is very generic and popular. Imputing (i.e.,
+filling in) the missing values splits the missing data problem from the
+scientific problem. The \proglang{R} package \pkg{mice} has become the
+de-facto standard for imputation by chained equations, which solves the
+missingness one variable at a time, iteratively. \pkg{mice} is known to
+yield valid inferences under many different missing data circumstances
+\citep{buur18}. In this paper, we'll discuss how to use \pkg{mice} in
+the context of multilevel data, under varying missing data
+mechanisms.\footnote{Discuss missingness mechanisms before this point,
+  add references \citet{yuce08} and \citet{hox15}.}
 
 \begin{CodeChunk}
 
@@ -118,172 +138,86 @@ for models that take clustering into account. Some popular examples are
 
 \end{CodeChunk}
 
-\begin{itemize}
-\item
-  What kinds of missingness are there? ADD: missingness mechanisms here.
-  See e.g. \citet{yuce08} and \citet{hox15}.
-\item
-  Why are standard (ad hoc) missing data methods not well suited?
-\item
-  What types of multilevel methods are available? General overview of
-  approaches, see \citet{audi18} and \citet{grun18}. E.g., imputation of
-  study level versus patient-level covariates, and one-stage imputation
-  versus two-stage imputation methods.
-\item
-  Additional difficulty that is addressed in this tutorial: MNAR data.
-\end{itemize}
-
 \hypertarget{aim-of-this-paper}{%
 \subsection{Aim of this paper}\label{aim-of-this-paper}}
 
+This papers serves as a tutorial for imputing incomplete multilevel data
+with \pkg{mice}. We provide practical guidelines and code snippets for
+different missing data situations. For reasons of brevity, we focus on
+imputation by chained equations, although JOMO is available in
+\pkg{mice} as well. Other useful packages for incomplete multilevel data
+include: \pkg{mitml}, \pkg{miceadds}, \pkg{mdmb}.\footnote{Rephrase:
+  Some level of knowledge on multilevel models is assumed. We're
+  providing an overview of implementations. It's up-to the reader to
+  decide which multilevel strategy suits their data. So we won't go into
+  detail for the different methods (and equations). Refer to
+  \citet{meng94}, an Audigier paper, and a paper by Grund on
+  congeniality and random slopes. This paper is just a software
+  tutorial. We'll keep it practical.}
+
+We structure this tutorial around three case studies:
+
 \begin{itemize}
 \item
-  Provide practical guidelines with code snippets for imputation of
-  incomplete multilevel data.
+  \texttt{mice::popmis} (simulated data on school kids, with MNAR/MAR
+  mixture);
 \item
-  We focus on the workflow for conditional modeling (not JOMO) in
-  \texttt{mice}. Refer to other packages: \texttt{mitml},
-  \texttt{miceadds}, \texttt{mdmb}.
+  \texttt{metamisc::impact} (real IPD on traumatic brain injuries,
+  without \texttt{NA}s);
 \item
-  Case study options: \texttt{metamisc::impact} (real IPD on traumatic
-  brain injuries, without \texttt{NA}s), \texttt{mice::popularity}
-  (simulated data on school kids, with MNAR/MAR mixture). TODO: Check
-  example data Gelman.
-\item
-  Introduce case study and set scope of this tutorial: We're providing
-  an overview of implementations. It's up-to the reader to decide which
-  strategy suits their data. So we won't go into detail for the
-  different methods (and equations). This paper is just a software
-  tutorial. We'll keep it practical. -\textgreater{} ADD: some kind of
-  help function that suggests a suitable predictor matrix to the user,
-  given a certain analysis model.
+  \texttt{GJRM::hiv} (simulated patient data on HIV, without
+  \texttt{NA}s)
 \end{itemize}
+
+For each case study we focus on a different aspect to illustrate how to
+impute incomplete multilevel data.
 
 \hypertarget{workflows}{%
 \section{Workflows}\label{workflows}}
 
-We'll use the IMPACT data (\texttt{metamisc::impact}) and a MAR/MNAR
-version of the \texttt{mice::popmis} data (i.e., a variation on the Hox
-(2010) popularity data, where the missingness in the variables is either
-missing at random (MAR) or missing not at random (MNAR)).
--\textgreater{} ask whether we can use the Heckman repo data or simulate
-data ourselves
+We introduce three case studies to illustrate the workflow. In the
+\texttt{mice::popmis} data, we show the advantages of including the
+multilevel structure of the data into the imputation model. In the
+\texttt{metamisc::impact} data we'll show how to induce missingness and
+solve it in real-world data. In the \texttt{GJRM::hiv} we provide novel
+methodology\footnote{not really, the methods exist already, but how to
+  show that this is something new and exciting?} for imputing MNAR
+missingness according to the Heckman model.
 
-Heckman options:
+For each case study we'll look at least at: 1) the incomplete data; 2)
+the imputation model; 3) the imputed data; and 4) how to obtain pooled
+estimates for the analysis of scientific interest.
+
+\hypertarget{case-study-i-popularity}{%
+\subsection{Case Study I: Popularity}\label{case-study-i-popularity}}
+
+\texttt{popNCR} is a simulated dataset with pupils clustered in classes,
+\(n_{\text{participants}} = 2000\), \(n_{\text{clusters}} = 100\), on 7
+variables:
 
 \begin{itemize}
+\tightlist
 \item
-  leiden85
+  \texttt{pupil} Pupil number within class,
 \item
-  GJRM::hiv (\url{https://rdrr.io/github/egeminiani/GJRM/man/hiv.html})
+  \texttt{class} Class number,
 \item
-  simulating
+  \texttt{extrav} Pupil extraversion,
 \item
-  IMPACT
+  \texttt{sex} Pupil gender,
+\item
+  \texttt{texp} Teacher experience (years),
+\item
+  \texttt{popular} Pupil popularity,
+\item
+  \texttt{popteach} Teacher popularity.
 \end{itemize}
 
-\hypertarget{case-study-i-impact}{%
-\subsection{Case study I: IMPACT}\label{case-study-i-impact}}
+\hypertarget{the-incomplete-data}{%
+\subsubsection{The incomplete data}\label{the-incomplete-data}}
 
 \begin{itemize}
-\item
-  What does the data look like? \texttt{impact} is traumatic brain
-  injury data with patients clustered in studies,
-  \(n_{\text{participants}} = 11022\) and \(n_{\text{clusters}} = 15\),
-  on the following 11 variables:
-
-  \begin{itemize}
-  \tightlist
-  \item
-    \texttt{name} Name of the study,
-  \item
-    \texttt{type} Type of study (RCT: randomized controlled trial, OBS:
-    observational cohort),
-  \item
-    \texttt{age} Age of the patient,
-  \item
-    \texttt{motor\_score} Glasgow Coma Scale motor score,
-  \item
-    \texttt{pupil} Pupillary reactivity,
-  \item
-    \texttt{ct} Marshall Computerized Tomography classification,
-  \item
-    \texttt{hypox} Hypoxia (0=no, 1=yes),
-  \item
-    \texttt{hypots} Hypotension (0=no, 1=yes),
-  \item
-    \texttt{tsah} Traumatic subarachnoid hemorrhage (0=no, 1=yes),
-  \item
-    \texttt{edh} Epidural hematoma (0=no, 1=yes),
-  \item
-    \texttt{mort} 6-month mortality (0=alive, 1=dead).
-  \end{itemize}
-\end{itemize}
-
-\begin{CodeChunk}
-\begin{CodeOutput}
- /\     /\
-{  `---'  }
-{  O   O  }
-==>  V <==  No need for mice. This data set is completely observed.
- \  \|/  /
-  `-----'
-\end{CodeOutput}
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-1} \end{center}
-
-\end{CodeChunk}
-
--\textgreater{} Why are there no missings? According to the
-\href{https://cran.r-project.org/web/packages/metamisc/metamisc.pdf}{vignette},
-the data is already imputed (Steyerberg et al, 2008).
-
-\begin{itemize}
-\item
-  MAR miss varying by cluster. Obs data patt differ per cluster. E.g.,
-  in cluster 1 miss depends on age but not in cluster two. Split the
-  dataframe and run \texttt{ampute()} on each cluster. -\textgreater{}
-  TODO: also make MNAR missingness to heckman model. Maybe based on
-  \texttt{ct} variable? Inclusion-selection variable. -\textgreater{}
-  otherwise: use \texttt{leiden85} data on blood pressure with MNAR.
-  Then run cox regression like the boshuizen article but with living
-  situation as clusters. -\textgreater{} TODO: get analyses from
-  \url{https://www.gerkovink.com/mimp/Contents/Exercises/Day\%203\%20-\%20Wednesday/Sensitivity_analysis/Sensitivity_analysis.html}.
-\item
-  ADD: \texttt{multilevel\_ampute()} wrapper function in \texttt{mice}.
-\end{itemize}
-
-\hypertarget{case-study-ii-popularity}{%
-\subsection{Case Study II: Popularity}\label{case-study-ii-popularity}}
-
-\begin{itemize}
-\item
-  What does the data look like? \texttt{popNCR} is a simulated dataset
-  with pupils clustered in classes, \(n_{\text{participants}} = 2000\),
-  \(n_{\text{clusters}} = 100\), on 7 variables:
-
-  \begin{itemize}
-  \tightlist
-  \item
-    \texttt{pupil} Pupil number within class,
-  \item
-    \texttt{class} Class number,
-  \item
-    \texttt{extrav} Pupil extraversion,
-  \item
-    \texttt{sex} Pupil gender,
-  \item
-    \texttt{texp} Teacher experience (years),
-  \item
-    \texttt{popular} Pupil popularity,
-  \item
-    \texttt{popteach} Teacher popularity.
-  \end{itemize}
-\item
-  What are the ICCs? For \texttt{popular} the ICC is 0.33. For
-  \texttt{popteach} it is 0.31. It would be wise to use multilevel
-  modeling.
+\tightlist
 \item
   What does the missingness look like? Induced MAR/MNAR missingness.
   Missing data pattern:
@@ -297,7 +231,10 @@ the data is already imputed (Steyerberg et al, 2008).
 \end{CodeChunk}
 
 \begin{itemize}
-\tightlist
+\item
+  What are the ICCs? For \texttt{popular} the ICC is 0.33. For
+  \texttt{popteach} it is 0.31. It would be wise to use multilevel
+  modeling.
 \item
   Does the missing data of \texttt{popular} depend on \texttt{popteach}?
   Does the missingness in teacher popularity depend on pupil popularity?
@@ -318,6 +255,7 @@ the data is already imputed (Steyerberg et al, 2008).
 \end{CodeChunk}
 
 \begin{itemize}
+\tightlist
 \item
   We do see that the distribution for the missing \texttt{popular} is
   further to the right than the distribution for observed
@@ -328,10 +266,15 @@ the data is already imputed (Steyerberg et al, 2008).
   observed data in \texttt{popteach}. There is also a dependency between
   the missingness in teacher popularity and pupil popularity. The
   relation seems to be right-tailed as well.
+\end{itemize}
+
+\hypertarget{the-imputation-model}{%
+\subsubsection{The imputation model}\label{the-imputation-model}}
+
+\begin{itemize}
 \item
-  We can impute the missingness the `standard' way, ignoring the
-  multilevel structure of the data. This is surely invalid, given the
-  high ICCs, but we'll do it anyways.
+  We could ignore the multilevel structure of the data. This is likely
+  invalid, given the high ICCs, but we'll do it anyways.
 \item
   We'll use predictive mean matching to impute the continuous variables
   (some appear to be somewhat ordinal), and logistic regression to
@@ -398,11 +341,11 @@ R> psych::describe(mice::complete(imp_ignored))[, c("n", "mean", "median", "min"
             n  mean median min   max    sd
 pupil    2000 10.65     11   1  26.0  5.97
 class*   2000 50.37     51   1 100.0 29.08
-extrav   2000  5.25      5   1  10.0  1.27
-sex*     2000  1.53      2   1   2.0  0.50
-texp     2000 12.48     12   2  25.0  6.29
-popular  2000  4.99      5   0   9.1  1.35
-popteach 2000  5.02      5   1  10.0  1.39
+extrav   2000  5.23      5   1  10.0  1.25
+sex*     2000  1.51      2   1   2.0  0.50
+texp     2000 12.55     12   2  25.0  6.27
+popular  2000  4.99      5   0   9.1  1.32
+popteach 2000  5.01      5   1  10.0  1.38
 school   2000  5.54      6   1  10.0  2.89
 \end{CodeOutput}
 \begin{CodeInput}
@@ -433,9 +376,9 @@ R> ICCs
 \end{CodeInput}
 \begin{CodeOutput}
       vars incomplete   ignored
-1  popular  0.3280070 0.2716802
-2 popteach  0.3138658 0.2528468
-3     texp  1.0000000 0.4395296
+1  popular  0.3280070 0.2754195
+2 popteach  0.3138658 0.2467415
+3     texp  1.0000000 0.4443760
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -482,7 +425,7 @@ R> # impute the data, cluster as predictor
 R> imp_predictor <- mice(pop, maxit = 10, pred = pred, print = FALSE)
 \end{CodeInput}
 \begin{CodeOutput}
-Warning: Number of logged events: 325
+Warning: Number of logged events: 312
 \end{CodeOutput}
 \begin{CodeInput}
 R> # check logged events
@@ -494,15 +437,15 @@ R> head(imp_predictor$loggedEvents)
 2  1  1      sex logreg
 3  1  1     texp    pmm
 4  1  1  popular    pmm
-5  1  1 popteach    pmm
+5  1  1  popular    pmm
 6  1  1 popteach    pmm
                                                                                                                                                                                                                                                        out
 1                                                                                                                                                                                                                                                   school
 2                                                                                                                                                                                                                                                   school
 3                                                                                                                                                                                                                                                   school
-4                                                                                                                                                                                                                                             texp, school
-5                                                                                                                                                                                                                                                     texp
-6 mice detected that your data are (nearly) multi-collinear.\nIt applied a ridge penalty to continue calculations, but the results can be unstable.\nDoes your dataset contain duplicates, linear transformation, or factors with unique respondent names?
+4                                                                                                                                                                                                                                                     texp
+5 mice detected that your data are (nearly) multi-collinear.\nIt applied a ridge penalty to continue calculations, but the results can be unstable.\nDoes your dataset contain duplicates, linear transformation, or factors with unique respondent names?
+6                                                                                                                                                                                                                                             texp, school
 \end{CodeOutput}
 \begin{CodeInput}
 R> ## "The mice() function detects multicollinearity, and solves the problem by removing one or more predictors for the model", in this case texp is removed as predictor of popular and popteach.
@@ -538,14 +481,14 @@ R> psych::describe(mice::complete(imp_predictor))[, c("n", "mean", "median", "mi
 \end{CodeInput}
 \begin{CodeOutput}
             n  mean median min   max    sd
-pupil    2000 10.65     11   1  26.0  5.97
-class*   2000 50.37     51   1 100.0 29.08
-extrav   2000  6.20      6   1  10.0  2.00
-sex*     2000  1.52      2   1   2.0  0.50
-texp     2000 14.26     15   2  25.0  6.55
-popular  2000  5.03      5   0   9.1  1.35
-popteach 2000  5.03      5   1  10.0  1.38
-school   2000  5.54      6   1  10.0  2.89
+pupil    2000 10.65   11.0   1  26.0  5.97
+class*   2000 50.37   51.0   1 100.0 29.08
+extrav   2000  5.22    5.0   1  10.0  1.29
+sex*     2000  1.53    2.0   1   2.0  0.50
+texp     2000 14.26   15.0   2  25.0  6.55
+popular  2000  5.59    5.4   0   9.1  1.81
+popteach 2000  5.03    5.0   1  10.0  1.40
+school   2000  5.54    6.0   1  10.0  2.89
 \end{CodeOutput}
 \begin{CodeInput}
 R> # further inspection of the imputations
@@ -566,9 +509,9 @@ R> ICCs
 \end{CodeInput}
 \begin{CodeOutput}
       vars incomplete   ignored predictor
-1  popular  0.3280070 0.2716802 0.3550567
-2 popteach  0.3138658 0.2528468 0.3306035
-3     texp  1.0000000 0.4395296 1.0000000
+1  popular  0.3280070 0.2754195 0.2496278
+2 popteach  0.3138658 0.2467415 0.3483987
+3     texp  1.0000000 0.4443760 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -583,65 +526,60 @@ R> ICCs
   \emph{should} be using a multilevel model.
 \end{itemize}
 
-\hypertarget{amputation}{%
-\subsection{Amputation}\label{amputation}}
+\hypertarget{case-study-ii-impact}{%
+\subsection{Case study II: IMPACT}\label{case-study-ii-impact}}
+
+\texttt{impact} is traumatic brain injury data with patients clustered
+in studies, \(n_{\text{participants}} = 11022\) and
+\(n_{\text{clusters}} = 15\), on the following 11 variables:
 
 \begin{itemize}
 \tightlist
 \item
+  \texttt{name} Name of the study,
+\item
+  \texttt{type} Type of study (RCT: randomized controlled trial, OBS:
+  observational cohort),
+\item
+  \texttt{age} Age of the patient,
+\item
+  \texttt{motor\_score} Glasgow Coma Scale motor score,
+\item
+  \texttt{pupil} Pupillary reactivity,
+\item
+  \texttt{ct} Marshall Computerized Tomography classification,
+\item
+  \texttt{hypox} Hypoxia (0=no, 1=yes),
+\item
+  \texttt{hypots} Hypotension (0=no, 1=yes),
+\item
+  \texttt{tsah} Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+\item
+  \texttt{edh} Epidural hematoma (0=no, 1=yes),
+\item
+  \texttt{mort} 6-month mortality (0=alive, 1=dead).
 \end{itemize}
 
-\hypertarget{modeling-choices}{%
-\subsection{Modeling choices}\label{modeling-choices}}
+The data is already imputed (Steyerberg et al, 2008), so we'll induce
+missingness ourselves. For example, MAR missingness varying by
+cluster.\footnote{Observed data pattern should differ per cluster. So,
+  in cluster 1, the missingness would depend on age, but not in cluster
+  two. Split the dataframe and run \texttt{ampute()} on each cluster.}
 
-\begin{itemize}
-\item
-  Which models will we discuss? We'll build the model to grow in
-  complexity. The final model is the most complex but also the most
-  versatile.
-\item
-  Note on model complexity: Typically, we should at least use random
-  intercepts, but often random slopes as well. Ideally we impute with
-  random everything and heteroscedastic errors: most generic method (no
-  worry about congeniality, but don't mention the term) -\textgreater{}
-  Refer to other papers for background, we'll focus just on the software
-  implementation of the situations mentioned there. Sometimes there's
-  little reason to assume some variable is affected by heterogeneity.
-  -\textgreater{} Refer to \citet{meng94}, an Audigier paper, and a
-  paper by Grund on congeniality and random slopes.
-\item
-  Step 0: As predictor + CCA to scare off users
-\item
-  Step 1: Random intercepts
-\item
-  Step 2: Random slopes
-\item
-  Step 3: Residuals
-\item
-  Heckman model for MNAR
-\item
-  What do the different implementations look like? How to define the
-  imputation model(s) in \texttt{mice}?
-\end{itemize}
+\begin{CodeChunk}
+\begin{CodeOutput}
+ /\     /\
+{  `---'  }
+{  O   O  }
+==>  V <==  No need for mice. This data set is completely observed.
+ \  \|/  /
+  `-----'
+\end{CodeOutput}
 
-\hypertarget{step-0}{%
-\subsection{Step 0}\label{step-0}}
 
-\begin{itemize}
-\item
-  AKA multilevel imputation for dummies.
-\item
-  Doesn't work for systematic missingness.
-\end{itemize}
+\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-1} \end{center}
 
-\hypertarget{step-1-3-mnar}{%
-\subsection{Step 1-3 + MNAR}\label{step-1-3-mnar}}
-
-\begin{itemize}
-\tightlist
-\item
-  TODO: fill in.
-\end{itemize}
+\end{CodeChunk}
 
 \hypertarget{pooling}{%
 \subsection{Pooling}\label{pooling}}
@@ -654,9 +592,6 @@ R> ICCs
 \item
   Pooling `regular' parameters vs more `exotic' parameters (SE of
   residual errors, or autocorrelation)
-\item
-  ADD: export \texttt{mids} objects to other packages like \texttt{lme4}
-  or \texttt{coxme}?
 \end{itemize}
 
 \hypertarget{discussion}{%
@@ -664,12 +599,26 @@ R> ICCs
 
 \begin{itemize}
 \item
-  JOMO in \texttt{mice} --\textgreater{} on the side for now
+  JOMO in \pkg{mice} -\textgreater{} on the side for now
 \item
   Additional levels of clustering
 \item
   More complex data types: timeseries and polynomial relationship in the
   clustering.
+\end{itemize}
+
+\hypertarget{think-about}{%
+\section{Think about}\label{think-about}}
+
+\begin{itemize}
+\item
+  Adding some kind of help function to mice that suggests a suitable
+  predictor matrix to the user, given a certain analysis model.
+\item
+  Adding a \texttt{multilevel\_ampute()} wrapper function in mice.
+\item
+  Exporting \texttt{mids} objects to other packages like \texttt{lme4}
+  or \texttt{coxme}?
 \end{itemize}
 
 \renewcommand\refname{References}
