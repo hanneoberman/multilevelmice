@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.12.2)  2 DEC 2021 18:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.12.2)  6 DEC 2021 11:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -581,23 +581,20 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [7 <./Manuscript_files/figure-latex/pop_dist-2.pdf>]
-<Manuscript_files/figure-latex/pop_predictor_eval-1.pdf, id=220, 353.32pt x 264
-.99pt>
-File: Manuscript_files/figure-latex/pop_predictor_eval-1.pdf Graphic file (type
- pdf)
-<use Manuscript_files/figure-latex/pop_predictor_eval-1.pdf>
-Package pdftex.def Info: Manuscript_files/figure-latex/pop_predictor_eval-1.pdf
-  used on input line 354.
-(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
-
-Underfull \vbox (badness 2376) has occurred while \output is active []
-
-
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 8 []
  []
 
 [8 <./Manuscript_files/figure-latex/pop_ignored_eval-1.pdf>]
+<Manuscript_files/figure-latex/pop_predictor_eval-1.pdf, id=234, 353.32pt x 264
+.99pt>
+File: Manuscript_files/figure-latex/pop_predictor_eval-1.pdf Graphic file (type
+ pdf)
+<use Manuscript_files/figure-latex/pop_predictor_eval-1.pdf>
+Package pdftex.def Info: Manuscript_files/figure-latex/pop_predictor_eval-1.pdf
+  used on input line 365.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 9
  []
@@ -609,12 +606,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [10])
-Underfull \hbox (badness 10000) in paragraph at lines 461--461
+Underfull \hbox (badness 10000) in paragraph at lines 475--475
 
  []
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 461.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 475.
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 11
@@ -634,7 +631,7 @@ Here is how much of TeX's memory you used:
  27949 multiletter control sequences out of 15000+600000
  496314 words of font info for 75 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,9n,77p,302b,429s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 75i,9n,77p,302b,504s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec
 .enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm
 -rm.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm
@@ -659,7 +656,7 @@ onts/type1/public/lm/lmtt10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf
 -dist/fonts/type1/public/lm/lmtt9.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX
 /texmf-dist/fonts/type1/public/lm/lmtto10.pfb><c:/Users/4216318/AppData/Roaming
 /TinyTeX/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on Manuscript.pdf (11 pages, 1302701 bytes).
+Output written on Manuscript.pdf (11 pages, 1301502 bytes).
 PDF statistics:
  382 PDF objects out of 1000 (max. 8388607)
  316 compressed objects within 4 object streams

@@ -317,9 +317,9 @@ R> imp_ignored <- mice(pop, maxit = 10, pred = pred, print = FALSE)
 
 \begin{CodeOutput}
       vars incomplete   ignored
-1  popular  0.3280070 0.2958571
-2 popteach  0.3138658 0.2561198
-3     texp  1.0000000 0.4696024
+1  popular  0.3280070 0.2756762
+2 popteach  0.3138658 0.2456775
+3     texp  1.0000000 0.4129275
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -345,6 +345,17 @@ under certain circumstances and results may be biased. But at least, it
 includes some multilevel aspect. Colloquially, this is `multilevel
 imputation for dummies'.
 
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # adjust the predictor matrix
+R> pred <- ini$pred 
+R> pred[, "pupil"] <- 0
+R> 
+R> # impute the data, cluster as predictor
+R> imp_predictor <- mice(pop, maxit = 10, pred = pred, print = FALSE)
+\end{CodeInput}
+\end{CodeChunk}
+
 \hypertarget{imputed-data-1}{%
 \subsubsection{Imputed data}\label{imputed-data-1}}
 
@@ -355,9 +366,9 @@ imputation for dummies'.
 
 \begin{CodeOutput}
       vars incomplete   ignored predictor
-1  popular  0.3280070 0.2958571 0.3581435
-2 popteach  0.3138658 0.2561198 0.3446899
-3     texp  1.0000000 0.4696024 1.0000000
+1  popular  0.3280070 0.2756762 0.3587923
+2 popteach  0.3138658 0.2456775 0.1998760
+3     texp  1.0000000 0.4129275 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -452,6 +463,9 @@ cluster.\footnote{Observed data pattern should differ per cluster. So,
 \item
   Exporting \texttt{mids} objects to other packages like \texttt{lme4}
   or \texttt{coxme}?
+\item
+  Adding a ICC=0 dataset to show that even if there is no clustering it
+  doesn't hurt.
 \end{itemize}
 
 \renewcommand\refname{References}

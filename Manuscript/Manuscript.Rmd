@@ -104,6 +104,10 @@ ggplot(aes(
   labs(x = "", y = "")
 # TODO: make it one plot with sporadic and systematic
 # TODO: participant/response/*sample units*/records instead of obs on the y axis
+# TODO: cluster 3
+# TODO: add border/line
+# TODO: remove unit
+# TODO: add accolade
 
 ```
 
@@ -160,8 +164,8 @@ For each case study we'll look at least at: 1) the incomplete data; 2) the imput
 pop <- readRDS("../Data/popNCR.RDS") %>% mutate(school = round(0.5 + as.numeric(class)/10))
 
 # ICCs
-icc_pop <- multilevel::ICC1(aov(popular ~ as.factor(class), data = pop))
-icc_teach <- multilevel::ICC1(aov(popteach ~ as.factor(class), data = pop))
+icc_pop <- icc(popular ~ as.factor(class), data = pop)
+icc_teach <- icc(popteach ~ as.factor(class), data = pop)
 ```
 
 `popNCR` is a simulated dataset with pupils clustered in classes, $n_{\text{participants}} = 2000$, $n_{\text{clusters}} = 100$, on 7 variables: 
@@ -206,8 +210,8 @@ plot_col <- mice:::mdc(c("obs", "mis")) %>% setNames(c("observed", "missing"))
 # z = "popteach"
 plot_conditional <- function(data, x, z, cluster, ...){
   ggplot(data, aes(x = get(x), color = factor(is.na(get(z)), labels = c("missing", "observed")))) +
-  geom_density(data = data %>% filter(!is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[1], color = NA) +
-  geom_density(data = data %>% filter(is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[2], color = NA) +
+  geom_density(data = data %>% filter(!is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[2], color = NA) +
+  geom_density(data = data %>% filter(is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[1], color = NA) +
   geom_density() +
   scale_color_manual(values = plot_col, name = z) +
   theme_classic() +
@@ -226,6 +230,8 @@ plot_conditional(pop, x = "popteach", z = "popular", cluster = "class")
 # Feedback: 
 # you only see the extreme ones in the positive sense, especially with 100 clusters
 # alternatively add a quartile line around the density with geom_ribbon
+
+# marginal
 
 ```
 
@@ -268,12 +274,12 @@ densityplot(imp_ignored)
 # compare ICCs before and after imputation
 ICCs <- data.frame(
   vars = c("popular", "popteach", "texp"), 
-  incomplete = c(multilevel::ICC1(aov(popular ~ class, pop)), 
-               multilevel::ICC1(aov(popteach ~ class, pop)),
-               multilevel::ICC1(aov(texp ~ class, pop))), 
-  ignored = c(multilevel::ICC1(aov(popular ~ class, complete(imp_ignored))), 
-              multilevel::ICC1(aov(popteach ~ class, complete(imp_ignored))), 
-              multilevel::ICC1(aov(texp ~ class, complete(imp_ignored))))
+  incomplete = c(icc(popular ~ class, pop), 
+               icc(popteach ~ class, pop),
+               icc(texp ~ class, pop)), 
+  ignored = c(icc(popular ~ class, complete(imp_ignored)), 
+              icc(popteach ~ class, complete(imp_ignored)), 
+              icc(texp ~ class, complete(imp_ignored)))
   )
 ICCs
 ```
@@ -286,7 +292,7 @@ We can also observe that the teacher experience increases slightly after imputat
 
 We'll now use `class` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased. But at least, it includes some multilevel aspect. Colloquially, this is 'multilevel imputation for dummies'. 
 
-```{r pop_predictor, echo=FALSE, message=FALSE, warning=FALSE}
+```{r pop_predictor, message=FALSE, warning=FALSE}
 # adjust the predictor matrix
 pred <- ini$pred 
 pred[, "pupil"] <- 0
@@ -315,9 +321,9 @@ densityplot(imp_predictor)
 
 # compare ICCs before and after imputation
 ICCs <- ICCs %>% cbind(
-           predictor = c(multilevel::ICC1(aov(popular ~ class, complete(imp_predictor))), 
-                        multilevel::ICC1(aov(popteach ~ class, complete(imp_predictor))), 
-                        multilevel::ICC1(aov(texp ~ class, complete(imp_predictor))))
+           predictor = c(icc(popular ~ class, complete(imp_predictor)), 
+                        icc(popteach ~ class, complete(imp_predictor)), 
+                        icc(texp ~ class, complete(imp_predictor)))
            )
 ICCs
 ```
@@ -429,6 +435,8 @@ data("impact")
 - Adding a `multilevel_ampute()` wrapper function in mice.
 
 - Exporting `mids` objects to other packages like `lme4` or `coxme`? 
+
+- Adding a ICC=0 dataset to show that even if there is no clustering it doesn't hurt.
 
 # References
 
