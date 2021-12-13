@@ -71,9 +71,11 @@ in registry data, or at the study-level in meta-analyses (IPDMA). In the
 social sciences and official statistics we can find clustering e.g.~at
 the country-level, or as imposed by the sampling design. In this paper,
 we will refer to the grouping variable as `cluster', and the grouped
-variable as `(sample) unit'.\footnote{Add that we'll only discuss two
-  levels?} For reasons of brevity, we only discuss clustering between
-units, not within units (such as in timeseries or longitudinal data).
+variable as `(sample) unit'.\footnote{Alternatives to unit:
+  participant/response/record.} For reasons of brevity, we only discuss
+clustering between units, not within units (such as in timeseries or
+longitudinal data).\footnote{Also, add that we'll only discuss two
+  levels, no more?}
 
 Analyzing multilevel data requires special care, compared to `regular',
 single level data. The cluster to which a unit belongs may influence the
@@ -169,9 +171,9 @@ include: \pkg{mitml}, \pkg{miceadds}, \pkg{mdmb}.\footnote{Rephrase:
   providing an overview of implementations. It's up-to the reader to
   decide which multilevel strategy suits their data. So we won't go into
   detail for the different methods (and equations). Refer to
-  \citet{meng94}, an Audigier paper, and a paper by Grund on
-  congeniality and random slopes. This paper is just a software
-  tutorial. We'll keep it practical.}
+  \citet{meng94}, \citet{audi18}, and \citet{grun18}. This paper is just
+  a software tutorial. We'll keep it practical.} We introduce three case
+studies to illustrate the workflow.
 
 We structure this tutorial around three case studies:
 
@@ -188,16 +190,14 @@ We structure this tutorial around three case studies:
 \end{itemize}
 
 For each case study we focus on a different aspect to illustrate how to
-impute incomplete multilevel data.
-
-We introduce three case studies to illustrate the workflow. In the
-\texttt{mice::popmis} data, we show the advantages of including the
-multilevel structure of the data into the imputation model. In the
-\texttt{metamisc::impact} data we'll show how to induce missingness and
-solve it in real-world data. In the \texttt{GJRM::hiv} we provide novel
-methodology\footnote{not really, the methods exist already, but how to
-  show that this is something new and exciting?} for imputing MNAR
-missingness according to the Heckman model.
+impute incomplete multilevel data. In the \texttt{mice::popmis} data, we
+show the advantages of including the multilevel structure of the data
+into the imputation model. In the \texttt{metamisc::impact} data we'll
+show how to induce missingness and solve it in real-world data. In the
+\texttt{GJRM::hiv} we provide novel methodology\footnote{not really, the
+  methods exist already, but how to show that this is something new and
+  exciting?} for imputing MNAR missingness according to the Heckman
+model.
 
 For each case study we'll look at least at: 1) the incomplete data; 2)
 the imputation model; 3) the imputed data; and 4) how to obtain pooled
@@ -207,7 +207,7 @@ estimates for the analysis of scientific interest.
 \section{Case Study I: Popularity}\label{case-study-i-popularity}}
 
 \texttt{popNCR} is a simulated dataset with pupils clustered in classes,
-where the number of cases \(n = 2000\), and the number of clusters
+where the number of units \(n = 2000\), and the number of clusters
 \(N = 100\), on 7 variables:
 
 \begin{itemize}
@@ -369,7 +369,7 @@ R> imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 
 \begin{CodeOutput}
       vars incomplete   ignored predictor
-1  popular  0.3280070 0.3338626 0.3726455
+1  popular  0.3280070 0.3338626 0.3871020
 2 popteach  0.3414766 0.3414766 0.3414766
 3     texp  1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
@@ -395,7 +395,7 @@ R> pred["popular", ] <- c(0, -2, 2, 2, 2, 0, 2)
 R> #-2 for the cluster variable, 2 for random effects
 R> meth <- ini$meth
 R> meth <- c("", "", "", "", "", "2l.norm", "")
-R> imp_norm <-
+R> imp_norm_2l <-
 +   mice(
 +     pop %>% mutate(class = as.integer(class)),
 +     pred = pred,
@@ -409,7 +409,7 @@ R> imp_norm <-
 \begin{CodeChunk}
 \begin{CodeInput}
 R> # plot(imp_norm)
-R> densityplot(imp_norm, ~popular)
+R> plot_box(imp_norm_2l, x = "popular", strip = TRUE)
 \end{CodeInput}
 
 
@@ -417,15 +417,15 @@ R> densityplot(imp_norm, ~popular)
 
 \begin{CodeInput}
 R> ICCs <- ICCs %>% mutate(
-+            norm = c(icc(popular ~ as.factor(class), complete(imp_norm)), 
-+                     icc(popteach ~ as.factor(class), complete(imp_norm)), 
-+                     icc(texp ~ as.factor(class), complete(imp_norm)))
++            norm = c(icc(popular ~ as.factor(class), complete(imp_norm_2l)), 
++                     icc(popteach ~ as.factor(class), complete(imp_norm_2l)), 
++                     icc(texp ~ as.factor(class), complete(imp_norm_2l)))
 +            )
 R> ICCs
 \end{CodeInput}
 \begin{CodeOutput}
       vars incomplete   ignored predictor      norm
-1  popular  0.3280070 0.3338626 0.3726455 0.3667167
+1  popular  0.3280070 0.3338626 0.3871020 0.3612830
 2 popteach  0.3414766 0.3414766 0.3414766 0.3414766
 3     texp  1.0000000 1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
@@ -435,7 +435,7 @@ R> ICCs
 \begin{CodeInput}
 R> pred["popular", ] <- c(0, -2, 2, 2, 1, 0, 2)
 R> meth <- c("", "", "", "", "", "2l.pan", "")
-R> imp_pan <-
+R> imp_pan_2l <-
 +   mice(
 +     pop %>% mutate(class = as.integer(class)),
 +     pred = pred,
@@ -449,7 +449,7 @@ R> imp_pan <-
 \begin{CodeChunk}
 \begin{CodeInput}
 R> # plot(imp_pan)
-R> densityplot(imp_pan, ~popular)
+R> plot_box(imp_pan_2l, x = "popular", strip = TRUE)
 \end{CodeInput}
 
 
@@ -457,22 +457,22 @@ R> densityplot(imp_pan, ~popular)
 
 \begin{CodeInput}
 R> ICCs <- ICCs %>% mutate(
-+            pan = c(icc(popular ~ as.factor(class), complete(imp_pan)), 
-+                     icc(popteach ~ as.factor(class), complete(imp_pan)), 
-+                     icc(texp ~ as.factor(class), complete(imp_pan)))
++            pan = c(icc(popular ~ as.factor(class), complete(imp_pan_2l)), 
++                     icc(popteach ~ as.factor(class), complete(imp_pan_2l)), 
++                     icc(texp ~ as.factor(class), complete(imp_pan_2l)))
 +            )
 R> ICCs
 \end{CodeInput}
 \begin{CodeOutput}
       vars incomplete   ignored predictor      norm       pan
-1  popular  0.3280070 0.3338626 0.3726455 0.3667167 0.3719078
+1  popular  0.3280070 0.3338626 0.3871020 0.3612830 0.3745108
 2 popteach  0.3414766 0.3414766 0.3414766 0.3414766 0.3414766
 3     texp  1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
 \hypertarget{case-study-ii-impact}{%
-\subsection{Case study II: IMPACT}\label{case-study-ii-impact}}
+\section{Case study II: IMPACT}\label{case-study-ii-impact}}
 
 \texttt{impact} is traumatic brain injury data with patients,
 \(n = 11022\), clustered in studies, \(N = 15\). With the following 11
@@ -511,18 +511,12 @@ cluster.\footnote{Observed data pattern should differ per cluster. So,
   in cluster 1, the missingness would depend on age, but not in cluster
   two. Split the dataframe and run \texttt{ampute()} on each cluster.}
 
-\hypertarget{pooling}{%
-\subsection{Pooling}\label{pooling}}
+\hypertarget{case-study-iii-hiv}{%
+\section{Case study III: HIV}\label{case-study-iii-hiv}}
 
-\begin{itemize}
-\item
-  Analysis of scientific interest.
-\item
-  Pooling using \texttt{mitml}.
-\item
-  Pooling `regular' parameters vs more `exotic' parameters (SE of
-  residual errors, or autocorrelation)
-\end{itemize}
+Toy example from
+\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{Heckman
+Github repo}.
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}

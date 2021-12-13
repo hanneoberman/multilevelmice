@@ -89,12 +89,22 @@ fit_missingness_models <- function(fname) {
       if (pct_missing[vname] > 0 &  pct_missing[vname] < 100) {
         results[nrow(results),cnames] <- coef(fit)
       }
-      
-      
-      
     }
   }
   
   return(results)
+
+}
+
+ampute_impact <- function(dat, p_obs){
+  # pre-process coefficients
+  p_obs[is.na(p_obs)] <- 0
+  betas <- split(p_obs, p_obs$trial)
+  betas <- purrr::map(betas, ~{.[, 4:17] %>% as.data.frame(row.names = unique(p_obs$variable_missing))})
+
+  # create model matrix
+  mm <- purrr::map(split(dat, dat$name), ~{model.matrix(name ~ pupil + ct + hypox + hypots + tsah + edh + age + motor_score + mort, .x) %>% as.data.frame()})
   
+  # calculate missingness probability
+  a <- purrr::map2(betas, mm, ~{as.matrix(.y) %*% t(.x[])})
 }

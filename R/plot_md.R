@@ -1,3 +1,44 @@
+# plotting functions for incomplete data
+# missingness indicator plot (monotone vs non-monotone)
+plot_md_set <- function(...){
+  miss_ind <- tibble(
+  rownr = 5:1,
+  unit = rep("observed", 5),
+  cluster = rep("observed", 5),
+  X1 = rep("observed", 5),
+  X2 = c(rep("observed", 3), rep("missing", 2)),
+  X3 = c("missing", rep("observed", 3), "missing")
+) %>% pivot_longer(cols = c(unit, cluster, X1, X2, X3))
+
+# add text 
+miss_ind$text <- ""
+miss_ind[miss_ind$name == "unit", "text"] <- as.character(1:5)
+miss_ind[miss_ind$name == "cluster", "text"] <- as.character(c(1,1,1,2,2))
+
+# plot
+miss_ind %>% 
+  mutate(name = factor(name, levels = unique(name))) %>% 
+  ggplot(aes(
+    x = name,
+    y = rownr,
+    color = value,
+    width = 0.8, 
+    height = 0.8,
+    label = text
+  )) +
+  geom_tile(fill = "white", size = 2) +
+  geom_text(show.legend = FALSE) +
+  scale_x_discrete(position = "top") +
+  scale_y_discrete(labels = 5:1) +
+  scale_color_manual(values = plot_col, name = "") +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom", 
+    panel.grid.major = element_blank()) +
+  labs(x = "", y = "")
+}
+
+
 # missing data pattern
 plot_md_pat <- function(dat) {
   # get md pattern and store additional info
@@ -93,6 +134,19 @@ plot_md_pat <- function(dat) {
   return(p)
 }
 
+# plot conditional distributions
+plot_conditional <- function(data, x, z, cluster, ...){
+  ggplot(data, aes(x = get(x), color = factor(is.na(get(z)), labels = c("missing", "observed")))) +
+    geom_density(data = data %>% filter(!is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[2], color = NA) +
+    geom_density(data = data %>% filter(is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[1], color = NA) +
+    geom_density() +
+    scale_color_manual(values = plot_col, name = z) +
+    theme_classic() +
+    theme(legend.position = "bottom") +
+    labs(x = x)
+}
+
+
 #' Title Create a histogram/bar plot of a variable conditional on missingness in another variable
 #'
 #' @param dat An incomplete dataset of class dataframe
@@ -166,5 +220,3 @@ plot_NA_cond <- function(dat, x, z, bins = NULL) {
   # output
   return(p)
 }
-
-# plot conditional densities
