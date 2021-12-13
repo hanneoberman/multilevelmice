@@ -17,7 +17,7 @@ Debray\\University Medical Center Utrecht
 \Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn de
 Jong, Gerko Vink, Thomas Debray}
 \Plaintitle{Imputation of Incomplete Multilevel Data with mice}
-\Shorttitle{\pkg{mice}: Multilevel}
+\Shorttitle{Multilevel \pkg{mice}}
 
 
 \Abstract{
@@ -50,6 +50,8 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 
 % Pandoc citation processing
 
+\usepackage{graphicx}
+\usepackage{mathtools}
 
 \usepackage{amsmath}
 
@@ -107,6 +109,18 @@ models'.
 \caption[Missingness in multilevel data]{Missingness in multilevel data}\label{fig:patterns}
 \end{figure}
 \end{CodeChunk}
+
+\[
+\begin{matrix} 
+                          &X1     & X2          & X3            \\
+   \hline
+   \mathrm{cluster 1}\{   &x_{11} &x_{12}       &\mathtt{NA}    \\
+                          &x_{21} &x_{22}       &x_{32}         \\
+   \mathrm{cluster 2}\{   &x_{31} &\mathtt{NA}  &x_{33}         \\
+                          &x_{41} &\mathtt{NA}  &\mathtt{NA}    \\
+   \mathrm{cluster 3}\{   &x_{51} &x_{52}       &x_{53}         \\
+\end{matrix} 
+\]
 
 Multilevel data is not spared the ubiquitous problem of missing
 information. Just as in single level data, missingness may occur at the
@@ -176,9 +190,6 @@ We structure this tutorial around three case studies:
 For each case study we focus on a different aspect to illustrate how to
 impute incomplete multilevel data.
 
-\hypertarget{workflows}{%
-\section{Workflows}\label{workflows}}
-
 We introduce three case studies to illustrate the workflow. In the
 \texttt{mice::popmis} data, we show the advantages of including the
 multilevel structure of the data into the imputation model. In the
@@ -193,11 +204,11 @@ the imputation model; 3) the imputed data; and 4) how to obtain pooled
 estimates for the analysis of scientific interest.
 
 \hypertarget{case-study-i-popularity}{%
-\subsection{Case Study I: Popularity}\label{case-study-i-popularity}}
+\section{Case Study I: Popularity}\label{case-study-i-popularity}}
 
 \texttt{popNCR} is a simulated dataset with pupils clustered in classes,
-\(n_{\text{participants}} = 2000\), \(n_{\text{clusters}} = 100\), on 7
-variables:
+where the number of cases \(n = 2000\), and the number of clusters
+\(N = 100\), on 7 variables:
 
 \begin{itemize}
 \tightlist
@@ -235,7 +246,7 @@ The popularity data is created such that there are strong relations
 between the incomplete variables and the clustering variable
 \texttt{class}. We can express this using the intra-class correlation
 (ICC). For \texttt{popular} the ICC is 0.33. For \texttt{popteach} it is
-0.31. It would thus be wise to use multilevel modeling.
+0.34. It would thus be wise to use multilevel modeling.
 
 The missingness in this dataset is induced conform MAR and MNAR
 mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows
@@ -268,15 +279,7 @@ relation seems to be right-tailed as well.
 
 }
 
-\caption[Conditional distributions in the popularity data]{Conditional distributions in the popularity data}\label{fig:pop_dist-1}
-\end{figure}
-\begin{figure}
-
-{\centering \includegraphics{Manuscript_files/figure-latex/pop_dist-2} 
-
-}
-
-\caption[Conditional distributions in the popularity data]{Conditional distributions in the popularity data}\label{fig:pop_dist-2}
+\caption[Conditional distributions in the popularity data]{Conditional distributions in the popularity data}\label{fig:pop_dist}
 \end{figure}
 \end{CodeChunk}
 
@@ -303,7 +306,7 @@ R> pred <- ini$pred
 R> pred[, c("class", "pupil")] <- 0
 R> 
 R> # impute the data, ignoring the cluster structure
-R> imp_ignored <- mice(pop, maxit = 10, pred = pred, print = FALSE)
+R> imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -317,9 +320,9 @@ R> imp_ignored <- mice(pop, maxit = 10, pred = pred, print = FALSE)
 
 \begin{CodeOutput}
       vars incomplete   ignored
-1  popular  0.3280070 0.2756762
-2 popteach  0.3138658 0.2456775
-3     texp  1.0000000 0.4129275
+1  popular  0.3280070 0.3338626
+2 popteach  0.3414766 0.3414766
+3     texp  1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -352,7 +355,7 @@ R> pred <- ini$pred
 R> pred[, "pupil"] <- 0
 R> 
 R> # impute the data, cluster as predictor
-R> imp_predictor <- mice(pop, maxit = 10, pred = pred, print = FALSE)
+R> imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -366,9 +369,9 @@ R> imp_predictor <- mice(pop, maxit = 10, pred = pred, print = FALSE)
 
 \begin{CodeOutput}
       vars incomplete   ignored predictor
-1  popular  0.3280070 0.2756762 0.3587923
-2 popteach  0.3138658 0.2456775 0.1998760
-3     texp  1.0000000 0.4129275 1.0000000
+1  popular  0.3280070 0.3338626 0.3726455
+2 popteach  0.3414766 0.3414766 0.3414766
+3     texp  1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -385,12 +388,95 @@ this is a quick and dirty way of imputing multilevel data. We
 
 To include\ldots{}
 
+\begin{CodeChunk}
+\begin{CodeInput}
+R> pred <- ini$pred
+R> pred["popular", ] <- c(0, -2, 2, 2, 2, 0, 2) 
+R> #-2 for the cluster variable, 2 for random effects
+R> meth <- ini$meth
+R> meth <- c("", "", "", "", "", "2l.norm", "")
+R> imp_norm <-
++   mice(
++     pop %>% mutate(class = as.integer(class)),
++     pred = pred,
++     meth = meth,
++     maxit = 1,
++     print = FALSE
++   )
+\end{CodeInput}
+\end{CodeChunk}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # plot(imp_norm)
+R> densityplot(imp_norm, ~popular)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_norm_eval-1} \end{center}
+
+\begin{CodeInput}
+R> ICCs <- ICCs %>% mutate(
++            norm = c(icc(popular ~ as.factor(class), complete(imp_norm)), 
++                     icc(popteach ~ as.factor(class), complete(imp_norm)), 
++                     icc(texp ~ as.factor(class), complete(imp_norm)))
++            )
+R> ICCs
+\end{CodeInput}
+\begin{CodeOutput}
+      vars incomplete   ignored predictor      norm
+1  popular  0.3280070 0.3338626 0.3726455 0.3667167
+2 popteach  0.3414766 0.3414766 0.3414766 0.3414766
+3     texp  1.0000000 1.0000000 1.0000000 1.0000000
+\end{CodeOutput}
+\end{CodeChunk}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> pred["popular", ] <- c(0, -2, 2, 2, 1, 0, 2)
+R> meth <- c("", "", "", "", "", "2l.pan", "")
+R> imp_pan <-
++   mice(
++     pop %>% mutate(class = as.integer(class)),
++     pred = pred,
++     meth = meth,
++     maxit = 1,
++     print = FALSE
++   )
+\end{CodeInput}
+\end{CodeChunk}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # plot(imp_pan)
+R> densityplot(imp_pan, ~popular)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/pop_pan_eval-1} \end{center}
+
+\begin{CodeInput}
+R> ICCs <- ICCs %>% mutate(
++            pan = c(icc(popular ~ as.factor(class), complete(imp_pan)), 
++                     icc(popteach ~ as.factor(class), complete(imp_pan)), 
++                     icc(texp ~ as.factor(class), complete(imp_pan)))
++            )
+R> ICCs
+\end{CodeInput}
+\begin{CodeOutput}
+      vars incomplete   ignored predictor      norm       pan
+1  popular  0.3280070 0.3338626 0.3726455 0.3667167 0.3719078
+2 popteach  0.3414766 0.3414766 0.3414766 0.3414766 0.3414766
+3     texp  1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
+\end{CodeOutput}
+\end{CodeChunk}
+
 \hypertarget{case-study-ii-impact}{%
 \subsection{Case study II: IMPACT}\label{case-study-ii-impact}}
 
-\texttt{impact} is traumatic brain injury data with patients clustered
-in studies, \(n_{\text{participants}} = 11022\) and
-\(n_{\text{clusters}} = 15\), on the following 11 variables:
+\texttt{impact} is traumatic brain injury data with patients,
+\(n = 11022\), clustered in studies, \(N = 15\). With the following 11
+variables:
 
 \begin{itemize}
 \tightlist
