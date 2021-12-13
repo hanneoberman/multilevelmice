@@ -113,7 +113,7 @@ For each case study we'll look at least at: 1) the incomplete data; 2) the imput
 # Case Study I: Popularity
 
 ```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
-# load data and merge classes into schools for this tutorial -> but this cannot work because how texp and popteach are defined...
+# load data 
 pop <- readRDS("../Data/popNCR2.RDS") %>% mutate(class = as.factor(class))
 
 # ICCs
@@ -142,7 +142,7 @@ plot_md_pat(pop)
 
 The popularity data is created such that there are strong relations between the incomplete variables and the clustering variable `class`. We can express this using the intra-class correlation (ICC). For `popular` the ICC is `r round(icc_pop, 2)`. For `popteach` it is `r round(icc_teach, 2)`. It would thus be wise to use multilevel modeling.
 
-The missingness in this dataset is induced conform MAR and MNAR mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows the systematic nature of the missingness.
+The missingness in this dataset is induced conform MAR and MNAR mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows that just one variable is incomplete **[the next part is not yet updated to reflect this]**.
 
 To develop the best imputation model, we need to know whether the missingness in one variable depends on the observed values of other variables. Visual inspection usually suffices. We'll highlight only two variables to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of `popular` depend on `popteach`?' and 'Does the missingness in teacher popularity depend on pupil popularity?' We'll evaluate this by making a histogram of `popteach` separately for the pupils with known popularity and missing popularity, and the other way around.
 
