@@ -5,8 +5,8 @@ fit_missingness_models <- function(fname) {
   data <- read.spss(fname, to.data.frame = TRUE)
   
   # Names of incomplete variables
-  vnames_incomplete <- c("d_pupil", "ct_class", "hypoxia", "hypotens", "tsah", "edh") #i_pupil 
-  vnames_complete <- c("age", "d_motor")
+  vnames_incomplete <- c("pupil", "ct", "hypoxia", "hypotens", "tsah", "edh")  
+  vnames_complete <- c("age", "motor_score", "d_mort")
   
   data$name <- ""
   data$name[data$trial == "74"] <- "TINT" #1118
@@ -25,19 +25,32 @@ fit_missingness_models <- function(fname) {
   data$name[data$trial == "90"] <- "PHARMOS" #856
   data$name[data$trial == "91"] <- "APOE" # 756
   
+  # Change coding of variables to match the coding in metamisc
+  data$motor_score <- factor(data$d_motor, levels = c(1, 2, 3, 4, 5, 6),
+                             labels = c("1/2", "1/2", "3", "4", "5/6", "5/6"))
+  data$pupil <- factor(data$d_pupil, levels = c(1, 2, 3),
+                       labels = c("Both", "One", "None"))
+  data$ct <- factor(data$ct_class, levels = c(1, 2, 3, 4, 5),
+                    labels = c("I/II", "I/II", "III", "IV/V", "IV/V"))
+  
   
   results <- data.frame(trial = character(),
                         variable_missing = character(),
                         percent_missing = numeric(),
                         "beta_Intercept" = numeric(),
-                        beta_d_pupil =  numeric(),
-                        beta_ct_class = numeric(),
+                        beta_pupilOne =  numeric(),
+                        beta_pupilNone =  numeric(),
+                        beta_ctIII = numeric(),
+                        beta_ctIV.V = numeric(),
                         beta_hypoxia = numeric(),
                         beta_hypotens = numeric(),
                         beta_tsah = numeric(),
                         beta_edh = numeric(),
                         beta_age = numeric(),
-                        beta_d_motor = numeric())
+                        beta_motor_score3 = numeric(),
+                        beta_motor_score4 = numeric(),
+                        "beta_motor_score5.6" = numeric(),
+                        beta_d_mort = numeric())
   
 
 
@@ -65,13 +78,19 @@ fit_missingness_models <- function(fname) {
       
       cnames <- names(coef(fit))
       cnames[1] <- "Intercept"
+      cnames[which(cnames == "motor_score5/6")] <-  "motor_score5.6"
+      cnames[which(cnames == "ctIV/V")] <-  "ctIV.V"
       cnames <- paste("beta_", cnames, sep = "")
       
       results <- results %>% add_row(data.frame(trial = unique(dat$name),
                                                 variable_missing = vname,
                                                 percent_missing = pct_missing[vname]))
       
-      results[nrow(results),cnames] <- coef(fit)
+      if (pct_missing[vname] > 0 &  pct_missing[vname] < 100) {
+        results[nrow(results),cnames] <- coef(fit)
+      }
+      
+      
       
     }
   }
