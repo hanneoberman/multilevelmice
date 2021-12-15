@@ -48,6 +48,7 @@ library(tidyverse)
 library(mice)
 library(miceadds)
 library(metamisc)
+library(GJRM)
 library(pan)
 
 # functions
@@ -354,8 +355,24 @@ data("impact")
 
 # Case study III: HIV
 
-Toy example from [Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R).
+Toy example from [Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R). We will use the following variables:
 
+  - `region` Cluster variable,
+  - `hiv` HIV diagnosis (0=no, 1=yes),
+  - `age` Age of the patient,
+  - `marital` Marital status,
+  - `condom` Condom use during last intercourse,
+  - `smoke` Smoker (levels).
+
+```{r hiv, echo=FALSE}
+# data
+data("hiv")
+hiv <- hiv %>% 
+  select(c("region","hiv", "age", "marital", "condom", "smoke")) %>% 
+  mutate(region = as.integer(region))
+# md pattern
+plot_md_pat(hiv)
+```
 
 # Discussion
 
