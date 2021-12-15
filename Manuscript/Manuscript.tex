@@ -21,8 +21,12 @@ Jong, Gerko Vink, Thomas Debray}
 
 
 \Abstract{
-Tutorial paper on imputing incomplete multilevel data with \pkg{mice}.
-Including methods for ignorable and non-ignorable missingness.
+Multilevel data is not spared the ubiquitous problem of missing
+information. This is a tutorial paper on imputing incomplete multilevel
+data with \pkg{mice}. Including methods for ignorable and non-ignorable
+missingness. Footnotes in the current version show work in
+progress/under construction. The last section is not part of the
+manuscript, but purely for reminders.
 }
 
 \Keywords{missing
@@ -63,40 +67,42 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \hypertarget{multilevel-data}{%
 \subsection{Multilevel data}\label{multilevel-data}}
 
-We talk of multilevel data when there is some kind of hierarchy or
-clustering in a dataset. In the typical case, individuals are nested
-within groups, but there are many different types of multilevel data. In
-the medical field, clustering occurs at e.g., the hospitals/center level
-in registry data, or at the study-level in meta-analyses (IPDMA). In the
-social sciences and official statistics we can find clustering e.g.~at
-the country-level, or as imposed by the sampling design. In this paper,
-we will refer to the grouping variable as `cluster', and the grouped
-variable as `(sample) unit'.\footnote{Alternatives to unit:
-  participant/response/record.} For reasons of brevity, we only discuss
-clustering between units, not within units (such as in timeseries or
-longitudinal data).\footnote{Also, add that we'll only discuss two
-  levels, no more?}
+Research into any field with a hierarchical or clustered nature of
+observations may yield multilevel data. In the typical case, individuals
+are nested within groups, but there are many different types of
+multilevel data. In the medical field, clustering occurs at e.g., the
+hospital or center level in registry data, or at the study-level in
+meta-analyses (IPDMA\footnote{remove or write in full?}). In the social
+sciences and official statistics we can find clustering e.g.~at the
+country-level, or as imposed by a multi-stage sampling design. For the
+sake of legibility, we will refer to the grouping variable as `cluster',
+and the grouped variable as `(sample) unit' throughout this
+paper.\footnote{Alternatives to unit: participant/response/record.} And,
+for reasons of brevity, we only discuss clustering between units, not
+within units (e.g., timeseries or longitudinal data).\footnote{Also, add
+  that we'll only discuss two levels, not more?}
 
 Analyzing multilevel data requires special care, compared to `regular',
-single level data. The cluster to which a unit belongs may influence the
-unit-level observations, and since clusters are made up of units,
-clusters depend on units as well \citep{hox17}. These relations can and
-should be taken into account when developing analysis models for
-multilevel data.\footnote{Explain ICC here? The percentage of variance
-  attributed to the cluster-level is expressed by the intra-class
-  coefficient (ICC). The ICC can also be interpreted as the expected
-  correlation between two randomly sampled units in same cluster. So if
-  the ICC is high, a lot of variability in a variable is due to the
-  clustering, which should be modeled accordingly.} Multilevel models
-typically include separate intercepts for each cluster, which relieves
-one restriction imposed by single-level models: equal group means across
-clusters. Additionally, there may be random predictor effects and/or
-random error terms (residual error variances), see e.g. \citet{hox17}
-and \citet{jong21}.\footnote{Add that heterogeneity refers to
-  variability within clusters.} There are many names for models that
-take clustering into account. Some popular examples are `multilevel
-models', `hierarchical models', `mixed effect models' and `random effect
-models'.
+single level data. For instance, there may be cross-level interactions
+between unit-level variables and cluster-level variables. The cluster to
+which a unit belongs may influence the unit-level observations, and vice
+versa for the the units that make up the cluster \citep{hox17}. These
+relations can and should be taken into account when developing analysis
+models for multilevel data.\footnote{Explain ICC here? The percentage of
+  variance attributed to the cluster-level is expressed by the
+  intra-class coefficient (ICC). The ICC can also be interpreted as the
+  expected correlation between two randomly sampled units in same
+  cluster. So if the ICC is high, a lot of variability in a variable is
+  due to the clustering, which should be modeled accordingly.}
+Multilevel models typically include separate intercepts for each
+cluster, which relieves one restriction imposed by single-level models:
+equal group means across clusters. Additionally, there may be random
+predictor effects and/or random error terms (residual error variances),
+see e.g. \citet{hox17} and \citet{jong21}.\footnote{Add that
+  heterogeneity refers to variability within clusters.} There are many
+names for models that take clustering into account. Some popular
+examples are `multilevel models', `hierarchical models', `mixed effect
+models' and `random effect models'.
 
 \hypertarget{missing-data}{%
 \subsection{Missing data}\label{missing-data}}
@@ -112,6 +118,25 @@ models'.
 \end{figure}
 \end{CodeChunk}
 
+Multilevel data is not spared the ubiquitous problem of missing
+information. Just as in single level data, missingness may occur at the
+unit level. But with multiple levels of data comes the potential for
+missingness at multiple levels. Missingness in multilevel data can be
+categorized into two general patterns: systematical missingness and
+sporadic missingness, see \citet{resc13}. In figure 1, we show a dataset
+with units in the rows and variables in the columns, there are 5 units
+nested within 3 clusters, and 3 variables of interest. Variable
+\texttt{X1} is completely observed. Variable \texttt{X2} is
+systematically missing, \texttt{X3} is sporadically missing.\footnote{Explain
+  why.} Systematic missingness can be further subdivided into unobserved
+constants (i.e., the same value within clusters) and non-measured random
+variables (which may differ per unit within clusters). In Figure 1, the
+former implies that the unobserved values for units 3 and 4 on variable
+\texttt{X2} would be equal. With the latter, the values may differ.
+Depending on the missing data pattern\footnote{add missing data
+  mechanisms here?}, there are more or less optimal way of accommodating
+the missingness.
+
 \[
 \begin{matrix} 
                           &X1     & X2          & X3            \\
@@ -123,24 +148,6 @@ models'.
    \mathrm{cluster 3}\{   &x_{51} &x_{52}       &x_{53}         \\
 \end{matrix} 
 \]
-
-Multilevel data is not spared the ubiquitous problem of missing
-information. Just as in single level data, missingness may occur at the
-unit level. But with multiple levels of data comes the potential for
-missingness at multiple levels. Missingness in multilevel data can be
-categorized into two general patterns: systematical missingness and
-sporadic missingness, see \citet{resc13}. In figure 1, we show a dataset
-with units in the rows and variables in the columns, there are 5 units
-nested within 2 clusters, and 3 variables of interest. Variable
-\texttt{X1} is completely observed. Variable \texttt{X2} is
-systematically missing, \texttt{X3} is sporadically missing.\footnote{Explain
-  why.} Systematic missingness can be further subdivided into unobserved
-constants (same value per cluster) and non-measured random variables
-(which may differ per unit within clusters). In Figure 1, the former
-implies that the unobserved values for units 4 and 5 on variable
-\texttt{X2} would be equal. With the latter, the values may differ.
-Depending on the missing data pattern, there are more or less optimal
-way of accommodating the missingness.
 
 Ignoring missing data in research endeavors is almost never a good idea.
 Complete case analysis (i.e., excluding all units with one or more
@@ -164,16 +171,15 @@ mechanisms.\footnote{Discuss missingness mechanisms before this point,
 This papers serves as a tutorial for imputing incomplete multilevel data
 with \pkg{mice}. We provide practical guidelines and code snippets for
 different missing data situations. For reasons of brevity, we focus on
-imputation by chained equations, although JOMO is available in
-\pkg{mice} as well. Other useful packages for incomplete multilevel data
-include: \pkg{mitml}, \pkg{miceadds}, \pkg{mdmb}.\footnote{Rephrase:
+imputation by chained equations\footnote{add that JOMO is available in
+  \pkg{mice} as well?}. Other useful packages for incomplete multilevel
+data include \pkg{mitml}, \pkg{miceadds}, and \pkg{mdmb}.\footnote{Rephrase:
   Some level of knowledge on multilevel models is assumed. We're
   providing an overview of implementations. It's up-to the reader to
   decide which multilevel strategy suits their data. So we won't go into
   detail for the different methods (and equations). Refer to
   \citet{meng94}, \citet{audi18}, and \citet{grun18}. This paper is just
-  a software tutorial. We'll keep it practical.} We introduce three case
-studies to illustrate the workflow.
+  a software tutorial. We'll keep it practical.}
 
 We structure this tutorial around three case studies:
 
@@ -197,11 +203,8 @@ show how to induce missingness and solve it in real-world data. In the
 \texttt{GJRM::hiv} we provide novel methodology\footnote{not really, the
   methods exist already, but how to show that this is something new and
   exciting?} for imputing MNAR missingness according to the Heckman
-model.
-
-For each case study we'll look at least at: 1) the incomplete data; 2)
-the imputation model; 3) the imputed data; and 4) how to obtain pooled
-estimates for the analysis of scientific interest.
+model. For all case studies we discuss the nature of the incomplete
+data, the imputation model(s), and evaluation of the imputed data.
 
 \hypertarget{case-study-i-popularity}{%
 \section{Case Study I: Popularity}\label{case-study-i-popularity}}

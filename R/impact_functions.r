@@ -96,15 +96,23 @@ fit_missingness_models <- function(fname) {
 
 }
 
-ampute_impact <- function(dat, p_obs){
+ampute_impact <- function(impact, p_obs){
+  # just for function development 
+  # load("../Data/p_observed_impact.rda")
+  # p_obs <- results
+  
   # pre-process coefficients
   p_obs[is.na(p_obs)] <- 0
   betas <- split(p_obs, p_obs$trial)
   betas <- purrr::map(betas, ~{.[, 4:17] %>% as.data.frame(row.names = unique(p_obs$variable_missing))})
 
-  # create model matrix
-  mm <- purrr::map(split(dat, dat$name), ~{model.matrix(name ~ pupil + ct + hypox + hypots + tsah + edh + age + motor_score + mort, .x) %>% as.data.frame()})
+  # create model matrices
+  mm <- purrr::map(split(impact, impact$name), ~{model.matrix(name ~ pupil + ct + hypox + hypots + tsah + edh + age + motor_score + mort, .x) %>% as.data.frame()})
   
-  # calculate missingness probability
-  a <- purrr::map2(betas, mm, ~{as.matrix(.y) %*% t(.x[])})
+  # calculate linear predictor for missingness probability and convert to prob_obs
+  pr <- purrr::map2(betas, mm, ~{as.matrix(.y) %*% t(.x[]) %>% plogis() %>% as.data.frame()})
+  
+  # select lowest values to make incomplete
+  
+  
 }
