@@ -3,17 +3,17 @@
 plot_md_set <- function(...){
   miss_ind <- tibble(
   rownr = 5:1,
-  unit = rep("observed", 5),
+  # unit = rep("observed", 5),
   cluster = rep("observed", 5),
   X1 = rep("observed", 5),
-  X2 = c(rep("observed", 3), rep("missing", 2)),
-  X3 = c("missing", rep("observed", 3), "missing")
-) %>% pivot_longer(cols = c(unit, cluster, X1, X2, X3))
+  X2 = c(rep("observed", 2), rep("missing", 2), "observed"),
+  X3 = c("missing", rep("observed", 2), "missing", "observed")
+) %>% pivot_longer(cols = c(cluster, X1, X2, X3))
 
 # add text 
 miss_ind$text <- ""
-miss_ind[miss_ind$name == "unit", "text"] <- as.character(1:5)
-miss_ind[miss_ind$name == "cluster", "text"] <- as.character(c(1,1,1,2,2))
+# miss_ind[miss_ind$name == "unit", "text"] <- as.character(1:5)
+miss_ind[miss_ind$name == "cluster", "text"] <- as.character(c(1,1,2,2,3))
 
 # plot
 miss_ind %>% 
