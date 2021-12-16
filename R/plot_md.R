@@ -23,11 +23,10 @@ miss_ind %>%
     y = rownr,
     color = value,
     width = 0.8, 
-    height = 0.8,
-    label = text
-  )) +
+    height = 0.8
+    )) +
   geom_tile(fill = "white", size = 2) +
-  geom_text(show.legend = FALSE) +
+  geom_label(data = data.frame(name = "cluster", rownr = 1, value = "observed", label = "{"), aes(label = label)) +
   scale_x_discrete(position = "top") +
   scale_y_discrete(labels = 5:1) +
   scale_color_manual(values = plot_col, name = "") +
@@ -38,7 +37,7 @@ miss_ind %>%
   labs(x = "", y = "")
 }
 
-
+plot_md_set()
 # missing data pattern
 plot_md_pat <- function(dat) {
   # get md pattern and store additional info
