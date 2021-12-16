@@ -73,32 +73,15 @@ The variability due to clustering is often measured by means of the intra-class 
 
 ## Missing data
 
-```{r patterns, fig.height=4, fig.width=3.2, fig.cap = "Missingness in multilevel data", echo=FALSE}
+```{r patterns, fig.height=3, fig.width=4.1, fig.cap = "Missingness in multilevel data", echo=FALSE}
 plot_md_set()
-# TODO: add border/line
-# TODO: remove unit
-# TODO: add accolade
-
 ```
 
-The process of analyzing multilevel data is further complicated when not all observations are observed. Just as with single level data, missingness may occur at the unit level. But with multiple levels of data comes the potential for clustered missingness. Missingness in multilevel data can therefore be categorized into two general patterns: systematic missingness and sporadic missingness, see @resc13. We have visualized the difference between these types of missingness in Figure 1. The figure shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n=5$ units and $p=3$ columns distributed over 3 clusters. Column `X1` is completely observed. Column `X2` is systematically missing and column `X3` is sporadically missing.^[Explain why. GV: niet nodig]
+The process of analyzing multilevel data is further complicated when not all observations are observed. Just as with single level data, missingness may occur at the unit level. But with multiple levels of data comes the potential for clustered missingness. Missingness in multilevel data can therefore be categorized into two general patterns: systematic missingness and sporadic missingness, see @resc13. We have visualized the difference between these types of missingness in Figure 1. The figure shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n=5$ units and $p=3$ columns distributed over 3 clusters. Column `X1` is completely observed. Column `X2` is systematically missing and column `X3` is sporadically missing.^[Explain why. GV: not necessary]
 
 Systematic missingness can be further subdivided into unobserved constants (i.e., the same value within clusters) and non-measured random variables (which may differ per unit within clusters). In Figure 1, the former would imply that the unobserved values for units 3 and 4 on column `X2` are identical. With the latter, the values would differ. The optimal strategy for dealing with the missingness may therefore depend on the observed missing data pattern. ^[add missing data mechanisms here? GV: No, patterns are different from mechanisms]
 
-$$
-\begin{matrix} 
-                          &X1     & X2          & X3            \\
-   \hline
-   \mathrm{cluster 1}\{ \ &x_{11} &x_{12}       &\mathtt{NA}    \\
-                             \ &x_{21}  &x_{22}       &x_{32}         \\
-   \mathrm{cluster 2}\{  &x_{31} &\mathtt{NA}  &x_{33}         \\
-                          &x_{41} &\mathtt{NA}  &\mathtt{NA}    \\
-   \mathrm{cluster 3}\{  &x_{51} &x_{52}       &x_{53}         \\
-\end{matrix} 
-$$
-[GV Ik vind de latex tabel niet tof. ]
-
-Ignoring the missingness in analyses can be extremely harmful to inferences. Complete case analysis (i.e., excluding all units with one or more missing entries) can introduce bias in statistical inference and lowers statistical power. Instead, the missingness should be accommodated *before* or *within* the analysis of scientific interest. Especially the former is very generic and popular ans is widely known as imputation. Imputing (i.e., filling in) the missing values seperates the missing data problem from the scientific problem: missing data are replaced by plausible values whereafter the completed data is analysed as if it were completely observed. The \proglang{R} package \pkg{mice} has become the de-facto standard for imputation by chained equations, which iteratively solves the missingness on a variable-by-variable basis. \pkg{mice} is known to yield valid inferences under many different missing data circumstances [@buur18]. In this paper, we'll discuss how to use \pkg{mice} in the context of multilevel data, under varying missing data mechanisms.^[Discuss missingness mechanisms before this point, add references @yuce08 and @hox15.]
+Ignoring the missingness in analyses can be extremely harmful to inferences. Complete case analysis (i.e., excluding all units with one or more missing entries) can introduce bias in statistical inference and lowers statistical power. Instead, the missingness should be accommodated *before* or *within* the analysis of scientific interest. Especially the former is very generic and popular and is widely known as imputation. Imputing (i.e., filling in) the missing values separates the missing data problem from the scientific problem: missing data are replaced by plausible values whereafter the completed data is analysed as if it were completely observed. The \proglang{R} package \pkg{mice} has become the de-facto standard for imputation by chained equations, which iteratively solves the missingness on a variable-by-variable basis. \pkg{mice} is known to yield valid inferences under many different missing data circumstances [@buur18]. In this paper, we'll discuss how to use \pkg{mice} in the context of multilevel data, under varying missing data mechanisms.^[Discuss missingness mechanisms before this point, add references @yuce08 and @hox15.]
 
 
 ## Aim of this paper

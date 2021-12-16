@@ -147,26 +147,14 @@ therefore depend on the observed missing data pattern. \footnote{add
   missing data mechanisms here? GV: No, patterns are different from
   mechanisms}
 
-\[
-\begin{matrix} 
-                          &X1     & X2          & X3            \\
-   \hline
-   \mathrm{cluster 1}\{ \ &x_{11} &x_{12}       &\mathtt{NA}    \\
-                             \ &x_{21}  &x_{22}       &x_{32}         \\
-   \mathrm{cluster 2}\{  &x_{31} &\mathtt{NA}  &x_{33}         \\
-                          &x_{41} &\mathtt{NA}  &\mathtt{NA}    \\
-   \mathrm{cluster 3}\{  &x_{51} &x_{52}       &x_{53}         \\
-\end{matrix} 
-\] {[}GV Ik vind de latex tabel niet tof. {]}
-
 Ignoring the missingness in analyses can be extremely harmful to
 inferences. Complete case analysis (i.e., excluding all units with one
 or more missing entries) can introduce bias in statistical inference and
 lowers statistical power. Instead, the missingness should be
 accommodated \emph{before} or \emph{within} the analysis of scientific
-interest. Especially the former is very generic and popular ans is
+interest. Especially the former is very generic and popular and is
 widely known as imputation. Imputing (i.e., filling in) the missing
-values seperates the missing data problem from the scientific problem:
+values separates the missing data problem from the scientific problem:
 missing data are replaced by plausible values whereafter the completed
 data is analysed as if it were completely observed. The \proglang{R}
 package \pkg{mice} has become the de-facto standard for imputation by

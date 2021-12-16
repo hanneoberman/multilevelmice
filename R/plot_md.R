@@ -3,41 +3,38 @@
 plot_md_set <- function(...){
   miss_ind <- tibble(
   rownr = 5:1,
-  # unit = rep("observed", 5),
-  cluster = rep("observed", 5),
   X1 = rep("observed", 5),
   X2 = c(rep("observed", 2), rep("missing", 2), "observed"),
   X3 = c("missing", rep("observed", 2), "missing", "observed")
-) %>% pivot_longer(cols = c(cluster, X1, X2, X3))
-
-# add text 
-miss_ind$text <- ""
-# miss_ind[miss_ind$name == "unit", "text"] <- as.character(1:5)
-miss_ind[miss_ind$name == "cluster", "text"] <- as.character(c(1,1,2,2,3))
+) %>% pivot_longer(cols = c(X1, X2, X3))
 
 # plot
 miss_ind %>% 
   mutate(name = factor(name, levels = unique(name))) %>% 
   ggplot(aes(
     x = name,
-    y = rownr,
+    y = as.factor(rownr),
     color = value,
     width = 0.8, 
-    height = 0.8,
-    label = text
-  )) +
-  geom_tile(fill = "white", size = 2) +
-  geom_text(show.legend = FALSE) +
-  scale_x_discrete(position = "top") +
-  scale_y_discrete(labels = 5:1) +
-  scale_color_manual(values = plot_col, name = "") +
+    height = 0.8
+    )) +
+  geom_tile(fill = "white", size = 1.2) +
+  scale_x_discrete(position = "top", labels = c("", "", "X1", "X2", "X3")) +
+  scale_y_discrete() +
+  scale_color_manual(values = plot_col, name = "Legend:") +
   theme_minimal() +
+  labs(x = "", y = "") +
+  annotate(geom = "text", x = "X-1", y = "4", label = "Cluster 1 ", vjust = -1, hjust = 0, size = 3) +
+  annotate(geom = "text", x = "X-1", y = "2", label = "Cluster 2 ", vjust = -1, hjust = 0, size = 3) +
+  annotate(geom = "text", x = "X-1", y = "0", label = "Cluster N ", vjust = -1, hjust = 0, size = 3) +
+  annotate(geom = "text", x = "X0", y = "4", label = "{", vjust = 0, hjust = 0, size = 16) +
+  annotate(geom = "text", x = "X0", y = "2", label = "{", vjust = 0, hjust = 0, size = 16) +
+  annotate(geom = "text", x = "X0", y = "0", label = "{...", vjust = 0, hjust = 0, size = 16) +
   theme(
-    legend.position = "bottom", 
-    panel.grid.major = element_blank()) +
-  labs(x = "", y = "")
+    axis.text.y = element_blank(),
+    # legend.position = "bottom", 
+    panel.grid.major = element_blank())
 }
-
 
 # missing data pattern
 plot_md_pat <- function(dat) {
