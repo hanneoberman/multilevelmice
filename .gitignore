@@ -40,3 +40,4 @@ vignettes/*.pdf
 
 # datasets that should not be online
 Data/leiden.RData
+.DS_Store
