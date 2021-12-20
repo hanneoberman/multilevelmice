@@ -3,9 +3,6 @@
 
 \usepackage[utf8]{inputenc}
 
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-
 \author{
 Hanne Oberman\\Utrecht University \And Johanna Munoz Avila\\University
 Medical Center Utrecht \AND Valentijn de Jong\\University Medical
@@ -50,9 +47,12 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
   URL: \url{https://hanneoberman.github.io/}\\~\\
           }
 
-% Pandoc syntax highlighting
 
-% Pandoc citation processing
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
 
 \usepackage{graphicx}
 \usepackage{mathtools}
@@ -61,6 +61,8 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \usepackage{amsmath}
 
 \begin{document}
+
+
 
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
@@ -80,7 +82,8 @@ to the grouping variable as `cluster', and the grouped variable as
 `(sample) unit' throughout this paper. And, for reasons of brevity, we
 only discuss clustering between units, not within units (e.g.,
 timeseries or longitudinal data). Also, add that we'll only discuss two
-levels, not more?}
+levels, not more?} Add IPDMA back in: patient level data from multiple
+studies
 
 In many contemporary data analysis efforts, some form of hierarchical or
 clustered structure is recorded. Ignoring such structures may be harmful
@@ -135,7 +138,7 @@ Figure 1. The figure shows an \(n \times p\) set
 \(\mathbf{X} = X_1, \dots, X_p\), with \(n=5\) units and \(p=3\) columns
 distributed over 3 clusters. Column \texttt{X1} is completely observed.
 Column \texttt{X2} is systematically missing and column \texttt{X3} is
-sporadically missing.\footnote{Explain why. GV: niet nodig}
+sporadically missing.\footnote{Explain why. GV: not necessary}
 
 Systematic missingness can be further subdivided into unobserved
 constants (i.e., the same value within clusters) and non-measured random
@@ -546,6 +549,8 @@ Github repo}. We will use the following variables:
 
 \end{CodeChunk}
 
+Here we can set \texttt{maxit} to 1\ldots{}
+
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
 
@@ -578,6 +583,7 @@ Github repo}. We will use the following variables:
 
 \renewcommand\refname{References}
 \bibliography{../References/multilevelmice.bib}
+
 
 
 \end{document}

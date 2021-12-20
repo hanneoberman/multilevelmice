@@ -53,9 +53,9 @@ library(GJRM)
 library(pan)
 
 # functions
-miceadds::source.all(path = "../R")
 `%nin%` <- Negate(`%in%`)
 icc <- function(formula, data){multilevel::ICC1(aov(formula, data))}
+miceadds::source.all(path = "../R")
 
 # plot parameters
 plot_col <- mice:::mdc(1:2) %>% setNames(c("observed", "missing"))
@@ -65,7 +65,7 @@ plot_col <- mice:::mdc(1:2) %>% setNames(c("observed", "missing"))
 
 ## Multilevel data
 
-~~Research into any field with a hierarchical or clustered nature of observations may yield multilevel data. In the typical case, individuals are nested within groups, but there are many different types of multilevel data. In the medical field, clustering occurs at e.g., the hospital or center level in registry data, or at the study-level in meta-analyses (IPDMA). In the social sciences and official statistics we can find clustering e.g. at the country-level, or as imposed by a multi-stage sampling design. For the sake of legibility, we will refer to the grouping variable as 'cluster', and the grouped variable as '(sample) unit' throughout this paper. And, for reasons of brevity, we only discuss clustering between units, not within units (e.g., timeseries or longitudinal data). Also, add that we'll only discuss two levels, not more?~~
+~~Research into any field with a hierarchical or clustered nature of observations may yield multilevel data. In the typical case, individuals are nested within groups, but there are many different types of multilevel data. In the medical field, clustering occurs at e.g., the hospital or center level in registry data, or at the study-level in meta-analyses (IPDMA). In the social sciences and official statistics we can find clustering e.g. at the country-level, or as imposed by a multi-stage sampling design. For the sake of legibility, we will refer to the grouping variable as 'cluster', and the grouped variable as '(sample) unit' throughout this paper. And, for reasons of brevity, we only discuss clustering between units, not within units (e.g., timeseries or longitudinal data). Also, add that we'll only discuss two levels, not more?~~ Add IPDMA back in: patient level data from multiple studies
 
 In many contemporary data analysis efforts, some form of hierarchical or clustered structure is recorded. Ignoring such structures may be harmful to the inferences and can yield biased results. On the other hand, analyzing such multilevel data requires specialized techniques that take the clustered structure into account. Imagine a case where cross-level interactions between unit-level variables and cluster-level variables are present. The cluster to which a unit belongs may then influence the unit-level observations - and vice versa - for each of the units that make up the cluster [@hox17]. These relations can and should be taken into account when developing analysis models for multilevel data for the simple reason that groups of observations share some common variance.
 
@@ -75,6 +75,8 @@ The variability due to clustering is often measured by means of the intra-class 
 
 ```{r patterns, fig.height=3, fig.width=4.1, fig.cap = "Missingness in multilevel data", echo=FALSE}
 plot_md_set()
+# TODO: make cluster part f the data (blue)
+# TODO: dots between 2 and N, for each variable
 ```
 
 The process of analyzing multilevel data is further complicated when not all observations are observed. Just as with single level data, missingness may occur at the unit level. But with multiple levels of data comes the potential for clustered missingness. Missingness in multilevel data can therefore be categorized into two general patterns: systematic missingness and sporadic missingness, see @resc13. We have visualized the difference between these types of missingness in Figure 1. The figure shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n=5$ units and $p=3$ columns distributed over 3 clusters. Column `X1` is completely observed. Column `X2` is systematically missing and column `X3` is sporadically missing.^[Explain why. GV: not necessary]
@@ -197,6 +199,9 @@ ICCs <- data.frame(
               icc(texp ~ class, complete(imp_ignored)))
   )
 ICCs
+
+#TODO: think about interactive clusters for the strippplots
+#TODO: switch off outliers in boxplot?
 ```
 
 As the original ICCs show, 100% of the variance in `texp` can be attributed to the clustering variable `class`. This tells us that the multilevel structure of the data should be taken into account. If we don't, we'll end up with incorrect imputations, biasing the effect of the clusters towards zero.
@@ -362,6 +367,8 @@ hiv <- hiv %>%
 # md pattern
 plot_md_pat(hiv)
 ```
+
+Here we can set `maxit` to 1...
 
 # Discussion
 
