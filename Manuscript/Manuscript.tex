@@ -8,14 +8,14 @@
 
 \author{
 Hanne Oberman\\Utrecht University \And Johanna Munoz Avila\\University
-Medical Center Utrecht \AND Valentijn de Jong\\University Medical
-Center Utrecht \And Gerko Vink\\Utrecht University \AND Thomas
-Debray\\University Medical Center Utrecht
+Medical Center Utrecht \AND Valentijn M.T. de Jong\\University
+Medical Center Utrecht, EMA \And Gerko Vink\\Utrecht University
+\AND Thomas P.A. Debray\\University Medical Center Utrecht
 }
 \title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
 
-\Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn de
-Jong, Gerko Vink, Thomas Debray}
+\Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn M.T. de
+Jong, Gerko Vink, Thomas P.A. Debray}
 \Plaintitle{Imputation of Incomplete Multilevel Data with mice}
 \Shorttitle{\pkg{mice}: Multilevel}
 
@@ -62,16 +62,17 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \subsection{Multilevel data}\label{multilevel-data}}
 
 We talk of multilevel data when there is some kind of hierarchy or
-clustering in a dataset. In the typical case, individuals are nested
+clustering in a data set. In the typical case, individuals are nested
 within groups, but there are many different types of multilevel data. In
 the medical field, clustering occurs at e.g., the hospitals/center level
-in registry data, or at the study-level in meta-analyses (IPDMA). In the
-social sciences and official statistics we can find clustering e.g.~at
-the country-level, or as imposed by the sampling design. In this paper,
-we will refer to the grouping variable as `cluster', and the grouped
-variable as `(sample) unit'.\footnote{Add that we'll only discuss two
-  levels?} For reasons of brevity, we only discuss clustering between
-units, not within units (such as in timeseries or longitudinal data).
+in registry data, or at the study-level in individual participant data
+meta-analyses (IPDMA). In the social sciences and official statistics we
+can find clustering e.g.~at the country-level, or as imposed by the
+sampling design. In this paper, we will refer to the grouping variable
+as `cluster', and the grouped variable as `(sample) unit'.\footnote{Add
+  that we'll only discuss two levels?} For reasons of brevity, we only
+discuss clustering between units, not within units (such as in
+timeseries or longitudinal data).
 
 Analyzing multilevel data requires special care, compared to `regular',
 single level data. The cluster to which a unit belongs may influence the
@@ -89,10 +90,13 @@ one restriction imposed by single-level models: equal group means across
 clusters. Additionally, there may be random predictor effects and/or
 random error terms (residual error variances), see e.g. \citet{hox17}
 and \citet{jong21}.\footnote{Add that heterogeneity refers to
-  variability within clusters.} There are many names for models that
-take clustering into account. Some popular examples are `multilevel
-models', `hierarchical models', `mixed effect models' and `random effect
-models'.
+  variability within clusters. VDJ: heterogeneity can refer to
+  variability of sample units, i.e.~variance. It can also refer to
+  variability across data sets: variability in measurement instruments,
+  definitions, but also to variability of treatment/predictor effects
+  across data sets} There are many names for models that take clustering
+into account. Some popular examples are `multilevel models',
+`hierarchical models', `mixed effect models' and `random effect models'.
 
 \hypertarget{missing-data}{%
 \subsection{Missing data}\label{missing-data}}
@@ -113,28 +117,33 @@ information. Just as in single level data, missingness may occur at the
 unit level. But with multiple levels of data comes the potential for
 missingness at multiple levels. Missingness in multilevel data can be
 categorized into two general patterns: systematical missingness and
-sporadic missingness, see \citet{resc13}. In figure 1, we show a dataset
-with units in the rows and variables in the columns, there are 5 units
-nested within 2 clusters, and 3 variables of interest. Variable
+sporadic missingness, see \citet{resc13}. In figure 1, we show a data
+set with units in the rows and variables in the columns, there are 5
+units nested within 2 clusters, and 3 variables of interest. Variable
 \texttt{X1} is completely observed. Variable \texttt{X2} is
-systematically missing, \texttt{X3} is sporadically missing.\footnote{Explain
-  why.} Systematic missingness can be further subdivided into unobserved
-constants (same value per cluster) and non-measured random variables
-(which may differ per unit within clusters). In Figure 1, the former
-implies that the unobserved values for units 4 and 5 on variable
-\texttt{X2} would be equal. With the latter, the values may differ.
-Depending on the missing data pattern, there are more or less optimal
-way of accommodating the missingness.
+systematically missing in cluster 2, \texttt{X3} is sporadically missing
+in both clusters.\footnote{Explain why.} Systematic missingness can be
+further subdivided into unobserved constants (same value per cluster)
+and non-measured random variables (which may differ per unit within
+clusters). In Figure 1, the former implies that the unobserved values
+for units 4 and 5 on variable \texttt{X2} would be equal. With the
+latter, the values may differ. The optimal way of accomodating the
+missingness may depend on the missing data pattern.
 
 Ignoring missing data in research endeavors is almost never a good idea.
 Complete case analysis (i.e., excluding all units with one or more
 missing entries) can introduce bias in statistical inference and lowers
 statistical power. Instead, the missingness should be accommodated
 \emph{before} or \emph{within} the analysis of scientific interest.
-Especially the former is very generic and popular. Imputing (i.e.,
-filling in) the missing values splits the missing data problem from the
-scientific problem. The \proglang{R} package \pkg{mice} has become the
-de-facto standard for imputation by chained equations, which solves the
+\footnote{Can you give an example of each? With within do you mean
+  integrating missing data out, or automatic imputation in a Bayesian
+  MCMC analysis?. One might also think that with before you mean
+  contacting the sample units to obtain the true values, which would
+  then conflict with the remainder of the paragraph.}Especially the
+former is very generic and popular. Imputing (i.e., filling in) the
+missing values splits the missing data problem from the scientific
+problem. The \proglang{R} package \pkg{mice} has become the de-facto
+standard for imputation by chained equations, which solves the
 missingness one variable at a time, iteratively. \pkg{mice} is known to
 yield valid inferences under many different missing data circumstances
 \citep{buur18}. In this paper, we'll discuss how to use \pkg{mice} in
@@ -195,9 +204,9 @@ estimates for the analysis of scientific interest.
 \hypertarget{case-study-i-popularity}{%
 \subsection{Case Study I: Popularity}\label{case-study-i-popularity}}
 
-\texttt{popNCR} is a simulated dataset with pupils clustered in classes,
-\(n_{\text{participants}} = 2000\), \(n_{\text{clusters}} = 100\), on 7
-variables:
+\texttt{popNCR} is a simulated data set with pupils clustered in
+classes, \(n_{\text{participants}} = 2000\),
+\(n_{\text{clusters}} = 100\), on 7 variables:
 
 \begin{itemize}
 \tightlist
@@ -237,7 +246,7 @@ between the incomplete variables and the clustering variable
 (ICC). For \texttt{popular} the ICC is 0.33. For \texttt{popteach} it is
 0.31. It would thus be wise to use multilevel modeling.
 
-The missingness in this dataset is induced conform MAR and MNAR
+The missingness in this data set is induced conform MAR and MNAR
 mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows
 the systematic nature of the missingness.
 
@@ -253,13 +262,14 @@ popularity and missing popularity, and the other way around.
 
 In Figure \ref{fig:pop_dist} we see that the distribution for the
 missing \texttt{popular} is further to the right than the distribution
-for observed \texttt{popular}. This would indicate a right-tailed MAR
-missingness. In fact, this is exactly what happens, because the
-missingness in these data was created manually. Now, we've made it
-observable by examining the relations between the missingness in popular
-and the observed data in \texttt{popteach}. There is also a dependency
-between the missingness in teacher popularity and pupil popularity. The
-relation seems to be right-tailed as well.
+for observed \texttt{popular}. \footnote{Isn't it the other way around?.}
+This would indicate a right-tailed MAR missingness. In fact, we know
+that this is exactly what happened, because the missingness in these
+data was created manually. Now, we've made it observable by examining
+the relations between the missingness in popular and the observed data
+in \texttt{popteach}. There is also a dependency between the missingness
+in teacher popularity and pupil popularity. The relation seems to be
+right-tailed as well.
 
 \begin{CodeChunk}
 \begin{figure}
@@ -283,15 +293,16 @@ relation seems to be right-tailed as well.
 \hypertarget{imputation-model}{%
 \subsubsection{Imputation model}\label{imputation-model}}
 
-The first imputation model that we'll use is likely to be invalid. In
-this model, we ignore the multilevel structure of the data, despite the
-high ICCs. This is purely to illustrate the effects of ignoring the
+In the first imputation model that we'll use, we ignore the multilevel
+structure of the data despite the high ICCs. This model is likely to be
+invalid. We apply it purely to illustrate the effects of ignoring the
 clustering in our imputation effort.
 
 We'll use predictive mean matching to impute the continuous variables
 and logistic regression to impute the binary variable \texttt{sex}. We
 do not use the observation identifier \texttt{pupil} or cluster
-identifier \texttt{class} as predictors to impute other variables.
+identifier \texttt{class} as predictors to impute other
+variables.\footnote{Explain why.}
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -317,9 +328,9 @@ R> imp_ignored <- mice(pop, maxit = 10, pred = pred, print = FALSE)
 
 \begin{CodeOutput}
       vars incomplete   ignored
-1  popular  0.3280070 0.2958571
-2 popteach  0.3138658 0.2561198
-3     texp  1.0000000 0.4696024
+1  popular  0.3280070 0.2867315
+2 popteach  0.3138658 0.2541582
+3     texp  1.0000000 0.4329458
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -330,20 +341,27 @@ don't, we'll end up with incorrect imputations, biasing the effect of
 the clusters towards zero.
 
 We can also observe that the teacher experience increases slightly after
-imputation. This is due to the MNAR missingness in \texttt{texp}. Higher
-values for \texttt{texp} have a larger probability to be missing. This
-may not a problem, however, if at least one pupil in each class has
-teacher experience recorded, we can deductively impute the correct
-(i.e.~true) value for every pupil in the class.
+imputation. This is due to the MNAR missingness in \texttt{texp}.
+\footnote{Mention somewhere around here that texp an unobserved
+  constant, which you mentioned in the introduction?} Higher values for
+\texttt{texp} have a larger probability to be missing. This may not be a
+problem, however, if at least one pupil in each class has teacher
+experience recorded, we can deductively impute the correct (i.e.~true)
+value for every pupil in the class. \footnote{But is it reallly MNAR if
+  we can restore it by simply using the observed data?}
 
 \hypertarget{imputation-model-1}{%
 \subsubsection{Imputation model}\label{imputation-model-1}}
 
 We'll now use \texttt{class} as a predictor to impute all other
-variables. This is still not recommended practice, since it only works
-under certain circumstances and results may be biased. But at least, it
-includes some multilevel aspect. Colloquially, this is `multilevel
-imputation for dummies'.
+variables. This is not recommended practice, since it only works under
+certain circumstances \footnote{Explain why. Because it does not borrow
+  information across classes? or because of this specific example where
+  texp is given by class?} and results may be biased. \footnote{Why
+  would it be biased? Typically fixed effects models (i.e.~estimated per
+  cluster) are unbiased, are you saying this is different for imputation
+  models?} But at least, it includes some multilevel aspect.
+Colloquially, this is `multilevel imputation for dummies'.
 
 \hypertarget{imputed-data-1}{%
 \subsubsection{Imputed data}\label{imputed-data-1}}
@@ -355,9 +373,9 @@ imputation for dummies'.
 
 \begin{CodeOutput}
       vars incomplete   ignored predictor
-1  popular  0.3280070 0.2958571 0.3581435
-2 popteach  0.3138658 0.2561198 0.3446899
-3     texp  1.0000000 0.4696024 1.0000000
+1  popular  0.3280070 0.2867315 0.3825608
+2 popteach  0.3138658 0.2541582 0.2541437
+3     texp  1.0000000 0.4329458 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
