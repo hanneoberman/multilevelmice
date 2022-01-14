@@ -70,33 +70,19 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \hypertarget{multilevel-data}{%
 \subsection{Multilevel data}\label{multilevel-data}}
 
-\sout{Research into any field with a hierarchical or clustered nature of
-observations may yield multilevel data. In the typical case, individuals
-are nested within groups, but there are many different types of
-multilevel data. In the medical field, clustering occurs at e.g., the
-hospital or center level in registry data, or at the study-level in
-meta-analyses (IPDMA). In the social sciences and official statistics we
-can find clustering e.g.~at the country-level, or as imposed by a
-multi-stage sampling design. For the sake of legibility, we will refer
-to the grouping variable as `cluster', and the grouped variable as
-`(sample) unit' throughout this paper. And, for reasons of brevity, we
-only discuss clustering between units, not within units (e.g.,
-timeseries or longitudinal data). Also, add that we'll only discuss two
-levels, not more?} Add IPDMA back in: patient level data from multiple
-studies
-
 In many contemporary data analysis efforts, some form of hierarchical or
-clustered structure is recorded. Ignoring such structures may be harmful
-to the inferences and can yield biased results. On the other hand,
-analyzing such multilevel data requires specialized techniques that take
-the clustered structure into account. Imagine a case where cross-level
-interactions between unit-level variables and cluster-level variables
-are present. The cluster to which a unit belongs may then influence the
-unit-level observations - and vice versa - for each of the units that
-make up the cluster \citep{hox17}. These relations can and should be
-taken into account when developing analysis models for multilevel data
-for the simple reason that groups of observations share some common
-variance.
+clustered structure is recorded.\footnote{Add IPDMA back in: patient
+  level data from multiple studies.} Ignoring such structures may be
+harmful to the inferences and can yield biased results. On the other
+hand, analyzing such multilevel data requires specialized techniques
+that take the clustered structure into account. Imagine a case where
+cross-level interactions between unit-level variables and cluster-level
+variables are present. The cluster to which a unit belongs may then
+influence the unit-level observations - and vice versa - for each of the
+units that make up the cluster \citep{hox17}. These relations can and
+should be taken into account when developing analysis models for
+multilevel data for the simple reason that groups of observations share
+some common variance.
 
 The variability due to clustering is often measured by means of the
 intra-class coefficient (ICC). The ICC can be seen as the percentage of
