@@ -53,7 +53,7 @@ plot_strip <- function(imp, x) {
         color = datapoint
       ),
       height = 0.25,
-      width = 0.25
+      width = 0
     ) +
     scale_y_discrete(limits = rev) +
     ggplot2::ylab("Imputation (0 = observed data)")
@@ -73,8 +73,9 @@ plot_box <- function(imp, x, strip = FALSE) {
           color = datapoint
         ),
         height = 0.25,
-        width = 0.25,
-        alpha = 0.1
+        width = 0,
+        alpha = 0.1,
+        stroke = 0
       )
   } else {
     p <- imp %>% plot_imps(x)
