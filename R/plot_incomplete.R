@@ -2,11 +2,13 @@
 # missingness indicator plot (monotone vs non-monotone)
 plot_md_set <- function(...){
   miss_ind <- tibble(
-  rownr = 5:1,
-  X1 = rep("observed", 5),
-  X2 = c(rep("observed", 2), rep("missing", 2), "observed"),
-  X3 = c("missing", rep("observed", 2), "missing", "observed")
-) %>% pivot_longer(cols = c(X1, X2, X3))
+    rownr = 5:1,
+    cluster = rep("observed", 5),
+    X1 = rep("observed", 5),
+    X2 = c(rep("observed", 2), rep("missing", 2), "observed"),
+    X3 = c("missing", rep("observed", 2), "missing", "observed")
+  ) %>% pivot_longer(cols = c(cluster, X1, X2, X3)) %>% 
+    cbind(text = c(1, "", "", "", 1, "", "", "", 2, "", "", "", 2, "", "", "", "N", "", "", ""))
 
 # plot
 miss_ind %>% 
@@ -19,17 +21,18 @@ miss_ind %>%
     height = 0.8
     )) +
   geom_tile(fill = "white", size = 1.2) +
-  scale_x_discrete(position = "top", labels = c("", "", "X1", "X2", "X3")) +
+  geom_text(aes(label = text), color = "black") +
+  scale_x_discrete(position = "top", labels = c("cluster", "X1", "X2", "X3")) +
   scale_y_discrete() +
   scale_color_manual(values = plot_col, name = "Legend:") +
   theme_minimal() +
   labs(x = "", y = "") +
-  annotate(geom = "text", x = "X-1", y = "4", label = "Cluster 1 ", vjust = -1, hjust = 0, size = 3) +
-  annotate(geom = "text", x = "X-1", y = "2", label = "Cluster 2 ", vjust = -1, hjust = 0, size = 3) +
-  annotate(geom = "text", x = "X-1", y = "0", label = "Cluster N ", vjust = -1, hjust = 0, size = 3) +
-  annotate(geom = "text", x = "X0", y = "4", label = "{", vjust = 0, hjust = 0, size = 16) +
-  annotate(geom = "text", x = "X0", y = "2", label = "{", vjust = 0, hjust = 0, size = 16) +
-  annotate(geom = "text", x = "X0", y = "0", label = "{...", vjust = 0, hjust = 0, size = 16) +
+  # annotate(geom = "text", x = "X-1", y = "4", label = "Cluster 1 ", vjust = -1, hjust = 0, size = 3) +
+  # annotate(geom = "text", x = "X-1", y = "2", label = "Cluster 2 ", vjust = -1, hjust = 0, size = 3) +
+  # annotate(geom = "text", x = "X-1", y = "0", label = "Cluster N ", vjust = -1, hjust = 0, size = 3) +
+  # annotate(geom = "text", x = "X0", y = "4", label = "{", vjust = 0, hjust = 0, size = 16) +
+  # annotate(geom = "text", x = "X0", y = "2", label = "{", vjust = 0, hjust = 0, size = 16) +
+  # annotate(geom = "text", x = "X0", y = "0", label = "{...", vjust = 0, hjust = 0, size = 16) +
   theme(
     axis.text.y = element_blank(),
     # legend.position = "bottom", 
