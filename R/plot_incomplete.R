@@ -2,13 +2,21 @@
 # missingness indicator plot (monotone vs non-monotone)
 plot_md_set <- function(...){
   miss_ind <- tibble(
-    rownr = 5:1,
-    cluster = rep("observed", 5),
-    X1 = rep("observed", 5),
-    X2 = c(rep("observed", 2), rep("missing", 2), "observed"),
-    X3 = c("missing", rep("observed", 2), "missing", "observed")
+    rownr = 6:1,
+    cluster = c(rep("observed", 4), "blank", "observed"),
+    X1 = c(rep("observed", 4), "blank", "observed"),
+    X2 = c(rep("observed", 2), rep("missing", 2), "blank", "observed"),
+    X3 = c("missing", rep("observed", 2), "missing", "blank", "observed")
   ) %>% pivot_longer(cols = c(cluster, X1, X2, X3)) %>% 
-    cbind(text = c(1, "", "", "", 1, "", "", "", 2, "", "", "", 2, "", "", "", "N", "", "", ""))
+    cbind(text = c(
+      1, "", "", "", 
+      1, "", "", "", 
+      2, "", "", "", 
+      2, "", "", "", 
+      "...", "...", "...", "...", 
+      #"\u22EE", "\u22EE", "\u22EE", "\u22EE", 
+      "N", "", "", "")
+      )
 
 # plot
 miss_ind %>% 
@@ -24,7 +32,7 @@ miss_ind %>%
   geom_text(aes(label = text), color = "black") +
   scale_x_discrete(position = "top", labels = c("cluster", "X1", "X2", "X3")) +
   scale_y_discrete() +
-  scale_color_manual(values = plot_col, name = "Legend:") +
+  scale_color_manual(values = c(plot_col, blank = "white"), name = "Legend:") +
   theme_minimal() +
   labs(x = "", y = "") +
   # annotate(geom = "text", x = "X-1", y = "4", label = "Cluster 1 ", vjust = -1, hjust = 0, size = 3) +
@@ -35,7 +43,8 @@ miss_ind %>%
   # annotate(geom = "text", x = "X0", y = "0", label = "{...", vjust = 0, hjust = 0, size = 16) +
   theme(
     axis.text.y = element_blank(),
-    # legend.position = "bottom", 
+    # text=element_text(family="Arial Unicode MS"),
+    legend.position = "none", 
     panel.grid.major = element_blank())
 }
 
@@ -134,12 +143,27 @@ plot_md_pat <- function(dat) {
   return(p)
 }
 
-# plot conditional distributions
-plot_conditional <- function(data, x, z, cluster, ...){
-  ggplot(data, aes(x = get(x), color = factor(is.na(get(z)), labels = c("missing", "observed")))) +
-    geom_density(data = data %>% filter(!is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[2], color = NA) +
-    geom_density(data = data %>% filter(is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.01, fill = plot_col[1], color = NA) +
+# # plot conditional distributions with clusters overlapping
+# plot_conditional <- function(data, x, z, cluster, ...){
+#   ggplot(data, aes(x = get(x), color = factor(is.na(get(z)), labels = c("missing", "observed")))) +
+#     geom_density(data = data %>% filter(!is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.1, fill = plot_col[2], color = NA) +
+#     geom_density(data = data %>% filter(is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.1, fill = plot_col[1], color = NA) +
+#     geom_density() +
+#     scale_color_manual(values = plot_col, name = z) +
+#     theme_classic() +
+#     theme(legend.position = "bottom") +
+#     labs(x = x)
+# }
+
+# plot conditional distributions with clusters in facets
+plot_conditional <- function(data, x, z, cluster, N = 4, ...){
+  data %>% 
+    filter(as.numeric(get(cluster)) < N+1) %>% 
+    ggplot(aes(x = get(x), color = factor(is.na(get(z)), labels = c("missing", "observed")))) +
+    # geom_density(data = data %>% filter(!is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.1, fill = plot_col[2], color = NA) +
+    # geom_density(data = data %>% filter(is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.1, fill = plot_col[1], color = NA) +
     geom_density() +
+    facet_wrap(~get(cluster), labeller = label_both) +
     scale_color_manual(values = plot_col, name = z) +
     theme_classic() +
     theme(legend.position = "bottom") +

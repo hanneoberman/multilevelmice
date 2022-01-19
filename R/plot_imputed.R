@@ -89,7 +89,8 @@ plot_box <- function(imp, x, strip = FALSE) {
         color = datapoint
       ),
       width = 0.5,
-      alpha = 0.5) +
+      alpha = 0.5,
+      outlier.shape = NA) +
       scale_y_discrete(limits = rev) +
       ggplot2::ylab("Imputation (0 = observed data)")
   # } else {

@@ -140,7 +140,7 @@ Ignoring the missingness in analyses can be extremely harmful to
 inferences. Complete case analysis (i.e., excluding all units with one
 or more missing entries) can introduce bias in statistical inference and
 lowers statistical power. Instead, the missingness should be
-accommodated \emph{before} or \textbf{within} the analysis of scientific
+accommodated \emph{before} or \emph{within} the analysis of scientific
 interest. Especially the former is very generic and popular and is
 widely known as imputation. Imputing (i.e., filling in) the missing
 values separates the missing data problem from the scientific problem:
@@ -175,11 +175,11 @@ We structure this tutorial around three case studies:
 
 \begin{itemize}
 \item
-  \texttt{mice::popmis} (simulated data on school kids, with MNAR/MAR
-  mixture);
+  \texttt{mice::popmis} (simulated data on school kids, n = 199 units, N
+  = 10 clusters, with MNAR/MAR mixture);
 \item
   \texttt{metamisc::impact} (real IPD on traumatic brain injuries,
-  without \texttt{NA}s);
+  without \texttt{NA}s);\footnote{add cross-level interaction?}
 \item
   \texttt{GJRM::hiv} (simulated patient data on HIV, without
   \texttt{NA}s)
@@ -199,9 +199,9 @@ data, the imputation model(s), and evaluation of the imputed data.
 \hypertarget{case-study-i-popularity}{%
 \section{Case Study I: Popularity}\label{case-study-i-popularity}}
 
-\texttt{popNCR} is a simulated dataset with pupils clustered in classes,
-where the number of units \(n = 2000\), and the number of clusters
-\(N = 100\), on 7 variables:
+\texttt{popNCR2} is a simulated dataset with pupils clustered in
+classes, where the number of units \(n = 2000\), and the number of
+clusters \(N = 100\), on 7 variables:
 
 \begin{itemize}
 \tightlist
@@ -238,8 +238,8 @@ where the number of units \(n = 2000\), and the number of clusters
 The popularity data is created such that there are strong relations
 between the incomplete variables and the clustering variable
 \texttt{class}. We can express this using the intra-class correlation
-(ICC). For \texttt{popular} the ICC is 0.33. For \texttt{popteach} it is
-0.34. It would thus be wise to use multilevel modeling.
+(ICC). For \texttt{popular} the ICC is 0.4. For \texttt{popteach} it is
+0.36. It would thus be wise to use multilevel modeling.
 
 The missingness in this dataset is induced conform MAR and MNAR
 mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows
@@ -313,10 +313,10 @@ R> imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_ignored_eval-1} \end{center}
 
 \begin{CodeOutput}
-      vars incomplete   ignored
-1  popular  0.3280070 0.3338626
-2 popteach  0.3414766 0.3414766
-3     texp  1.0000000 1.0000000
+      vars       CCA   ignored
+1  popular 0.3989463 0.4235643
+2 popteach 0.3605902 0.3605902
+3     texp 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -362,10 +362,10 @@ R> imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_predictor_eval-1} \end{center}
 
 \begin{CodeOutput}
-      vars incomplete   ignored predictor
-1  popular  0.3280070 0.3338626 0.3871020
-2 popteach  0.3414766 0.3414766 0.3414766
-3     texp  1.0000000 1.0000000 1.0000000
+      vars       CCA   ignored predictor
+1  popular 0.3989463 0.4235643 0.3904372
+2 popteach 0.3605902 0.3605902 0.3605902
+3     texp 1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -418,10 +418,10 @@ R> ICCs <- ICCs %>% mutate(
 R> ICCs
 \end{CodeInput}
 \begin{CodeOutput}
-      vars incomplete   ignored predictor      norm
-1  popular  0.3280070 0.3338626 0.3871020 0.3612830
-2 popteach  0.3414766 0.3414766 0.3414766 0.3414766
-3     texp  1.0000000 1.0000000 1.0000000 1.0000000
+      vars       CCA   ignored predictor      norm
+1  popular 0.3989463 0.4235643 0.3904372 0.4165006
+2 popteach 0.3605902 0.3605902 0.3605902 0.3605902
+3     texp 1.0000000 1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -458,10 +458,10 @@ R> ICCs <- ICCs %>% mutate(
 R> ICCs
 \end{CodeInput}
 \begin{CodeOutput}
-      vars incomplete   ignored predictor      norm       pan
-1  popular  0.3280070 0.3338626 0.3871020 0.3612830 0.3745108
-2 popteach  0.3414766 0.3414766 0.3414766 0.3414766 0.3414766
-3     texp  1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
+      vars       CCA   ignored predictor      norm       pan
+1  popular 0.3989463 0.4235643 0.3904372 0.4165006 0.3827595
+2 popteach 0.3605902 0.3605902 0.3605902 0.3605902 0.3605902
+3     texp 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
 

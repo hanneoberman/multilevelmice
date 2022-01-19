@@ -55,6 +55,7 @@ library(pan)
 # functions
 `%nin%` <- Negate(`%in%`)
 icc <- function(formula, data){multilevel::ICC1(aov(formula, data))}
+# icc for imputed data as function in mice
 miceadds::source.all(path = "../R")
 
 # plot parameters
@@ -92,9 +93,9 @@ This papers serves as a tutorial for imputing incomplete multilevel data with \p
 
 We structure this tutorial around three case studies:
 
-- `mice::popmis` (simulated data on school kids, with MNAR/MAR mixture);
+- `mice::popmis` (simulated data on school kids, n = 199 units, N = 10 clusters, with MNAR/MAR mixture);
 
-- `metamisc::impact` (real IPD on traumatic brain injuries, without `NA`s);
+- `metamisc::impact` (real IPD on traumatic brain injuries, without `NA`s);^[add cross-level interaction?]
 
 - `GJRM::hiv` (simulated patient data on HIV, without `NA`s)
 
@@ -103,15 +104,20 @@ For each case study we focus on a different aspect to illustrate how to impute i
 # Case Study I: Popularity
 
 ```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
+# randomly select a few classes
+clusters <- sample(1:100, 10)
+  
 # load data 
-pop <- readRDS("../Data/popNCR2.RDS") %>% mutate(class = as.factor(class))
+pop <- readRDS("../Data/popNCR2.RDS") %>% 
+  filter(class %in% clusters) %>% 
+  mutate(class = as.factor(class))
 
 # ICCs
 icc_pop <- icc(popular ~ class, data = pop)
 icc_teach <- icc(popteach ~ class, data = pop)
 ```
 
-`popNCR` is a simulated dataset with pupils clustered in classes, where the number of units $n = 2000$, and the number of clusters $N = 100$, on 7 variables: 
+`popNCR2` is a simulated dataset with pupils clustered in classes, where the number of units $n = 2000$, and the number of clusters $N = 100$, on 7 variables: 
 
   - `pupil`	Pupil number within class,
   - `class`	Class number,
@@ -123,7 +129,7 @@ icc_teach <- icc(popteach ~ class, data = pop)
   
 ### Incomplete data
 
-```{r pop_pat, echo=FALSE, fig.height=4, fig.width=4, fig.cap = "Missing data pattern in the popularity data", message=FALSE, warning=FALSE}
+```{r pop_pat, echo=FALSE, fig.cap = "Missing data pattern in the popularity data", message=FALSE, warning=FALSE}
 # missingness
 plot_md_pat(pop)
 # TODO: add pattern by cluster, text mining example square size
@@ -191,7 +197,7 @@ plot_box(imp_ignored, x = "popular", strip = TRUE)
 # compare ICCs before and after imputation
 ICCs <- data.frame(
   vars = c("popular", "popteach", "texp"), 
-  incomplete = c(icc(popular ~ class, pop), 
+  CCA = c(icc(popular ~ class, pop), 
                icc(popteach ~ class, pop),
                icc(texp ~ class, pop)), 
   ignored = c(icc(popular ~ class, complete(imp_ignored)), 
