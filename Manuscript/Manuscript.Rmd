@@ -362,7 +362,28 @@ Toy example from [Heckman Github repo](https://github.com/johamunoz/Heckman-IPDM
   - `age` Age of the patient,
   - `marital` Marital status,
   - `condom` Condom use during last intercourse,
-  - `smoke` Smoker (levels).
+  - `smoke` Smoker (levels; inclusion restriction variable).
+
+There is a specific MNAR mechanism. 
+
+- main model = analysis model = predicting the prevalence of hiv
+- people who have hiv are more reluctant to taking the test, not to reveal their status
+- solution: take variables from analysis model like condom use, marital status, age, etc. that relate to hiv prevalence
+- exclusion restriction variable = instrumental variable (from economics) = e.g. how kind the nurse was = smoke in this dataset = should be correlated to the missingness indicator, but *not* the variable itself
+- include these variables in the selection equation
+- take the missingness indicator of the variable of interest for the selection equation as DV
+- heckman models estimate BOTH selection and mean models simultaneously, because linked through the error term
+- if the errors are not correlated, the models are not linked at all -> not MNAR, but just MAR
+- if the rho is significantly different from zero, the errors are correlated and the models are related so we have MNAR
+- now, we add clustering
+- copulas = estimate 2 equations separately and use another equation to link them
+- for each of the clusters, est the copula separately, so we have all coeffs for each cluster, incl the rho and sigma (the errors)
+- put together all of the estimates through a meta-analysis model to get population distribution of the estimates
+- use the population parameter estimates to draw marginal parameters from the distribution to get a cluster/study parameter
+- with systematical miss we can est the values of the imputed values based on the marginal distribution
+- optional to add shrinkage: the marginal in account as well
+- the hiv data was simulated by the copula function/model developer
+- we could add a systematically missing variable in the data, because these are all sporadically
 
 ```{r hiv, echo=FALSE}
 # data
