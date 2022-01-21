@@ -62,7 +62,7 @@ plot_strip <- function(imp, x) {
 }
 
 # boxplot
-plot_box <- function(imp, x, strip = FALSE) {
+plot_box <- function(imp, x, cluster = NULL, strip = FALSE) {
   # plot
   if (strip){
     p <- imp %>% plot_imps(x) +
@@ -109,7 +109,9 @@ plot_box <- function(imp, x, strip = FALSE) {
   #       ) %>% setNames(0:imp$m))
   #     )
   # }
-
+  if(!is.null(cluster)){
+    p <- p + facet_wrap(get(cluster))
+    }
     # output
   return(p)
 }

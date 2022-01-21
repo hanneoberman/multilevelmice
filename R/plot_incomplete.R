@@ -159,11 +159,10 @@ plot_md_pat <- function(dat) {
 plot_conditional <- function(data, x, z, cluster, N = 4, ...){
   data %>% 
     filter(as.numeric(get(cluster)) < N+1) %>% 
+    mutate(cluster = factor(get(cluster), labels = paste("Cluster", 1:N))) %>% 
     ggplot(aes(x = get(x), color = factor(is.na(get(z)), labels = c("missing", "observed")))) +
-    # geom_density(data = data %>% filter(!is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.1, fill = plot_col[2], color = NA) +
-    # geom_density(data = data %>% filter(is.na(get(z))), aes(x = get(x), group = get(cluster)), alpha = 0.1, fill = plot_col[1], color = NA) +
     geom_density() +
-    facet_wrap(~get(cluster), labeller = label_both) +
+    facet_wrap(~cluster) +
     scale_color_manual(values = plot_col, name = z) +
     theme_classic() +
     theme(legend.position = "bottom") +

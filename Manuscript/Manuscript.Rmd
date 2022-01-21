@@ -280,7 +280,7 @@ imp_norm_2l <-
   )
 ```
 
-```{r pop_norm_eval}
+```{r pop_norm_eval, echo=FALSE}
 # plot(imp_norm)
 plot_box(imp_norm_2l, x = "popular", strip = TRUE)
 
@@ -307,7 +307,7 @@ imp_pan_2l <-
 ```
 
 
-```{r pop_pan_eval}
+```{r pop_pan_eval, echo=FALSE}
 # plot(imp_pan)
 plot_box(imp_pan_2l, x = "popular", strip = TRUE)
 ICCs <- ICCs %>% mutate(
@@ -395,7 +395,21 @@ hiv <- hiv %>%
 plot_md_pat(hiv)
 ```
 
-Here we can set `maxit` to 1...
+From the missing data pattern we see that we can set `maxit` to 1, since there is only one variable with missingness.
+
+```{r include=FALSE}
+# inclusion restriction variable 
+mod_main <- glm(hiv ~ ., family = "binomial", data = hiv) %>% 
+  broom::tidy(conf.int = TRUE) %>% 
+  .[7, c(2,6,7)] %>% 
+  round(., 3)
+mod_select <- glm(is.na(hiv) ~ ., family = "binomial", data = hiv) %>% 
+  broom::tidy(conf.int = TRUE) %>% 
+  .[7, c(2,6,7)] %>% 
+  round(., 3)
+```
+
+The inclusion restriction variable should be a predictor of the missingness indicator for the variable of interest, but *not* of the actual value of the variable of interest. In this case, the data were simulated to adhere to this requirement. Namely, $\beta_{smoke}$ = `r mod_main$estimate`, 95% CI [`r paste0(mod_main$conf.low, ", ", mod_main$conf.high)`] for the analysis model (`formula = hiv ~ .`), and $\beta_{smoke}$ = `r mod_select$estimate`, 95% CI [`r paste0(mod_select$conf.low, ", ", mod_select$conf.high)`] for the selection model (`formula = is.na(hiv) ~ .`). This means the assumptions for the Heckman model are met.
 
 # Discussion
 

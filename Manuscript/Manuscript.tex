@@ -401,22 +401,10 @@ R> imp_norm_2l <-
 \end{CodeChunk}
 
 \begin{CodeChunk}
-\begin{CodeInput}
-R> # plot(imp_norm)
-R> plot_box(imp_norm_2l, x = "popular", strip = TRUE)
-\end{CodeInput}
 
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_norm_eval-1} \end{center}
 
-\begin{CodeInput}
-R> ICCs <- ICCs %>% mutate(
-+            norm = c(icc(popular ~ as.factor(class), complete(imp_norm_2l)), 
-+                     icc(popteach ~ as.factor(class), complete(imp_norm_2l)), 
-+                     icc(texp ~ as.factor(class), complete(imp_norm_2l)))
-+            )
-R> ICCs
-\end{CodeInput}
 \begin{CodeOutput}
       vars       CCA   ignored predictor      norm
 1  popular 0.3989463 0.4235643 0.3904372 0.4165006
@@ -441,22 +429,10 @@ R> imp_pan_2l <-
 \end{CodeChunk}
 
 \begin{CodeChunk}
-\begin{CodeInput}
-R> # plot(imp_pan)
-R> plot_box(imp_pan_2l, x = "popular", strip = TRUE)
-\end{CodeInput}
 
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_pan_eval-1} \end{center}
 
-\begin{CodeInput}
-R> ICCs <- ICCs %>% mutate(
-+            pan = c(icc(popular ~ as.factor(class), complete(imp_pan_2l)), 
-+                     icc(popteach ~ as.factor(class), complete(imp_pan_2l)), 
-+                     icc(texp ~ as.factor(class), complete(imp_pan_2l)))
-+            )
-R> ICCs
-\end{CodeInput}
 \begin{CodeOutput}
       vars       CCA   ignored predictor      norm       pan
 1  popular 0.3989463 0.4235643 0.3904372 0.4165006 0.3827595
@@ -525,7 +501,64 @@ Github repo}. We will use the following variables:
 \item
   \texttt{condom} Condom use during last intercourse,
 \item
-  \texttt{smoke} Smoker (levels).
+  \texttt{smoke} Smoker (levels; inclusion restriction variable).
+\end{itemize}
+
+There is a specific MNAR mechanism.
+
+\begin{itemize}
+\tightlist
+\item
+  main model = analysis model = predicting the prevalence of hiv
+\item
+  people who have hiv are more reluctant to taking the test, not to
+  reveal their status
+\item
+  solution: take variables from analysis model like condom use, marital
+  status, age, etc. that relate to hiv prevalence
+\item
+  exclusion restriction variable = instrumental variable (from
+  economics) = e.g.~how kind the nurse was = smoke in this dataset =
+  should be correlated to the missingness indicator, but \emph{not} the
+  variable itself
+\item
+  include these variables in the selection equation
+\item
+  take the missingness indicator of the variable of interest for the
+  selection equation as DV
+\item
+  heckman models estimate BOTH selection and mean models simultaneously,
+  because linked through the error term
+\item
+  if the errors are not correlated, the models are not linked at all
+  -\textgreater{} not MNAR, but just MAR
+\item
+  if the rho is significantly different from zero, the errors are
+  correlated and the models are related so we have MNAR
+\item
+  now, we add clustering
+\item
+  copulas = estimate 2 equations separately and use another equation to
+  link them
+\item
+  for each of the clusters, est the copula separately, so we have all
+  coeffs for each cluster, incl the rho and sigma (the errors)
+\item
+  put together all of the estimates through a meta-analysis model to get
+  population distribution of the estimates
+\item
+  use the population parameter estimates to draw marginal parameters
+  from the distribution to get a cluster/study parameter
+\item
+  with systematical miss we can est the values of the imputed values
+  based on the marginal distribution
+\item
+  optional to add shrinkage: the marginal in account as well
+\item
+  the hiv data was simulated by the copula function/model developer
+\item
+  we could add a systematically missing variable in the data, because
+  these are all sporadically
 \end{itemize}
 
 \begin{CodeChunk}
@@ -535,7 +568,18 @@ Github repo}. We will use the following variables:
 
 \end{CodeChunk}
 
-Here we can set \texttt{maxit} to 1\ldots{}
+From the missing data pattern we see that we can set \texttt{maxit} to
+1, since there is only one variable with missingness.
+
+The inclusion restriction variable should be a predictor of the
+missingness indicator for the variable of interest, but \emph{not} of
+the actual value of the variable of interest. In this case, the data
+were simulated to adhere to this requirement. Namely, \(\beta_{smoke}\)
+= -0.064, 95\% CI {[}-0.256, 0.126{]} for the analysis model
+(\texttt{formula\ =\ hiv\ \textasciitilde{}\ .}), and \(\beta_{smoke}\)
+= -0.265, 95\% CI {[}-0.422, -0.11{]} for the selection model
+(\texttt{formula\ =\ is.na(hiv)\ \textasciitilde{}\ .}). This means the
+assumptions for the Heckman model are met.
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
