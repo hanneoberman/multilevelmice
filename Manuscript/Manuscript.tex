@@ -481,6 +481,21 @@ cluster.\footnote{Observed data pattern should differ per cluster. So,
   in cluster 1, the missingness would depend on age, but not in cluster
   two. Split the dataframe and run \texttt{ampute()} on each cluster.}
 
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-1} \end{center}
+
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-2} \end{center}
+
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-3} \end{center}
+
+\end{CodeChunk}
+
 \hypertarget{case-study-iii-hiv}{%
 \section{Case study III: HIV}\label{case-study-iii-hiv}}
 
@@ -571,11 +586,11 @@ There is a specific MNAR mechanism.
 From the missing data pattern we see that we can set \texttt{maxit} to
 1, since there is only one variable with missingness.
 
-The inclusion restriction variable should be a predictor of the
-missingness indicator for the variable of interest, but \emph{not} of
-the actual value of the variable of interest. In this case, the data
-were simulated to adhere to this requirement. Namely, \(\beta_{smoke}\)
-= -0.064, 95\% CI {[}-0.256, 0.126{]} for the analysis model
+The inclusion restriction variable should be a predictor of the the
+actual value of the variable of interest, but \emph{not} of missingness
+indicator for the variable of interest. In this case, the data were
+simulated to adhere to this requirement. Namely, \(\beta_{smoke}\) =
+-0.064, 95\% CI {[}-0.256, 0.126{]} for the analysis model
 (\texttt{formula\ =\ hiv\ \textasciitilde{}\ .}), and \(\beta_{smoke}\)
 = -0.265, 95\% CI {[}-0.422, -0.11{]} for the selection model
 (\texttt{formula\ =\ is.na(hiv)\ \textasciitilde{}\ .}). This means the

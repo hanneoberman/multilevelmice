@@ -53,8 +53,8 @@ plot_md_pat <- function(dat) {
   # get md pattern and store additional info
   pat <- mice::md.pattern(dat, plot = FALSE)
   vrb <- colnames(pat)[-ncol(pat)]
-  vrb_labs <- abbreviate(vrb, minlength = 3)
-  vrb_caption <- purrr::map2_chr(vrb_labs, vrb, ~{paste(.x, " = ", .y)}) %>% paste(collapse = ", ")
+  vrb_labs <- abbreviate(vrb, minlength = 5)
+  vrb_caption <- paste(vrb_labs[vrb_labs!=vrb], vrb[vrb_labs!=vrb], sep = " = ") %>% paste(collapse = ", ")
   colnames(pat) <- c(vrb, "NA_per_pat")
   pat_freq <- as.numeric(rownames(pat))[-nrow(pat)]
   NA_per_pat <- as.numeric(pat[, ncol(pat)])[-nrow(pat)]
