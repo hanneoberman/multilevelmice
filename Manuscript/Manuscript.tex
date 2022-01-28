@@ -176,13 +176,13 @@ We structure this tutorial around three case studies:
 \begin{itemize}
 \item
   \texttt{mice::popmis} (simulated data on school kids, n = 199 units, N
-  = 10 clusters, with MNAR/MAR mixture);
+  = 10 clusters, with MAR missingness in the outcome);
+\item
+  \texttt{GJRM::hiv} (simulated patient data on HIV, with MNAR
+  missingness in the outcome)
 \item
   \texttt{metamisc::impact} (real IPD on traumatic brain injuries,
   without \texttt{NA}s);\footnote{add cross-level interaction?}
-\item
-  \texttt{GJRM::hiv} (simulated patient data on HIV, without
-  \texttt{NA}s)
 \end{itemize}
 
 For each case study we focus on a different aspect to illustrate how to
@@ -194,10 +194,16 @@ show how to induce missingness and solve it in real-world data. In the
   methods exist already, but how to show that this is something new and
   exciting?} for imputing MNAR missingness according to the Heckman
 model. For all case studies we discuss the nature of the incomplete
-data, the imputation model(s), and evaluation of the imputed data.
+data, the imputation model(s), and evaluation of the imputed data:
 
-\hypertarget{case-study-i-popularity}{%
-\section{Case Study I: Popularity}\label{case-study-i-popularity}}
+A. Choose an analysis model (so the imputation model will be compatible
+with the analyses); B. Evaluate the incomplete data; C. Develop the
+imputation model(s); D. Impute the missingness; E. Evaluate the
+imputations.
+
+\hypertarget{how-not-to-impute-case-study-i-popularity}{%
+\section{How (not) to impute (Case Study I:
+Popularity)}\label{how-not-to-impute-case-study-i-popularity}}
 
 \texttt{popNCR2} is a simulated dataset with pupils clustered in
 classes, where the number of units \(n = 2000\), and the number of
@@ -266,19 +272,16 @@ and the observed data in \texttt{popteach}. There is also a dependency
 between the missingness in teacher popularity and pupil popularity. The
 relation seems to be right-tailed as well.
 
-\begin{CodeChunk}
-\begin{figure}
+\hypertarget{complete-case-analysis-not-recommended}{%
+\subsubsection{Complete case analysis (not
+recommended)}\label{complete-case-analysis-not-recommended}}
 
-{\centering \includegraphics{Manuscript_files/figure-latex/pop_dist-1} 
+Complete case analysis ignores the observations with missingness
+altogether, which may even introduce bias in MCAR situations.
 
-}
-
-\caption[Conditional distributions in the popularity data]{Conditional distributions in the popularity data}\label{fig:pop_dist}
-\end{figure}
-\end{CodeChunk}
-
-\hypertarget{imputation-model}{%
-\subsubsection{Imputation model}\label{imputation-model}}
+\hypertarget{imputation-ignoring-the-cluster-variable-not-recommended}{%
+\subsubsection{Imputation ignoring the cluster variable (not
+recommended)}\label{imputation-ignoring-the-cluster-variable-not-recommended}}
 
 The first imputation model that we'll use is likely to be invalid. In
 this model, we ignore the multilevel structure of the data, despite the
@@ -303,9 +306,6 @@ R> # impute the data, ignoring the cluster structure
 R> imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 \end{CodeInput}
 \end{CodeChunk}
-
-\hypertarget{imputed-data}{%
-\subsubsection{Imputed data}\label{imputed-data}}
 
 \begin{CodeChunk}
 
@@ -333,14 +333,18 @@ may not a problem, however, if at least one pupil in each class has
 teacher experience recorded, we can deductively impute the correct
 (i.e.~true) value for every pupil in the class.
 
-\hypertarget{imputation-model-1}{%
-\subsubsection{Imputation model}\label{imputation-model-1}}
+\hypertarget{imputation-with-the-cluster-variable-as-predictor-not-recommended}{%
+\subsubsection{Imputation with the cluster variable as predictor (not
+recommended)}\label{imputation-with-the-cluster-variable-as-predictor-not-recommended}}
 
 We'll now use \texttt{class} as a predictor to impute all other
 variables. This is still not recommended practice, since it only works
-under certain circumstances and results may be biased. But at least, it
-includes some multilevel aspect. Colloquially, this is `multilevel
-imputation for dummies'.
+under certain circumstances and results may be biased
+\citep{drec15, ende16}. But at least, it includes some multilevel
+aspect. This method is also called `fixed cluster imputation', and uses
+N-1 indicator variables representing allocation of N clusters as a fixed
+factor in the model \citep{reit06, ende2016}. Colloquially, this is
+`multilevel imputation for dummies'.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -352,9 +356,6 @@ R> # impute the data, cluster as predictor
 R> imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 \end{CodeInput}
 \end{CodeChunk}
-
-\hypertarget{imputed-data-1}{%
-\subsubsection{Imputed data}\label{imputed-data-1}}
 
 \begin{CodeChunk}
 
@@ -370,17 +371,19 @@ R> imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 \end{CodeChunk}
 
 Now, we can clearly see that the imputed values of \texttt{texp} are
-higher than the observed values, which is in line with right-tailed
-MNAR.
+higher than the observed values, which is in line with right-tailed MAR.
 
 The ICCs are way more in line with the ICCs in the incomplete data. But
 this is a quick and dirty way of imputing multilevel data. We
 \emph{should} be using a multilevel model.
 
-\hypertarget{imputation-model-2}{%
-\subsubsection{Imputation model}\label{imputation-model-2}}
+\hypertarget{imputation-with-random-effects}{%
+\subsubsection{Imputation with random
+effects}\label{imputation-with-random-effects}}
 
-To include\ldots{}
+With \texttt{2l.norm} we impute the outcome with a multilevel model
+assuming random slopes for each variable in the imputation model and
+homogeneous within-cluster variance.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -413,6 +416,14 @@ R> imp_norm_2l <-
 \end{CodeOutput}
 \end{CodeChunk}
 
+\hypertarget{imputation-with-random-effects-and-heterogeneity}{%
+\subsubsection{Imputation with random effects and
+heterogeneity}\label{imputation-with-random-effects-and-heterogeneity}}
+
+This method assumes random slopes for each variable in the imputation
+model. In contrast to \texttt{2l.norm} this method allows a
+cluster-specific residual error variance.
+
 \begin{CodeChunk}
 \begin{CodeInput}
 R> pred["popular", ] <- c(0, -2, 2, 2, 1, 0, 2)
@@ -441,8 +452,56 @@ R> imp_pan_2l <-
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{case-study-ii-impact}{%
-\section{Case study II: IMPACT}\label{case-study-ii-impact}}
+\hypertarget{how-to-handle-non-random-selection-case-study-ii-hiv}{%
+\section{How to handle non-random selection (Case study II:
+HIV)}\label{how-to-handle-non-random-selection-case-study-ii-hiv}}
+
+Data are simulated and included in the \texttt{GJRM} package. We will
+use the following variables:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{region} Cluster variable,
+\item
+  \texttt{hiv} HIV diagnosis (0=no, 1=yes),
+\item
+  \texttt{age} Age of the patient,
+\item
+  \texttt{marital} Marital status,
+\item
+  \texttt{condom} Condom use during last intercourse,
+\item
+  \texttt{smoke} Smoker (levels; inclusion restriction variable).
+\end{itemize}
+
+The imputation of these date is based on the toy example from
+\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{IPDMA
+Heckman Github repo}.
+
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/hiv-1} \end{center}
+
+\end{CodeChunk}
+
+From the missing data pattern we see that we can set \texttt{maxit} to
+1, since there is only one variable with missingness.
+
+The inclusion restriction variable should be a predictor of the the
+actual value of the variable of interest, but \emph{not} of missingness
+indicator for the variable of interest. In this case, the data were
+simulated to adhere to this requirement. Namely, \(\beta_{smoke}\) =
+-0.064, 95\% CI {[}-0.256, 0.126{]} for the analysis model
+(\texttt{formula\ =\ hiv\ \textasciitilde{}\ .}), and \(\beta_{smoke}\)
+= -0.265, 95\% CI {[}-0.422, -0.11{]} for the selection model
+(\texttt{formula\ =\ is.na(hiv)\ \textasciitilde{}\ .}). This means the
+assumptions for the Heckman-type selection model are met.
+
+\hypertarget{how-to-handle-multivariate-missingness-case-study-iii-impact}{%
+\section{How to handle multivariate missingness (Case study III:
+IMPACT)}\label{how-to-handle-multivariate-missingness-case-study-iii-impact}}
 
 \texttt{impact} is traumatic brain injury data with patients,
 \(n = 11022\), clustered in studies, \(N = 15\). With the following 11
@@ -495,106 +554,6 @@ cluster.\footnote{Observed data pattern should differ per cluster. So,
 \begin{center}\includegraphics{Manuscript_files/figure-latex/impact-3} \end{center}
 
 \end{CodeChunk}
-
-\hypertarget{case-study-iii-hiv}{%
-\section{Case study III: HIV}\label{case-study-iii-hiv}}
-
-Toy example from
-\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{Heckman
-Github repo}. We will use the following variables:
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{region} Cluster variable,
-\item
-  \texttt{hiv} HIV diagnosis (0=no, 1=yes),
-\item
-  \texttt{age} Age of the patient,
-\item
-  \texttt{marital} Marital status,
-\item
-  \texttt{condom} Condom use during last intercourse,
-\item
-  \texttt{smoke} Smoker (levels; inclusion restriction variable).
-\end{itemize}
-
-There is a specific MNAR mechanism.
-
-\begin{itemize}
-\tightlist
-\item
-  main model = analysis model = predicting the prevalence of hiv
-\item
-  people who have hiv are more reluctant to taking the test, not to
-  reveal their status
-\item
-  solution: take variables from analysis model like condom use, marital
-  status, age, etc. that relate to hiv prevalence
-\item
-  exclusion restriction variable = instrumental variable (from
-  economics) = e.g.~how kind the nurse was = smoke in this dataset =
-  should be correlated to the missingness indicator, but \emph{not} the
-  variable itself
-\item
-  include these variables in the selection equation
-\item
-  take the missingness indicator of the variable of interest for the
-  selection equation as DV
-\item
-  heckman models estimate BOTH selection and mean models simultaneously,
-  because linked through the error term
-\item
-  if the errors are not correlated, the models are not linked at all
-  -\textgreater{} not MNAR, but just MAR
-\item
-  if the rho is significantly different from zero, the errors are
-  correlated and the models are related so we have MNAR
-\item
-  now, we add clustering
-\item
-  copulas = estimate 2 equations separately and use another equation to
-  link them
-\item
-  for each of the clusters, est the copula separately, so we have all
-  coeffs for each cluster, incl the rho and sigma (the errors)
-\item
-  put together all of the estimates through a meta-analysis model to get
-  population distribution of the estimates
-\item
-  use the population parameter estimates to draw marginal parameters
-  from the distribution to get a cluster/study parameter
-\item
-  with systematical miss we can est the values of the imputed values
-  based on the marginal distribution
-\item
-  optional to add shrinkage: the marginal in account as well
-\item
-  the hiv data was simulated by the copula function/model developer
-\item
-  we could add a systematically missing variable in the data, because
-  these are all sporadically
-\end{itemize}
-
-\begin{CodeChunk}
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/hiv-1} \end{center}
-
-\end{CodeChunk}
-
-From the missing data pattern we see that we can set \texttt{maxit} to
-1, since there is only one variable with missingness.
-
-The inclusion restriction variable should be a predictor of the the
-actual value of the variable of interest, but \emph{not} of missingness
-indicator for the variable of interest. In this case, the data were
-simulated to adhere to this requirement. Namely, \(\beta_{smoke}\) =
--0.064, 95\% CI {[}-0.256, 0.126{]} for the analysis model
-(\texttt{formula\ =\ hiv\ \textasciitilde{}\ .}), and \(\beta_{smoke}\)
-= -0.265, 95\% CI {[}-0.422, -0.11{]} for the selection model
-(\texttt{formula\ =\ is.na(hiv)\ \textasciitilde{}\ .}). This means the
-assumptions for the Heckman model are met.
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}

@@ -93,15 +93,21 @@ This papers serves as a tutorial for imputing incomplete multilevel data with \p
 
 We structure this tutorial around three case studies:
 
-- `mice::popmis` (simulated data on school kids, n = 199 units, N = 10 clusters, with MNAR/MAR mixture);
+- `mice::popmis` (simulated data on school kids, n = 199 units, N = 10 clusters, with MAR missingness in the outcome);
+
+- `GJRM::hiv` (simulated patient data on HIV, with MNAR missingness in the outcome)
 
 - `metamisc::impact` (real IPD on traumatic brain injuries, without `NA`s);^[add cross-level interaction?]
 
-- `GJRM::hiv` (simulated patient data on HIV, without `NA`s)
+For each case study we focus on a different aspect to illustrate how to impute incomplete multilevel data. In the `mice::popmis` data, we show the advantages of including the multilevel structure of the data into the imputation model. In the `metamisc::impact` data we'll show how to induce missingness and solve it in real-world data. In the `GJRM::hiv` we provide novel methodology^[not really, the methods exist already, but how to show that this is something new and exciting?] for imputing MNAR missingness according to the Heckman model. For all case studies we discuss the nature of the incomplete data, the imputation model(s), and evaluation of the imputed data:
 
-For each case study we focus on a different aspect to illustrate how to impute incomplete multilevel data. In the `mice::popmis` data, we show the advantages of including the multilevel structure of the data into the imputation model. In the `metamisc::impact` data we'll show how to induce missingness and solve it in real-world data. In the `GJRM::hiv` we provide novel methodology^[not really, the methods exist already, but how to show that this is something new and exciting?] for imputing MNAR missingness according to the Heckman model. For all case studies we discuss the nature of the incomplete data, the imputation model(s), and evaluation of the imputed data.
+A. Choose an analysis model (so the imputation model will be compatible with the analyses);
+B. Evaluate the incomplete data;
+C. Develop the imputation model(s);
+D. Impute the missingness;
+E. Evaluate the imputations.
 
-# Case Study I: Popularity
+# How (not) to impute (Case Study I: Popularity)
 
 ```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
 # randomly select a few classes
@@ -145,7 +151,7 @@ To develop the best imputation model, we need to know whether the missingness in
 In Figure \ref{fig:pop_dist} we see that the distribution for the missing `popular` is further to the right than the distribution for observed `popular`. This would indicate a right-tailed MAR missingness. In fact, this is exactly what happens, because the missingness in these data was created manually. Now, we've made it observable by examining the relations between the missingness in popular and the observed data in `popteach`. There is also a dependency between the missingness in teacher popularity and pupil popularity. The relation seems to be right-tailed as well.
 
 ```{r pop_dist, fig.cap = "Conditional distributions in the popularity data", echo=FALSE, message=FALSE, warning=FALSE}
-plot_conditional(pop, x = "popteach", z = "popular", cluster = "class")
+# plot_conditional(pop, x = "popteach", z = "popular", cluster = "class")
 # TODO: check if up-side-down plot works
 # TODO: check smoothing in geom_density function and make it the inverse of the sample size
 # TODO: add functions to mice
@@ -165,7 +171,12 @@ plot_conditional(pop, x = "popteach", z = "popular", cluster = "class")
 ```
 
 
-### Imputation model  
+### Complete case analysis (not recommended)
+
+Complete case analysis ignores the observations with missingness altogether, which may even introduce bias in MCAR situations. 
+
+
+### Imputation ignoring the cluster variable (not recommended)
 
 The first imputation model that we'll use is likely to be invalid. In this model, we ignore the multilevel structure of the data, despite the high ICCs. This is purely to illustrate the effects of ignoring the clustering in our imputation effort.
 
@@ -183,7 +194,6 @@ pred[, c("class", "pupil")] <- 0
 imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 ```
 
-### Imputed data
 
 ```{r pop_ignored_eval, echo=FALSE, message=FALSE, warning=FALSE}
 # # check convergence of the imputation model
@@ -222,9 +232,12 @@ As the original ICCs show, 100% of the variance in `texp` can be attributed to t
 
 We can also observe that the teacher experience increases slightly after imputation. This is due to the MNAR missingness in `texp`. Higher values for `texp` have a larger probability to be missing. This may not a problem, however, if at least one pupil in each class has teacher experience recorded, we can deductively impute the correct (i.e. true) value for every pupil in the class. 
 
-### Imputation model
 
-We'll now use `class` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased. But at least, it includes some multilevel aspect. Colloquially, this is 'multilevel imputation for dummies'. 
+### Imputation with the cluster variable as predictor (not recommended) 
+
+We'll now use `class` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased [@drec15; @ende16]. But at least, it includes some multilevel aspect. This method is also called 'fixed cluster imputation', and uses N-1 indicator variables representing allocation of N clusters as a fixed factor in the model [@reit06; @ende2016]. Colloquially, this is 'multilevel imputation for dummies'. 
+
+<!-- "Beyond the potential bias, there are other reasons why a multilevel imputation model should be preferred if possible. First, the model is guaranteed to produce unbiased results even in extreme cases with very high missingness rates and/or small intraclass correlations. Second, with the multilevel model, it is possible to include additional variables that are constant on the cluster level, for example, information on the teachers if the cluster levels are chosen to be students within classes or background information on the schools if the clustering is modeled as students within schools. This approach is not possible with fixed effects imputation. While this limitation should not be problematic in terms of bias (the combined school effects are still modeled through the cluster specific intercepts), using this additional information will make the random effects imputation model more efficient." -->
 
 ```{r pop_predictor, message=FALSE, warning=FALSE}
 # adjust the predictor matrix
@@ -237,7 +250,6 @@ imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 ```
 
 
-### Imputed data
 
 ```{r pop_predictor_eval, echo=FALSE, message=FALSE, warning=FALSE}
 # # check logged events
@@ -263,14 +275,16 @@ ICCs <- ICCs %>% mutate(
 ICCs
 ```
 
-Now, we can clearly see that the imputed values of `texp` are higher than the observed values, which is in line with right-tailed MNAR. 
+Now, we can clearly see that the imputed values of `texp` are higher than the observed values, which is in line with right-tailed MAR. 
 
 The ICCs are way more in line with the ICCs in the incomplete data. But this is a quick and dirty way of imputing multilevel data. We *should* be using a multilevel model.
 
 
-### Imputation model
+### Imputation with random effects
 
-To include...
+
+
+With `2l.norm` we impute the outcome with a multilevel model  assuming random slopes for each variable in the imputation model and homogeneous within-cluster variance.
 
 ```{r pop_norm}
 pred <- ini$pred
@@ -300,6 +314,12 @@ ICCs <- ICCs %>% mutate(
 ICCs
 ```
 
+### Imputation with random effects and heterogeneity
+
+This method assumes random slopes for each variable in the imputation model. In contrast to `2l.norm` this method allows a cluster-specific residual error variance. 
+
+<!-- "By default, 2l.pan includes the intercept as both a fixed and a random effect. ... There are 5 different codes you can use in the predictor matrix for variables imputed with 2l.pan. The person identifier is coded as -2 (this is different from 2l.norm). To include predictor variables with fixed or random effects, these variables are coded with 1 or 2, respectively. If coded as 2, the corresponding fixed effect is automatically included. In addition, 2l.pan offers the codes 3 and 4, which have similar meanings as 1 and 2 but will include an additional fixed effect for the person mean of that variable. This is useful if you're trying to model within- and between-person effects of time-varying predictor variables." -->
+
 ```{r pop_pan}
 pred["popular", ] <- c(0, -2, 2, 2, 1, 0, 2)
 meth <- c("", "", "", "", "", "2l.pan", "")
@@ -315,6 +335,7 @@ imp_pan_2l <-
 ```
 
 
+
 ```{r pop_pan_eval, echo=FALSE}
 # plot(imp_pan)
 plot_box(imp_pan_2l, x = "popular", strip = TRUE)
@@ -326,7 +347,68 @@ ICCs <- ICCs %>% mutate(
 ICCs
 ```
 
-# Case study II: IMPACT
+
+# How to handle non-random selection (Case study II: HIV)
+
+Data are simulated and included in the `GJRM` package. We will use the following variables:
+
+  - `region` Cluster variable,
+  - `hiv` HIV diagnosis (0=no, 1=yes),
+  - `age` Age of the patient,
+  - `marital` Marital status,
+  - `condom` Condom use during last intercourse,
+  - `smoke` Smoker (levels; inclusion restriction variable).
+
+The imputation of these date is based on the toy example from [IPDMA Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R). 
+
+<!-- - main model = analysis model = predicting the prevalence of hiv -->
+<!-- - people who have hiv are more reluctant to taking the test, not to reveal their status -->
+<!-- - solution: take variables from analysis model like condom use, marital status, age, etc. that relate to hiv prevalence -->
+<!-- - exclusion restriction variable = instrumental variable (from economics) = e.g. how kind the nurse was = smoke in this dataset = should be correlated to the missingness indicator, but *not* the variable itself -->
+<!-- - include these variables in the selection equation -->
+<!-- - take the missingness indicator of the variable of interest for the selection equation as DV -->
+<!-- - heckman models estimate BOTH selection and mean models simultaneously, because linked through the error term -->
+<!-- - if the errors are not correlated, the models are not linked at all -> not MNAR, but just MAR -->
+<!-- - if the rho is significantly different from zero, the errors are correlated and the models are related so we have MNAR -->
+<!-- - now, we add clustering -->
+<!-- - copulas = estimate 2 equations separately and use another equation to link them -->
+<!-- - for each of the clusters, est the copula separately, so we have all coeffs for each cluster, incl the rho and sigma (the errors) -->
+<!-- - put together all of the estimates through a meta-analysis model to get population distribution of the estimates -->
+<!-- - use the population parameter estimates to draw marginal parameters from the distribution to get a cluster/study parameter -->
+<!-- - with systematical miss we can est the values of the imputed values based on the marginal distribution -->
+<!-- - optional to add shrinkage: the marginal in account as well -->
+<!-- - the hiv data was simulated by the copula function/model developer -->
+<!-- - we could add a systematically missing variable in the data, because these are all sporadically -->
+
+```{r hiv, echo=FALSE}
+# data
+data("hiv", package = "GJRM")
+hiv <- hiv %>% 
+  select(c("region","hiv", "age", "marital", "condom", "smoke")) %>% 
+  mutate(region = as.integer(region))
+# md pattern
+plot_md_pat(hiv)
+```
+
+From the missing data pattern we see that we can set `maxit` to 1, since there is only one variable with missingness.
+
+```{r include=FALSE}
+# inclusion restriction variable 
+mod_main <- glm(hiv ~ ., family = "binomial", data = hiv) %>% 
+  broom::tidy(conf.int = TRUE) %>% 
+  .[7, c(2,6,7)] %>% 
+  round(., 3)
+mod_select <- glm(is.na(hiv) ~ ., family = "binomial", data = hiv) %>% 
+  broom::tidy(conf.int = TRUE) %>% 
+  .[7, c(2,6,7)] %>% 
+  round(., 3)
+```
+
+The inclusion restriction variable should be a predictor of the the actual value of the variable of interest, but *not* of missingness indicator for the variable of interest. In this case, the data were simulated to adhere to this requirement. Namely, $\beta_{smoke}$ = `r mod_main$estimate`, 95% CI [`r paste0(mod_main$conf.low, ", ", mod_main$conf.high)`] for the analysis model (`formula = hiv ~ .`), and $\beta_{smoke}$ = `r mod_select$estimate`, 95% CI [`r paste0(mod_select$conf.low, ", ", mod_select$conf.high)`] for the selection model (`formula = is.na(hiv) ~ .`). This means the assumptions for the Heckman-type selection model are met.
+
+
+
+# How to handle multivariate missingness (Case study III: IMPACT)
 
 `impact` is traumatic brain injury data with patients, $n = 11022$, clustered in studies, $N = 15$. With the following 11 variables:
 
@@ -365,64 +447,6 @@ plot_md_pat(impact_NA[impact_NA$name == "APOE", ])
 # sim.multi from psych
 ```
 
-
-# Case study III: HIV
-
-Toy example from [Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R). We will use the following variables:
-
-  - `region` Cluster variable,
-  - `hiv` HIV diagnosis (0=no, 1=yes),
-  - `age` Age of the patient,
-  - `marital` Marital status,
-  - `condom` Condom use during last intercourse,
-  - `smoke` Smoker (levels; inclusion restriction variable).
-
-There is a specific MNAR mechanism. 
-
-- main model = analysis model = predicting the prevalence of hiv
-- people who have hiv are more reluctant to taking the test, not to reveal their status
-- solution: take variables from analysis model like condom use, marital status, age, etc. that relate to hiv prevalence
-- exclusion restriction variable = instrumental variable (from economics) = e.g. how kind the nurse was = smoke in this dataset = should be correlated to the missingness indicator, but *not* the variable itself
-- include these variables in the selection equation
-- take the missingness indicator of the variable of interest for the selection equation as DV
-- heckman models estimate BOTH selection and mean models simultaneously, because linked through the error term
-- if the errors are not correlated, the models are not linked at all -> not MNAR, but just MAR
-- if the rho is significantly different from zero, the errors are correlated and the models are related so we have MNAR
-- now, we add clustering
-- copulas = estimate 2 equations separately and use another equation to link them
-- for each of the clusters, est the copula separately, so we have all coeffs for each cluster, incl the rho and sigma (the errors)
-- put together all of the estimates through a meta-analysis model to get population distribution of the estimates
-- use the population parameter estimates to draw marginal parameters from the distribution to get a cluster/study parameter
-- with systematical miss we can est the values of the imputed values based on the marginal distribution
-- optional to add shrinkage: the marginal in account as well
-- the hiv data was simulated by the copula function/model developer
-- we could add a systematically missing variable in the data, because these are all sporadically
-
-```{r hiv, echo=FALSE}
-# data
-data("hiv", package = "GJRM")
-hiv <- hiv %>% 
-  select(c("region","hiv", "age", "marital", "condom", "smoke")) %>% 
-  mutate(region = as.integer(region))
-# md pattern
-plot_md_pat(hiv)
-```
-
-From the missing data pattern we see that we can set `maxit` to 1, since there is only one variable with missingness.
-
-```{r include=FALSE}
-# inclusion restriction variable 
-mod_main <- glm(hiv ~ ., family = "binomial", data = hiv) %>% 
-  broom::tidy(conf.int = TRUE) %>% 
-  .[7, c(2,6,7)] %>% 
-  round(., 3)
-mod_select <- glm(is.na(hiv) ~ ., family = "binomial", data = hiv) %>% 
-  broom::tidy(conf.int = TRUE) %>% 
-  .[7, c(2,6,7)] %>% 
-  round(., 3)
-```
-
-The inclusion restriction variable should be a predictor of the the actual value of the variable of interest, but *not* of missingness indicator for the variable of interest. In this case, the data were simulated to adhere to this requirement. Namely, $\beta_{smoke}$ = `r mod_main$estimate`, 95% CI [`r paste0(mod_main$conf.low, ", ", mod_main$conf.high)`] for the analysis model (`formula = hiv ~ .`), and $\beta_{smoke}$ = `r mod_select$estimate`, 95% CI [`r paste0(mod_select$conf.low, ", ", mod_select$conf.high)`] for the selection model (`formula = is.na(hiv) ~ .`). This means the assumptions for the Heckman model are met.
 
 # Discussion
 
