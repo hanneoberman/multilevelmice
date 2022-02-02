@@ -117,19 +117,24 @@ plot_box <- function(imp, x, cluster = NULL, strip = FALSE) {
 }
 
 # new plotting function for imputed data
-plot_mids <- function(imp, vrb, type = c("bwplot", "stripplot", "densityplot")) {
+plot_mids <- function(imp, x, y = NULL, type = c("bwplot", "stripplot", "densityplot")) {
   
   # process mids object for plotting
-  obs <- do.call(rbind, replicate(imp$m, !imp$where, simplify = FALSE)) %>%
-    rbind(matrix(FALSE, nrow(imp$data), ncol(imp$data)), .) %>% 
-    cbind(.imp = FALSE, .id = FALSE, .) 
-  comp <- mice::complete(imp, "long", include = TRUE) %>% 
+  if(is.null(y)){y <- x}
+  comp <- mice::complete(imp, "long")[is.na(imp$data[, x]) | is.na(imp$data[, y]), ] %>% 
+    rbind(cbind(.imp = 0, .id = rownames(imp$data), imp$data), .) %>% 
     mutate(.imp = factor(.imp, ordered = TRUE))
-  comp[obs] <- NA
+  
+  # obs <- do.call(rbind, replicate(imp$m, !imp$where, simplify = FALSE)) %>%
+  #   rbind(matrix(FALSE, nrow(imp$data), ncol(imp$data)), .) %>% 
+  #   cbind(.imp = FALSE, .id = FALSE, .) 
+  # comp <- mice::complete(imp, "long", include = TRUE) %>% 
+  #   mutate(.imp = factor(.imp, ordered = TRUE))
+  # comp[obs] <- NA
   
   # bwplot or stripplot
   if (type == "stripplot" | type == "bwplot"){
-    p <- ggplot(comp, aes(x = .imp, y = get(vrb), color = ifelse(.imp < 1, "Observed", "Imputed"))) +
+    p <- ggplot(comp, aes(x = .imp, y = get(vrb), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed"))) +
     labs(x = "Imputation",
          y = vrb,
          color = "",
@@ -153,15 +158,23 @@ plot_mids <- function(imp, vrb, type = c("bwplot", "stripplot", "densityplot")) 
   }
   
   # # xyplot
-  # ggplot(comp, aes(x = extrav, y = popular, color = ifelse(.imp < 1, "Observed", "Imputed"))) +
-  #   geom_point() +
-  #   geom_point(aes())
-  #   labs(color = "")
+  if (type == "xyplot") {
+  p <- ggplot(comp, aes(x = get(x), y = get(y), color = ifelse(.imp < 1, "Observed", "Imputed"))) +
+    geom_point() +
+    labs(x = x,
+         y = y,
+         color = "")
+  # geom_point(aes(extrav, popular), color = 2, data = mice::complete(imp, "long")[is.na(imp$data$extrav) | is.na(imp$data$popular), ]) 
+  }
+  
+  # theme
+  p <- p + 
+    ggplot2::theme_classic() +
+    ggplot2::scale_color_manual(values = c(
+        "Observed" = mice:::mdc(1),
+        "Imputed" = mice:::mdc(2)))
   
   # output
   return(p)
 }
- 
-# # test
-# plot_mids(imp_ignored, "popular")
 
