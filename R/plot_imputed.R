@@ -115,3 +115,18 @@ plot_box <- function(imp, x, cluster = NULL, strip = FALSE) {
     # output
   return(p)
 }
+
+# new plotting function for imputed data
+vrb = "popular"
+# y = "popular"
+obs <- do.call(rbind, replicate(imp$m, !imp$where, simplify=FALSE)) %>%
+  rbind(matrix(FALSE, nrow(imp$data), ncol(imp$data)), .) %>% 
+  cbind(.imp = FALSE, .id = FALSE, .)
+comp <- imp %>% 
+  mice::complete("long", include = TRUE) 
+comp[obs] <- NA
+
+comp %>% ggplot(aes(x = .imp, y = get(vrb))) +
+  geom_point() +
+  labs(x = "Imputation",
+       y = vrb)
