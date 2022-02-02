@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.1.25)  28 JAN 2022 19:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.1.25)  2 FEB 2022 11:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -487,7 +487,7 @@ LaTeX Info: Redefining \nameref on input line 63.
 \@outlinefile=\write4
 \openout4 = `Manuscript.out'.
 
-<jsslogo.jpg, id=64, 540.0175pt x 393.47pt>
+<jsslogo.jpg, id=60, 540.0175pt x 393.47pt>
 File: jsslogo.jpg Graphic file (type jpg)
 <use jsslogo.jpg>
 Package pdftex.def Info: jsslogo.jpg  used on input line 63.
@@ -529,37 +529,35 @@ LaTeX Font Info:    Trying to load font information for T1+lmss on input line 6
 3.
 (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 75.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 75.
-[1
+) [1
 
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdf
 tex.map} <./jsslogo.jpg>]
-<Manuscript_files/figure-latex/patterns-1.pdf, id=94, 296.10625pt x 216.81pt>
+<Manuscript_files/figure-latex/patterns-1.pdf, id=83, 296.10625pt x 216.81pt>
 File: Manuscript_files/figure-latex/patterns-1.pdf Graphic file (type pdf)
 <use Manuscript_files/figure-latex/patterns-1.pdf>
 Package pdftex.def Info: Manuscript_files/figure-latex/patterns-1.pdf  used on 
-input line 108.
+input line 105.
 (pdftex.def)             Requested size: 354.12434pt x 259.30061pt.
 
-Package natbib Warning: Citation `resc13' on page 2 undefined on input line 121
+Package natbib Warning: Citation `resc13' on page 2 undefined on input line 118
 .
 
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-25.
+22.
 (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
+Underfull \vbox (badness 2088) has occurred while \output is active []
+
+
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 2 []
  []
 
 [2 <./Manuscript_files/figure-latex/patterns-1.pdf>]
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
-78.
+41.
 (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -568,18 +566,23 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [3]
+Overfull \hbox (3.00034pt too wide) in paragraph at lines 207--219
+[]\T1/lmr/m/n/10.95 In each case study we high-light one as-pect of the im-pu-t
+a-tion work-flow. With the \T1/lmtt/m/n/10.95 mice::popmis
+ []
+
 
 Package hyperref Warning: Difference (2) between bookmark levels is greater 
-(hyperref)                than one, level fixed on input line 231.
+(hyperref)                than one, level fixed on input line 247.
 
-<Manuscript_files/figure-latex/pop_pat-1.pdf, id=163, 353.32pt x 264.99pt>
+<Manuscript_files/figure-latex/pop_pat-1.pdf, id=141, 353.32pt x 264.99pt>
 File: Manuscript_files/figure-latex/pop_pat-1.pdf Graphic file (type pdf)
 <use Manuscript_files/figure-latex/pop_pat-1.pdf>
 Package pdftex.def Info: Manuscript_files/figure-latex/pop_pat-1.pdf  used on i
-nput line 236.
+nput line 252.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
-LaTeX Warning: Reference `fig:pop_dist' on page 4 undefined on input line 265.
+LaTeX Warning: Reference `fig:pop_dist' on page 4 undefined on input line 281.
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -587,26 +590,22 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [4]
-<Manuscript_files/figure-latex/pop_ignored_eval-1.pdf, id=178, 353.32pt x 264.9
-9pt>
-File: Manuscript_files/figure-latex/pop_ignored_eval-1.pdf Graphic file (type p
-df)
-<use Manuscript_files/figure-latex/pop_ignored_eval-1.pdf>
-Package pdftex.def Info: Manuscript_files/figure-latex/pop_ignored_eval-1.pdf  
-used on input line 313.
-(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
-
-Underfull \vbox (badness 1314) has occurred while \output is active []
-
-
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 5
  []
 
 [5 <./Manuscript_files/figure-latex/pop_pat-1.pdf>]
+<Manuscript_files/figure-latex/pop_ignored_eval-1.pdf, id=171, 353.32pt x 264.9
+9pt>
+File: Manuscript_files/figure-latex/pop_ignored_eval-1.pdf Graphic file (type p
+df)
+<use Manuscript_files/figure-latex/pop_ignored_eval-1.pdf>
+Package pdftex.def Info: Manuscript_files/figure-latex/pop_ignored_eval-1.pdf  
+used on input line 329.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Package natbib Warning: Citation `ende2016' on page 6 undefined on input line 3
-46.
+64.
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -614,13 +613,13 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [6 <./Manuscript_files/figure-latex/pop_ignored_eval-1.pdf>]
-<Manuscript_files/figure-latex/pop_predictor_eval-1.pdf, id=221, 353.32pt x 264
+<Manuscript_files/figure-latex/pop_predictor_eval-1.pdf, id=195, 353.32pt x 264
 .99pt>
 File: Manuscript_files/figure-latex/pop_predictor_eval-1.pdf Graphic file (type
  pdf)
 <use Manuscript_files/figure-latex/pop_predictor_eval-1.pdf>
 Package pdftex.def Info: Manuscript_files/figure-latex/pop_predictor_eval-1.pdf
-  used on input line 363.
+  used on input line 387.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -628,13 +627,13 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [7 <./Manuscript_files/figure-latex/pop_predictor_eval-1.pdf>]
-<Manuscript_files/figure-latex/pop_norm_eval-1.pdf, id=240, 353.32pt x 264.99pt
+<Manuscript_files/figure-latex/pop_norm_eval-1.pdf, id=216, 353.32pt x 264.99pt
 >
 File: Manuscript_files/figure-latex/pop_norm_eval-1.pdf Graphic file (type pdf)
 
 <use Manuscript_files/figure-latex/pop_norm_eval-1.pdf>
 Package pdftex.def Info: Manuscript_files/figure-latex/pop_norm_eval-1.pdf  use
-d on input line 409.
+d on input line 433.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -642,18 +641,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [8 <./Manuscript_files/figure-latex/pop_norm_eval-1.pdf>]
-<Manuscript_files/figure-latex/pop_pan_eval-1.pdf, id=258, 353.32pt x 264.99pt>
+<Manuscript_files/figure-latex/pop_pan_eval-1.pdf, id=235, 353.32pt x 264.99pt>
 
 File: Manuscript_files/figure-latex/pop_pan_eval-1.pdf Graphic file (type pdf)
 <use Manuscript_files/figure-latex/pop_pan_eval-1.pdf>
 Package pdftex.def Info: Manuscript_files/figure-latex/pop_pan_eval-1.pdf  used
- on input line 445.
-(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
-<Manuscript_files/figure-latex/hiv-1.pdf, id=260, 353.32pt x 264.99pt>
-File: Manuscript_files/figure-latex/hiv-1.pdf Graphic file (type pdf)
-<use Manuscript_files/figure-latex/hiv-1.pdf>
-Package pdftex.def Info: Manuscript_files/figure-latex/hiv-1.pdf  used on input
- line 485.
+ on input line 469.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -661,63 +654,72 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [9 <./Manuscript_files/figure-latex/pop_pan_eval-1.pdf>]
+<Manuscript_files/figure-latex/hiv-1.pdf, id=254, 353.32pt x 264.99pt>
+File: Manuscript_files/figure-latex/hiv-1.pdf Graphic file (type pdf)
+<use Manuscript_files/figure-latex/hiv-1.pdf>
+Package pdftex.def Info: Manuscript_files/figure-latex/hiv-1.pdf  used on input
+ line 509.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 10 []
  []
 
 [10 <./Manuscript_files/figure-latex/hiv-1.pdf>]
-<Manuscript_files/figure-latex/impact-1.pdf, id=295, 361.35pt x 264.99pt>
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <9> on input line 565.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 565.
+<Manuscript_files/figure-latex/impact-1.pdf, id=271, 361.35pt x 264.99pt>
 File: Manuscript_files/figure-latex/impact-1.pdf Graphic file (type pdf)
 <use Manuscript_files/figure-latex/impact-1.pdf>
 Package pdftex.def Info: Manuscript_files/figure-latex/impact-1.pdf  used on in
-put line 546.
+put line 570.
 (pdftex.def)             Requested size: 354.12434pt x 259.69246pt.
-<Manuscript_files/figure-latex/impact-2.pdf, id=296, 361.35pt x 264.99pt>
+<Manuscript_files/figure-latex/impact-2.pdf, id=272, 361.35pt x 264.99pt>
 File: Manuscript_files/figure-latex/impact-2.pdf Graphic file (type pdf)
 <use Manuscript_files/figure-latex/impact-2.pdf>
 Package pdftex.def Info: Manuscript_files/figure-latex/impact-2.pdf  used on in
-put line 550.
-(pdftex.def)             Requested size: 354.12434pt x 259.69246pt.
-<Manuscript_files/figure-latex/impact-3.pdf, id=297, 361.35pt x 264.99pt>
-File: Manuscript_files/figure-latex/impact-3.pdf Graphic file (type pdf)
-<use Manuscript_files/figure-latex/impact-3.pdf>
-Package pdftex.def Info: Manuscript_files/figure-latex/impact-3.pdf  used on in
-put line 554.
+put line 574.
 (pdftex.def)             Requested size: 354.12434pt x 259.69246pt.
 
-Underfull \vbox (badness 1142) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 11
  []
 
-[11 <./Manuscript_files/figure-latex/impact-1.pdf> <./Manuscript_files/figure-l
-atex/impact-2.pdf>] (./Manuscript.bbl
+[11 <./Manuscript_files/figure-latex/impact-1.pdf>]
+<Manuscript_files/figure-latex/impact-3.pdf, id=291, 361.35pt x 264.99pt>
+File: Manuscript_files/figure-latex/impact-3.pdf Graphic file (type pdf)
+<use Manuscript_files/figure-latex/impact-3.pdf>
+Package pdftex.def Info: Manuscript_files/figure-latex/impact-3.pdf  used on in
+put line 578.
+(pdftex.def)             Requested size: 354.12434pt x 259.69246pt.
+
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 12 []
  []
 
-[12 <./Manuscript_files/figure-latex/impact-3.pdf>])
-
-Package natbib Warning: There were undefined citations.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 593--593
-
- []
-
-LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 593.
-
-Underfull \vbox (badness 1577) has occurred while \output is active []
-
-
+[12 <./Manuscript_files/figure-latex/impact-2.pdf> <./Manuscript_files/figure-l
+atex/impact-3.pdf>] (./Manuscript.bbl
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 13
  []
 
-[13]
+[13])
+
+Package natbib Warning: There were undefined citations.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 617--617
+
+ []
+
+LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 617.
+
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 14 []
  []
@@ -727,16 +729,16 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `Manuscript.out' has not changed.
-(rerunfilecheck)             Checksum: A91811DF0D41F245216C75E784C71020;4290.
+(rerunfilecheck)             Checksum: D77DF3B56E568303E57AB6BDCA50C663;4208.
  ) 
 Here is how much of TeX's memory you used:
- 11060 strings out of 480247
- 182450 string characters out of 5894310
- 472055 words of memory out of 5000000
- 28709 multiletter control sequences out of 15000+600000
- 579956 words of font info for 83 fonts, out of 8000000 for 9000
+ 11055 strings out of 480247
+ 182396 string characters out of 5894310
+ 468120 words of memory out of 5000000
+ 28714 multiletter control sequences out of 15000+600000
+ 576954 words of font info for 82 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 75i,9n,77p,650b,504s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 75i,9n,77p,650b,509s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec
 .enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm
 -ts1.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/l
@@ -764,10 +766,10 @@ TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/4216318/AppData/R
 oaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt9.pfb><c:/Users/4216318/App
 Data/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb><c:/Users/421
 6318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on Manuscript.pdf (14 pages, 608995 bytes).
+Output written on Manuscript.pdf (14 pages, 587291 bytes).
 PDF statistics:
- 475 PDF objects out of 1000 (max. 8388607)
- 392 compressed objects within 4 object streams
- 83 named destinations out of 1000 (max. 500000)
- 176 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 456 PDF objects out of 1000 (max. 8388607)
+ 373 compressed objects within 4 object streams
+ 73 named destinations out of 1000 (max. 500000)
+ 168 words of extra memory for PDF output out of 10000 (max. 10000000)
 
