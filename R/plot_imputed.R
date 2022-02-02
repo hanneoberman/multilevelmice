@@ -117,16 +117,51 @@ plot_box <- function(imp, x, cluster = NULL, strip = FALSE) {
 }
 
 # new plotting function for imputed data
-vrb = "popular"
-# y = "popular"
-obs <- do.call(rbind, replicate(imp$m, !imp$where, simplify=FALSE)) %>%
-  rbind(matrix(FALSE, nrow(imp$data), ncol(imp$data)), .) %>% 
-  cbind(.imp = FALSE, .id = FALSE, .)
-comp <- imp %>% 
-  mice::complete("long", include = TRUE) 
-comp[obs] <- NA
+plot_mids <- function(imp, vrb, type = c("bwplot", "stripplot", "densityplot")) {
+  
+  # process mids object for plotting
+  obs <- do.call(rbind, replicate(imp$m, !imp$where, simplify = FALSE)) %>%
+    rbind(matrix(FALSE, nrow(imp$data), ncol(imp$data)), .) %>% 
+    cbind(.imp = FALSE, .id = FALSE, .) 
+  comp <- mice::complete(imp, "long", include = TRUE) %>% 
+    mutate(.imp = factor(.imp, ordered = TRUE))
+  comp[obs] <- NA
+  
+  # bwplot or stripplot
+  if (type == "stripplot" | type == "bwplot"){
+    p <- ggplot(comp, aes(x = .imp, y = get(vrb), color = ifelse(.imp < 1, "Observed", "Imputed"))) +
+    labs(x = "Imputation",
+         y = vrb,
+         color = "",
+         fill = "") 
+    if(type == "stripplot"){
+      p <- p + geom_point(position = position_jitter(width = 0.25, height = 0))
+    }
+    p <- p + geom_boxplot(size = 1,
+                 width = 0.5,
+                 alpha = 0.5,
+                 outlier.shape = NA)
+  }
+  
+  # densityplot
+  if (type == "densityplot"){
+  p <- ggplot(comp, aes(x = get(vrb), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed"))) +
+    geom_density() +
+    labs(x = vrb,
+         color = "",
+         fill = "")
+  }
+  
+  # # xyplot
+  # ggplot(comp, aes(x = extrav, y = popular, color = ifelse(.imp < 1, "Observed", "Imputed"))) +
+  #   geom_point() +
+  #   geom_point(aes())
+  #   labs(color = "")
+  
+  # output
+  return(p)
+}
+ 
+# # test
+# plot_mids(imp_ignored, "popular")
 
-comp %>% ggplot(aes(x = .imp, y = get(vrb))) +
-  geom_point() +
-  labs(x = "Imputation",
-       y = vrb)
