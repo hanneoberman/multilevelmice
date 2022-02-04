@@ -82,7 +82,7 @@ account when developing analysis models for multilevel data for the
 simple reason that groups of observations share some common variance.
 
 The variability due to clustering is often measured by means of the
-intra-class coefficient (ICC). The ICC can be seen as the percentage of
+intraclass coefficient (ICC). The ICC can be seen as the percentage of
 variance that can be attributed to the cluster-level, where a high ICC
 would indicate that a lot of variability is due to the cluster
 structure. Multilevel models typically accommodate for this variability
@@ -184,7 +184,11 @@ tutorial paper assumes a basic level of knowledge on multilevel models.
 We're providing an overview of implementations. It's up-to the reader to
 decide which multilevel strategy suits their data. We won't go into
 detail for the different methods (and equations). This paper is just a
-software tutorial, so we'll keep it practical.
+software tutorial, so we'll keep it practical. Assumed knowledge also
+includes the use of the `piping operator', \texttt{\%\textgreater{}\%},
+adopted from the \texttt{magrittr} package and avidly used among
+\texttt{tidy} workflows, and the \texttt{lme4} notation for multilevel
+models.
 
 To illustrate how to impute incomplete multilevel data, we structure
 this tutorial around three case studies:
@@ -193,7 +197,7 @@ this tutorial around three case studies:
 \tightlist
 \item
   \texttt{mice::popmis} (simulated data on perceived popularity,
-  \(n = 199\) pupils across \(N = 10\) classes, with univariate MAR
+  \(n = 2,000\) pupils across \(N = 100\) schools, with univariate MAR
   missingness);
 \item
   \texttt{GJRM::hiv} (simulated data on HIV diagnoses, \(n = 6,416\)
@@ -224,42 +228,63 @@ Popularity)}\label{how-not-to-impute-case-study-i-popularity}}
 In this section we'll go over the different steps involved with imputing
 incomplete multilevel data. The data we're using is the \texttt{popmis}
 dataset from the \texttt{mice} package. This is a simulated dataset with
-pupils clustered in classes, where the number of units \(n = 2000\), and
-the number of clusters \(N = 100\), on 7 variables:
+pupils (\(n = 2000\)) clustered within schools (\(N = 100\)). In this
+tutorial we'll use the following variables:
 
 \begin{itemize}
 \tightlist
 \item
-  \texttt{pupil} Pupil number within class,
+  \texttt{school}, school identification number (clustering variable);
 \item
-  \texttt{class} Class number,
+  \texttt{popular}, pupil popularity (self-rating between 0 and 10;
+  unit-level);
 \item
-  \texttt{extrav} Pupil extraversion,
+  \texttt{sex}, pupil sex (0=boy, 1=girl; unit-level);
 \item
-  \texttt{sex} Pupil gender,
-\item
-  \texttt{texp} Teacher experience (years),
-\item
-  \texttt{popular} Pupil popularity,
-\item
-  \texttt{teachpop} Teacher popularity.
+  \texttt{texp}, teacher experience (in years; cluster-level).
 \end{itemize}
 
 The analysis model corresponding to this dataset is multilevel
-regression with \texttt{popular} as the outcome variable, \texttt{sex}
-and \texttt{extrav} as unit-level predictors, and \texttt{texp} and
-\texttt{teachpop} as cluster-level predictors. Since the data is
-simulated and the missingness is induced, we can compare our imputations
-to the true data generating mechanism.
+regression with random intercepts, random slopes and a cross-level
+interaction. The outcome variable is \texttt{popular}, which is
+predicted from the unit-level variable \texttt{sex} and the
+cluster-level variable \texttt{texp}. The regression equation and
+\texttt{lme4} notation for this model are
 
-The data is created in such a way that the clustering variable
-\texttt{class} explains quite some variance in the outcome variable
-\texttt{popular}. We express this using the intra-class correlation, ICC
-\(=\) 0.36. This tells us that it would be wise to use multilevel
-modeling.
+\[
+\text{popular}_{ij} =
+\gamma_{00} + 
+\gamma_{10} \text{ sex}_{ij} + 
+\gamma_{01} \text{ texp}_{j} + 
+\gamma_{11} \text{ texp}_{j} \times \text{sex}_{ij} + 
+u_{0j} + 
+u_{1j} \text{ sex}_{ij} + 
+e_{ij} \\
+\]
+
+\[
+\texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)}
+\]
+
+Since the data is simulated and the missingness is induced, we can
+compare our inferences after imputation to the true complete data. The
+data is created in such a way that the clustering variable
+\texttt{school} explains quite some variance in the outcome variable
+\texttt{popular}. We express this using the intraclass correlation, ICC
+\(=\) 0.58. We'll evaluate the ICC after each missing data strategy, and
+compare the estimated fixed effect of \texttt{sex} on \texttt{popular}
+\(\gamma_{10} = 0.843\).
 
 \hypertarget{incomplete-data}{%
 \subsubsection{Incomplete data}\label{incomplete-data}}
+
+Load the data into the environment and select the relevant variables:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> popmis <- mice::popmis[, c("school", "popular", "sex", "texp")] 
+\end{CodeInput}
+\end{CodeChunk}
 
 \begin{CodeChunk}
 \begin{figure}
@@ -282,8 +307,8 @@ observed values of other variables. We'll highlight only one other
 variable to illustrate, but ideally one would inspect all relations. The
 questions we'll ask are: `Does the missing data of pupil popularity
 (\texttt{popular}) depend on observed teacher popularity
-(\texttt{teachpop})?'. This can be evaluated statistically, but visual
-inspection usually suffices. We'll make a histogram of \texttt{teachpop}
+(\texttt{texp})?'. This can be evaluated statistically, but visual
+inspection usually suffices. We'll make a histogram of \texttt{texp}
 separately for the pupils with known popularity and missing popularity.
 
 In Figure \ref{fig:pop_dist} we see that \textbf{{[}update this part{]}}
@@ -292,7 +317,7 @@ right than the distribution for observed \texttt{popular}. This would
 indicate a right-tailed MAR missingness. (In fact, this is exactly what
 happens, because the missingness in these data was created manually.)
 We've made it observable by examining the relations between the
-missingness in popular and the observed data in \texttt{teachpop}.
+missingness in popular and the observed data in \texttt{texp}.
 
 \begin{CodeChunk}
 \begin{figure}
@@ -324,7 +349,7 @@ clustering in our imputation effort.
 We'll use predictive mean matching to impute the continuous variables
 and logistic regression to impute the binary variable \texttt{sex}. We
 do not use the observation identifier \texttt{pupil} or cluster
-identifier \texttt{class} as predictors to impute other variables.
+identifier \texttt{school} as predictors to impute other variables.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -333,7 +358,7 @@ R> ini <- mice(popmis, maxit = 0)
 R> 
 R> # extract predictor matrix and adjust
 R> pred <- ini$pred
-R> pred[, c("class", "pupil")] <- 0
+R> pred[, c("school")] <- 0
 R> 
 R> # impute the data, ignoring the cluster structure
 R> imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
@@ -345,26 +370,20 @@ R> imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_ignored_eval-1} \end{center}
 
-\begin{CodeOutput}
-      vars       CCA   ignored
-1  popular 0.5583543 0.4739527
-2 teachpop 0.6823380 0.6823380
-3     texp 1.0000000 1.0000000
-\end{CodeOutput}
 \end{CodeChunk}
 
 As the original ICCs show, 100\% of the variance in \texttt{texp} can be
-attributed to the clustering variable \texttt{class}. This tells us that
-the multilevel structure of the data should be taken into account. If we
-don't, we'll end up with incorrect imputations, biasing the effect of
-the clusters towards zero.
+attributed to the clustering variable \texttt{school}. This tells us
+that the multilevel structure of the data should be taken into account.
+If we don't, we'll end up with incorrect imputations, biasing the effect
+of the clusters towards zero.
 
 We can also observe that the teacher experience increases slightly after
 imputation. This is due to the MNAR missingness in \texttt{texp}. Higher
 values for \texttt{texp} have a larger probability to be missing. This
-may not a problem, however, if at least one pupil in each class has
+may not a problem, however, if at least one pupil in each school has
 teacher experience recorded, we can deductively impute the correct
-(i.e.~true) value for every pupil in the class.
+(i.e.~true) value for every pupil in the school.
 
 Add: Assumes exchangability between units.
 
@@ -372,7 +391,7 @@ Add: Assumes exchangability between units.
 \subsubsection{Imputation with the cluster variable as predictor (not
 recommended)}\label{imputation-with-the-cluster-variable-as-predictor-not-recommended}}
 
-We'll now use \texttt{class} as a predictor to impute all other
+We'll now use \texttt{school} as a predictor to impute all other
 variables. This is still not recommended practice, since it only works
 under certain circumstances and results may be biased
 \citep{drec15, ende16}. But at least, it includes some multilevel
@@ -391,7 +410,7 @@ models.
 \begin{CodeInput}
 R> # adjust the predictor matrix
 R> pred <- ini$pred 
-R> pred[, "pupil"] <- 0
+R> # pred[, "pupil"] <- 0
 R> 
 R> # impute the data, cluster as predictor
 R> imp_predictor <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
@@ -403,12 +422,6 @@ R> imp_predictor <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_predictor_eval-1} \end{center}
 
-\begin{CodeOutput}
-      vars       CCA   ignored predictor
-1  popular 0.5583543 0.4739527 0.5660108
-2 teachpop 0.6823380 0.6823380 0.6823380
-3     texp 1.0000000 1.0000000 1.0000000
-\end{CodeOutput}
 \end{CodeChunk}
 
 Now, we can clearly see that the imputed values of \texttt{texp} are
@@ -429,41 +442,32 @@ homogeneous within-cluster variance.
 \begin{CodeChunk}
 \begin{CodeInput}
 R> pred <- ini$pred
-R> pred["popular", ] <- c(0, -2, 2, 2, 2, 0, 2) 
+R> pred["popular", ] <- c(-2, 2, 2, 2) 
 R> #-2 for the cluster variable, 2 for random effects
 R> meth <- ini$meth
-R> meth <- c("", "", "", "", "", "2l.norm", "")
+R> meth <- c("", "2l.norm", "",  "")
 R> imp_norm_2l <-
 +   mice(
-+     popmis %>% mutate(class = as.integer(class)),
++     popmis %>% mutate(school = as.integer(school)),
 +     pred = pred,
 +     meth = meth,
 +     maxit = 1,
 +     print = FALSE
 +   )
 \end{CodeInput}
-\begin{CodeOutput}
-Warning: Number of logged events: 1
-\end{CodeOutput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
 \begin{CodeOutput}
-Warning: Removed 5088 rows containing non-finite values (stat_boxplot).
+Warning: Removed 848 rows containing non-finite values (stat_boxplot).
 \end{CodeOutput}
 \begin{CodeOutput}
-Warning: Removed 5088 rows containing missing values (geom_point).
+Warning: Removed 848 rows containing missing values (geom_point).
 \end{CodeOutput}
 
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_norm_eval-1} \end{center}
 
-\begin{CodeOutput}
-      vars       CCA   ignored predictor      norm
-1  popular 0.5583543 0.4739527 0.5660108 0.5583543
-2 teachpop 0.6823380 0.6823380 0.6823380 0.6823380
-3     texp 1.0000000 1.0000000 1.0000000 1.0000000
-\end{CodeOutput}
 \end{CodeChunk}
 
 \hypertarget{imputation-with-random-effects-and-heterogeneity}{%
@@ -476,39 +480,30 @@ cluster-specific residual error variance.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> pred["popular", ] <- c(0, -2, 2, 2, 1, 0, 2)
-R> meth <- c("", "", "", "", "", "2l.pan", "")
+R> pred["popular", ] <- c(-2, 2, 1, 2)
+R> meth <- c("", "2l.pan", "", "")
 R> imp_pan_2l <-
 +   mice(
-+     popmis %>% mutate(class = as.integer(class)),
++     popmis %>% mutate(school = as.integer(school)),
 +     pred = pred,
 +     meth = meth,
 +     maxit = 1,
 +     print = FALSE
 +   )
 \end{CodeInput}
-\begin{CodeOutput}
-Warning: Number of logged events: 1
-\end{CodeOutput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
 \begin{CodeOutput}
-Warning: Removed 5088 rows containing non-finite values (stat_boxplot).
+Warning: Removed 848 rows containing non-finite values (stat_boxplot).
 \end{CodeOutput}
 \begin{CodeOutput}
-Warning: Removed 5088 rows containing missing values (geom_point).
+Warning: Removed 848 rows containing missing values (geom_point).
 \end{CodeOutput}
 
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_pan_eval-1} \end{center}
 
-\begin{CodeOutput}
-      vars       CCA   ignored predictor      norm       pan
-1  popular 0.5583543 0.4739527 0.5660108 0.5583543 0.5583543
-2 teachpop 0.6823380 0.6823380 0.6823380 0.6823380 0.6823380
-3     texp 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
-\end{CodeOutput}
 \end{CodeChunk}
 
 \hypertarget{how-to-handle-non-random-selection-case-study-ii-hiv}{%
