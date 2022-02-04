@@ -106,19 +106,18 @@ In each case study we highlight one aspect of the imputation workflow. With the 
 
 ```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
 # randomly select a few classes
-clusters <- sample(1:100, 10)
+# clusters <- sample(1:100, 10)
   
 # load data 
-pop <- readRDS("../Data/popNCR2.RDS") %>% 
-  filter(class %in% clusters) %>% 
-  mutate(class = as.factor(class))
-
-# ICCs
-icc_pop <- icc(popular ~ class, data = pop)
-icc_teach <- icc(popteach ~ class, data = pop)
+popmis <- mice::popmis %>% mutate(
+  class = factor(school), 
+  .keep = "unused")#readRDS("../Data/popNCR2.RDS") %>% 
+  #filter(class %in% clusters) %>% 
+  #mutate(class = as.factor(class))
+popcomp <- foreign::read.spss("../Data/popular2.sav", to.data.frame = TRUE)
 ```
 
-`popNCR2` is a simulated dataset with pupils clustered in classes, where the number of units $n = 2000$, and the number of clusters $N = 100$, on 7 variables: 
+In this section we'll go over the different steps involved with imputing incomplete multilevel data. The data we're using is the `popmis` dataset from the `mice` package. This is a simulated dataset with pupils clustered in classes, where the number of units $n = 2000$, and the number of clusters $N = 100$, on 7 variables: 
 
   - `pupil`	Pupil number within class,
   - `class`	Class number,
@@ -126,27 +125,39 @@ icc_teach <- icc(popteach ~ class, data = pop)
   - `sex`	Pupil gender,
   - `texp`	Teacher experience (years),
   - `popular`	Pupil popularity,
-  - `popteach`	Teacher popularity.
+  - `teachpop`	Teacher popularity.
   
+The analysis model corresponding to this dataset is multilevel regression with `popular` as the outcome variable, `sex` and `extrav` as unit-level predictors, and `texp` and `teachpop` as cluster-level predictors. Since the data is simulated and the missingness is induced, we can compare our imputations to the true data generating mechanism. 
+
+The data is created in such a way that the clustering variable `class` explains quite some variance in the outcome variable `popular`. We express this using the intra-class correlation,  ICC $=$ `r round(icc(popular ~ as.factor(class), data = popcomp), 2)`. This tells us that it would be wise to use multilevel modeling. 
+
 ### Incomplete data
 
 ```{r pop_pat, echo=FALSE, fig.cap = "Missing data pattern in the popularity data", message=FALSE, warning=FALSE}
 # missingness
-plot_md_pat(pop)
+plot_md_pat(popmis)
 # TODO: add pattern by cluster, text mining example square size
 # TODO: try to make it a shepley plot 
 ```
 
-The popularity data is created such that there are strong relations between the incomplete variables and the clustering variable `class`. We can express this using the intra-class correlation (ICC). For `popular` the ICC is `r round(icc_pop, 2)`. For `popteach` it is `r round(icc_teach, 2)`. It would thus be wise to use multilevel modeling.
+The missingness is univariate and sporadic, which is illustrated in the missing data pattern in Figure \ref{fig:pop_pat}. The ICC in the incomplete data is `r round(icc(popular ~ as.factor(class), data = na.omit(popmis)), 2)`. 
 
-The missingness in this dataset is induced conform MAR and MNAR mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows that just one variable is incomplete **[the next part is not yet updated to reflect this]**.
+To develop the best imputation model for the incomplete variable `popular`, we need to know whether the missingness depends on the observed values of other variables. We'll highlight only one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`teachpop`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `teachpop` separately for the pupils with known popularity and missing popularity.
 
-To develop the best imputation model, we need to know whether the missingness in one variable depends on the observed values of other variables. Visual inspection usually suffices. We'll highlight only two variables to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of `popular` depend on `popteach`?' and 'Does the missingness in teacher popularity depend on pupil popularity?' We'll evaluate this by making a histogram of `popteach` separately for the pupils with known popularity and missing popularity, and the other way around.
-
-In Figure \ref{fig:pop_dist} we see that the distribution for the missing `popular` is further to the right than the distribution for observed `popular`. This would indicate a right-tailed MAR missingness. In fact, this is exactly what happens, because the missingness in these data was created manually. Now, we've made it observable by examining the relations between the missingness in popular and the observed data in `popteach`. There is also a dependency between the missingness in teacher popularity and pupil popularity. The relation seems to be right-tailed as well.
+In Figure \ref{fig:pop_dist} we see that **[update this part]** the distribution for the missing `popular` is further to the right than the distribution for observed `popular`. This would indicate a right-tailed MAR missingness. (In fact, this is exactly what happens, because the missingness in these data was created manually.) We've made it observable by examining the relations between the missingness in popular and the observed data in `teachpop`. 
+<!-- There is also a dependency between the missingness in teacher popularity and pupil popularity. The relation seems to be right-tailed as well. -->
 
 ```{r pop_dist, fig.cap = "Conditional distributions in the popularity data", echo=FALSE, message=FALSE, warning=FALSE}
-# plot_conditional(pop, x = "popteach", z = "popular", cluster = "class")
+# popmis %>% 
+#   filter(as.numeric(class) < 5) %>% 
+#   ggplot(aes(x = teachpop, color = class)) +
+#     geom_density() +
+#     facet_wrap(~factor(is.na(popular), labels = c("popular missing", "popular observed")), ncol = 1) +
+#     # scale_color_manual(values = plot_col, name = "popular") +
+#     theme_classic() # +
+#     # theme(legend.position = "bottom")
+
+plot_conditional(popmis, x = "teachpop", z = "popular", cluster = "class")
 # TODO: check if up-side-down plot works
 # TODO: check smoothing in geom_density function and make it the inverse of the sample size
 # TODO: add functions to mice
@@ -162,13 +173,14 @@ In Figure \ref{fig:pop_dist} we see that the distribution for the missing `popul
 # add fill
 # overlap coeff??
 # make densities proportional
-# 
+
 ```
 
 
 ### Complete case analysis (not recommended)
 
 Complete case analysis ignores the observations with missingness altogether, which may even introduce bias in MCAR situations. 
+
 
 
 ### Imputation ignoring the cluster variable (not recommended)
@@ -179,14 +191,14 @@ We'll use predictive mean matching to impute the continuous variables and logist
 
 ```{r pop_ignored, echo=TRUE, message=FALSE, warning=FALSE}
 # dry run to get imputation parameters
-ini <- mice(pop, maxit = 0)
+ini <- mice(popmis, maxit = 0)
 
 # extract predictor matrix and adjust
 pred <- ini$pred
 pred[, c("class", "pupil")] <- 0
 
 # impute the data, ignoring the cluster structure
-imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
+imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 ```
 
 
@@ -195,7 +207,7 @@ imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 # plot(imp_ignored)
 
 # # compare descriptives before and after imputation
-# psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
+# psych::describe(popmis)[, c("n", "mean", "median", "min", "max", "sd")]
 # psych::describe(mice::complete(imp_ignored))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
 # TODO: add stripplot with boxplot overlay instead of the tables (make pooled one thick on top)
 # TODO: pool mean median and sd
@@ -203,18 +215,18 @@ imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 # TODO: add FMI for each of the estimates? at least for the mean
 
 # further inspection of the imputations
-plot_box(imp_ignored, x = "popular", strip = TRUE)
+plot_imps(imp_ignored, type = "stripplot", x = "popular")
 # TODO: think about multimodality
 
 
 # compare ICCs before and after imputation
 ICCs <- data.frame(
-  vars = c("popular", "popteach", "texp"), 
-  CCA = c(icc(popular ~ class, pop), 
-               icc(popteach ~ class, pop),
-               icc(texp ~ class, pop)), 
+  vars = c("popular", "teachpop", "texp"), 
+  CCA = c(icc(popular ~ class, popmis), 
+               icc(teachpop ~ class, popmis),
+               icc(texp ~ class, popmis)), 
   ignored = c(icc(popular ~ class, complete(imp_ignored)), 
-              icc(popteach ~ class, complete(imp_ignored)), 
+              icc(teachpop ~ class, complete(imp_ignored)), 
               icc(texp ~ class, complete(imp_ignored)))
   )
 ICCs
@@ -246,7 +258,7 @@ pred <- ini$pred
 pred[, "pupil"] <- 0
 
 # impute the data, cluster as predictor
-imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
+imp_predictor <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 
 ```
 
@@ -255,22 +267,22 @@ imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 ```{r pop_predictor_eval, echo=FALSE, message=FALSE, warning=FALSE}
 # # check logged events
 # head(imp_predictor$loggedEvents)
-## "The mice() function detects multicollinearity, and solves the problem by removing one or more predictors for the model", in this case texp is removed as predictor of popular and popteach.
+## "The mice() function detects multicollinearity, and solves the problem by removing one or more predictors for the model", in this case texp is removed as predictor of popular and teachpop.
 
 # # check convergence of the imputation model
 # plot(imp_predictor)
 
 # # compare descriptives before and after imputation
-# psych::describe(pop)[, c("n", "mean", "median", "min", "max", "sd")]
+# psych::describe(popmis)[, c("n", "mean", "median", "min", "max", "sd")]
 # psych::describe(mice::complete(imp_predictor))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
 
 # further inspection of the imputations
-plot_box(imp_predictor, x = "popular", strip = TRUE)
+plot_imps(imp_predictor, x = "popular", type = "stripplot")
 
 # compare ICCs before and after imputation
 ICCs <- ICCs %>% mutate(
            predictor = c(icc(popular ~ class, complete(imp_predictor)), 
-                        icc(popteach ~ class, complete(imp_predictor)), 
+                        icc(teachpop ~ class, complete(imp_predictor)), 
                         icc(texp ~ class, complete(imp_predictor)))
            )
 ICCs
@@ -295,7 +307,7 @@ meth <- ini$meth
 meth <- c("", "", "", "", "", "2l.norm", "")
 imp_norm_2l <-
   mice(
-    pop %>% mutate(class = as.integer(class)),
+    popmis %>% mutate(class = as.integer(class)),
     pred = pred,
     meth = meth,
     maxit = 1,
@@ -305,11 +317,11 @@ imp_norm_2l <-
 
 ```{r pop_norm_eval, echo=FALSE}
 # plot(imp_norm)
-plot_box(imp_norm_2l, x = "popular", strip = TRUE)
+plot_imps(imp_norm_2l, x = "popular", type = "stripplot")
 
 ICCs <- ICCs %>% mutate(
            norm = c(icc(popular ~ as.factor(class), complete(imp_norm_2l)), 
-                    icc(popteach ~ as.factor(class), complete(imp_norm_2l)), 
+                    icc(teachpop ~ as.factor(class), complete(imp_norm_2l)), 
                     icc(texp ~ as.factor(class), complete(imp_norm_2l)))
            )
 ICCs
@@ -326,7 +338,7 @@ pred["popular", ] <- c(0, -2, 2, 2, 1, 0, 2)
 meth <- c("", "", "", "", "", "2l.pan", "")
 imp_pan_2l <-
   mice(
-    pop %>% mutate(class = as.integer(class)),
+    popmis %>% mutate(class = as.integer(class)),
     pred = pred,
     meth = meth,
     maxit = 1,
@@ -339,10 +351,10 @@ imp_pan_2l <-
 
 ```{r pop_pan_eval, echo=FALSE}
 # plot(imp_pan)
-plot_box(imp_pan_2l, x = "popular", strip = TRUE)
+plot_imps(imp_pan_2l, x = "popular", type = "stripplot")
 ICCs <- ICCs %>% mutate(
            pan = c(icc(popular ~ as.factor(class), complete(imp_pan_2l)), 
-                    icc(popteach ~ as.factor(class), complete(imp_pan_2l)), 
+                    icc(teachpop ~ as.factor(class), complete(imp_pan_2l)), 
                     icc(texp ~ as.factor(class), complete(imp_pan_2l)))
            )
 ICCs

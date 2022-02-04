@@ -221,9 +221,11 @@ Evaluate the imputations.
 \section{How (not) to impute (Case Study I:
 Popularity)}\label{how-not-to-impute-case-study-i-popularity}}
 
-\texttt{popNCR2} is a simulated dataset with pupils clustered in
-classes, where the number of units \(n = 2000\), and the number of
-clusters \(N = 100\), on 7 variables:
+In this section we'll go over the different steps involved with imputing
+incomplete multilevel data. The data we're using is the \texttt{popmis}
+dataset from the \texttt{mice} package. This is a simulated dataset with
+pupils clustered in classes, where the number of units \(n = 2000\), and
+the number of clusters \(N = 100\), on 7 variables:
 
 \begin{itemize}
 \tightlist
@@ -240,8 +242,21 @@ clusters \(N = 100\), on 7 variables:
 \item
   \texttt{popular} Pupil popularity,
 \item
-  \texttt{popteach} Teacher popularity.
+  \texttt{teachpop} Teacher popularity.
 \end{itemize}
+
+The analysis model corresponding to this dataset is multilevel
+regression with \texttt{popular} as the outcome variable, \texttt{sex}
+and \texttt{extrav} as unit-level predictors, and \texttt{texp} and
+\texttt{teachpop} as cluster-level predictors. Since the data is
+simulated and the missingness is induced, we can compare our imputations
+to the true data generating mechanism.
+
+The data is created in such a way that the clustering variable
+\texttt{class} explains quite some variance in the outcome variable
+\texttt{popular}. We express this using the intra-class correlation, ICC
+\(=\) 0.36. This tells us that it would be wise to use multilevel
+modeling.
 
 \hypertarget{incomplete-data}{%
 \subsubsection{Incomplete data}\label{incomplete-data}}
@@ -257,36 +272,38 @@ clusters \(N = 100\), on 7 variables:
 \end{figure}
 \end{CodeChunk}
 
-The popularity data is created such that there are strong relations
-between the incomplete variables and the clustering variable
-\texttt{class}. We can express this using the intra-class correlation
-(ICC). For \texttt{popular} the ICC is 0.4. For \texttt{popteach} it is
-0.36. It would thus be wise to use multilevel modeling.
+The missingness is univariate and sporadic, which is illustrated in the
+missing data pattern in Figure \ref{fig:pop_pat}. The ICC in the
+incomplete data is 0.56.
 
-The missingness in this dataset is induced conform MAR and MNAR
-mechanisms. The missing data pattern, Figure \ref{fig:pop_pat}, shows
-that just one variable is incomplete \textbf{{[}the next part is not yet
-updated to reflect this{]}}.
+To develop the best imputation model for the incomplete variable
+\texttt{popular}, we need to know whether the missingness depends on the
+observed values of other variables. We'll highlight only one other
+variable to illustrate, but ideally one would inspect all relations. The
+questions we'll ask are: `Does the missing data of pupil popularity
+(\texttt{popular}) depend on observed teacher popularity
+(\texttt{teachpop})?'. This can be evaluated statistically, but visual
+inspection usually suffices. We'll make a histogram of \texttt{teachpop}
+separately for the pupils with known popularity and missing popularity.
 
-To develop the best imputation model, we need to know whether the
-missingness in one variable depends on the observed values of other
-variables. Visual inspection usually suffices. We'll highlight only two
-variables to illustrate, but ideally one would inspect all relations.
-The questions we'll ask are: `Does the missing data of \texttt{popular}
-depend on \texttt{popteach}?' and `Does the missingness in teacher
-popularity depend on pupil popularity?' We'll evaluate this by making a
-histogram of \texttt{popteach} separately for the pupils with known
-popularity and missing popularity, and the other way around.
+In Figure \ref{fig:pop_dist} we see that \textbf{{[}update this part{]}}
+the distribution for the missing \texttt{popular} is further to the
+right than the distribution for observed \texttt{popular}. This would
+indicate a right-tailed MAR missingness. (In fact, this is exactly what
+happens, because the missingness in these data was created manually.)
+We've made it observable by examining the relations between the
+missingness in popular and the observed data in \texttt{teachpop}.
 
-In Figure \ref{fig:pop_dist} we see that the distribution for the
-missing \texttt{popular} is further to the right than the distribution
-for observed \texttt{popular}. This would indicate a right-tailed MAR
-missingness. In fact, this is exactly what happens, because the
-missingness in these data was created manually. Now, we've made it
-observable by examining the relations between the missingness in popular
-and the observed data in \texttt{popteach}. There is also a dependency
-between the missingness in teacher popularity and pupil popularity. The
-relation seems to be right-tailed as well.
+\begin{CodeChunk}
+\begin{figure}
+
+{\centering \includegraphics{Manuscript_files/figure-latex/pop_dist-1} 
+
+}
+
+\caption[Conditional distributions in the popularity data]{Conditional distributions in the popularity data}\label{fig:pop_dist}
+\end{figure}
+\end{CodeChunk}
 
 \hypertarget{complete-case-analysis-not-recommended}{%
 \subsubsection{Complete case analysis (not
@@ -312,14 +329,14 @@ identifier \texttt{class} as predictors to impute other variables.
 \begin{CodeChunk}
 \begin{CodeInput}
 R> # dry run to get imputation parameters
-R> ini <- mice(pop, maxit = 0)
+R> ini <- mice(popmis, maxit = 0)
 R> 
 R> # extract predictor matrix and adjust
 R> pred <- ini$pred
 R> pred[, c("class", "pupil")] <- 0
 R> 
 R> # impute the data, ignoring the cluster structure
-R> imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
+R> imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -330,8 +347,8 @@ R> imp_ignored <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 
 \begin{CodeOutput}
       vars       CCA   ignored
-1  popular 0.3989463 0.4235643
-2 popteach 0.3605902 0.3605902
+1  popular 0.5583543 0.4739527
+2 teachpop 0.6823380 0.6823380
 3     texp 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
@@ -377,7 +394,7 @@ R> pred <- ini$pred
 R> pred[, "pupil"] <- 0
 R> 
 R> # impute the data, cluster as predictor
-R> imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
+R> imp_predictor <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -388,8 +405,8 @@ R> imp_predictor <- mice(pop, maxit = 1, pred = pred, print = FALSE)
 
 \begin{CodeOutput}
       vars       CCA   ignored predictor
-1  popular 0.3989463 0.4235643 0.3904372
-2 popteach 0.3605902 0.3605902 0.3605902
+1  popular 0.5583543 0.4739527 0.5660108
+2 teachpop 0.6823380 0.6823380 0.6823380
 3     texp 1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
@@ -418,24 +435,33 @@ R> meth <- ini$meth
 R> meth <- c("", "", "", "", "", "2l.norm", "")
 R> imp_norm_2l <-
 +   mice(
-+     pop %>% mutate(class = as.integer(class)),
++     popmis %>% mutate(class = as.integer(class)),
 +     pred = pred,
 +     meth = meth,
 +     maxit = 1,
 +     print = FALSE
 +   )
 \end{CodeInput}
+\begin{CodeOutput}
+Warning: Number of logged events: 1
+\end{CodeOutput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
+\begin{CodeOutput}
+Warning: Removed 5088 rows containing non-finite values (stat_boxplot).
+\end{CodeOutput}
+\begin{CodeOutput}
+Warning: Removed 5088 rows containing missing values (geom_point).
+\end{CodeOutput}
 
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_norm_eval-1} \end{center}
 
 \begin{CodeOutput}
       vars       CCA   ignored predictor      norm
-1  popular 0.3989463 0.4235643 0.3904372 0.4165006
-2 popteach 0.3605902 0.3605902 0.3605902 0.3605902
+1  popular 0.5583543 0.4739527 0.5660108 0.5583543
+2 teachpop 0.6823380 0.6823380 0.6823380 0.6823380
 3     texp 1.0000000 1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
@@ -454,24 +480,33 @@ R> pred["popular", ] <- c(0, -2, 2, 2, 1, 0, 2)
 R> meth <- c("", "", "", "", "", "2l.pan", "")
 R> imp_pan_2l <-
 +   mice(
-+     pop %>% mutate(class = as.integer(class)),
++     popmis %>% mutate(class = as.integer(class)),
 +     pred = pred,
 +     meth = meth,
 +     maxit = 1,
 +     print = FALSE
 +   )
 \end{CodeInput}
+\begin{CodeOutput}
+Warning: Number of logged events: 1
+\end{CodeOutput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
+\begin{CodeOutput}
+Warning: Removed 5088 rows containing non-finite values (stat_boxplot).
+\end{CodeOutput}
+\begin{CodeOutput}
+Warning: Removed 5088 rows containing missing values (geom_point).
+\end{CodeOutput}
 
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/pop_pan_eval-1} \end{center}
 
 \begin{CodeOutput}
       vars       CCA   ignored predictor      norm       pan
-1  popular 0.3989463 0.4235643 0.3904372 0.4165006 0.3827595
-2 popteach 0.3605902 0.3605902 0.3605902 0.3605902 0.3605902
+1  popular 0.5583543 0.4739527 0.5660108 0.5583543 0.5583543
+2 teachpop 0.6823380 0.6823380 0.6823380 0.6823380 0.6823380
 3     texp 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
 \end{CodeOutput}
 \end{CodeChunk}

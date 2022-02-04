@@ -117,53 +117,60 @@
 # }
 
 # new plotting function for imputed data
-plot_imps <- function(imp, x, y = NULL, type = c("bwplot", "stripplot", "densityplot")) {
-  # process mids object for plotting
+plot_imps <- function(imp, type = c("bwplot", "stripplot", "densityplot"), x, y = NULL) {
+  # pre-process mids object for plotting
   if(is.null(y)){y <- x}
   comp <- mice::complete(imp, "long")[is.na(imp$data[, x]) | is.na(imp$data[, y]), ] %>% 
     rbind(cbind(.imp = 0, .id = rownames(imp$data), imp$data), .) %>% 
     mutate(.imp = factor(.imp, ordered = TRUE))
-
+  
+  # basic plot object
+  p <- ggplot2::ggplot(comp) +
+    ggplot2::theme_classic() +
+    ggplot2::scale_color_manual(
+      values = c(mice:::mdc(2), mice:::mdc(1)),
+      labels = c("Imputed", "Observed"))
+  
   # bwplot or stripplot
+  if (type == "stripplot") {
+    p <- p + geom_point(
+      aes(x = .imp, y = get(x), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed")),
+      position = position_jitter(width = 0.25, height = 0),
+      data = p$data) 
+  }  
   if (type == "stripplot" | type == "bwplot"){
-    p <- ggplot(comp, aes(x = .imp, y = get(vrb), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed"))) +
-    labs(x = "Imputation",
-         y = vrb,
-         color = "",
-         fill = "") 
-    if(type == "stripplot"){
-      p <- p + geom_point(position = position_jitter(width = 0.25, height = 0))
-    }
-    p <- p + geom_boxplot(size = 1,
-                 width = 0.5,
-                 alpha = 0.5,
-                 outlier.shape = NA)
+    p <- p + geom_boxplot(
+      aes(x = .imp, y = get(x), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed")),
+      size = 1,
+      width = 0.5,
+      alpha = 0.5,
+      outlier.shape = NA,
+      data = p$data) + 
+      labs(x = "Imputation",
+           y = x,
+           color = "",
+           fill = "") 
   }
   
   # densityplot
   if (type == "densityplot"){
-  p <- ggplot(comp, aes(x = get(vrb), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed"))) +
-    geom_density() +
-    labs(x = vrb,
+  p <-  p + geom_density(
+    aes(x = get(x), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed")),
+    data = p$data) +
+    labs(x = x,
          color = "",
          fill = "")
   }
   
   # # xyplot
   if (type == "xyplot") {
-  p <- ggplot(comp, aes(x = get(x), y = get(y), color = ifelse(.imp < 1, "Observed", "Imputed"))) +
-    geom_point() +
+  p <- p + geom_point(
+    aes(x = get(x), y = get(y), color = ifelse(.imp < 1, "Observed", "Imputed")),
+    data = p$data) +
     labs(x = x,
          y = y,
          color = "")
   }
-  
-  # theme
-  p <- p + 
-    ggplot2::theme_classic() +
-    ggplot2::scale_color_manual(values = c(
-        "Observed" = mice:::mdc(1),
-        "Imputed" = mice:::mdc(2)))
   
   # output
   return(p)
