@@ -116,6 +116,9 @@
 #   return(p)
 # }
 
+# option 1: bwplot etc with argument
+# option 2: ggmice which overwrites the bw functions ect.
+
 # new plotting function for imputed data
 plot_imps <- function(imp, type = c("bwplot", "stripplot", "densityplot"), x, y = NULL) {
   # pre-process mids object for plotting

@@ -8,7 +8,7 @@ author:
       | 3584 CH Utrecht
     email: \email{h.i.oberman@uu.nl}
     url: https://hanneoberman.github.io/
-  - name: Johanna Munoz Avila
+  - name: Johanna Mu\~noz Avila
     affiliation: University Medical Center Utrecht \AND
   - name: Valentijn de Jong
     affiliation: University Medical Center Utrecht 
@@ -152,6 +152,11 @@ $$
 <!-- First and second level predictors with random slopes: lmer(formula = popular ~ 1 + sex + texp + (1 + sex | class) -->
 <!-- First and second level predictors with random slopes and cross-level interaction: lmer(formula = popular ~ 1 + sex + texp + sex:texp + (1 + sex | class)) -->
 
+TODO: add all estimimates, seed, and version nr., this also shows the workflow for pooling etc.
+
+
+
+
 Since the data is simulated and the missingness is induced, we can compare our inferences after imputation to the true complete data. The data is created in such a way that the clustering variable `school` explains quite some variance in the outcome variable `popular`. We express this using the intraclass correlation,  ICC $=$ `r round(icc(popular ~ as.factor(school), data = popcomp), 2)`. We'll evaluate the ICC after each missing data strategy, and compare the estimated fixed effect of `sex` on `popular` $\gamma_{10} = 0.843$.
 
 ### Incomplete data
@@ -168,6 +173,13 @@ popmis <- mice::popmis[, c("school", "popular", "sex", "texp")]
 plot_md_pat(popmis)
 # TODO: add pattern by cluster, text mining example square size
 # TODO: try to make it a shepley plot 
+
+# popcomp <- popcomp %>% 
+#   cbind(R = is.na(popmis$popular))
+# t.test(x = popcomp$popular[popcomp$R], y = popcomp$popular[!popcomp$R]) 
+# ggplot(popcomp, aes(y=popular, x = R)) +
+#   geom_boxplot()
+
 ```
 
 The missingness is univariate and sporadic, which is illustrated in the missing data pattern in Figure \ref{fig:pop_pat}. The ICC in the incomplete data is `r round(icc(popular ~ as.factor(school), data = na.omit(popmis)), 2)`. 
@@ -325,8 +337,6 @@ The ICCs are way more in line with the ICCs in the incomplete data. But this is 
 
 ### Imputation with random effects
 
-
-
 With `2l.norm` we impute the outcome with a multilevel model  assuming random slopes for each variable in the imputation model and homogeneous within-cluster variance.
 
 ```{r pop_norm}
@@ -360,6 +370,9 @@ plot_imps(imp_norm_2l, x = "popular", type = "stripplot")
 ### Imputation with random effects and heterogeneity
 
 This method assumes random slopes for each variable in the imputation model. In contrast to `2l.norm` this method allows a cluster-specific residual error variance. 
+
+
+Schafer book fortran workflows.
 
 <!-- "By default, 2l.pan includes the intercept as both a fixed and a random effect. ... There are 5 different codes you can use in the predictor matrix for variables imputed with 2l.pan. The person identifier is coded as -2 (this is different from 2l.norm). To include predictor variables with fixed or random effects, these variables are coded with 1 or 2, respectively. If coded as 2, the corresponding fixed effect is automatically included. In addition, 2l.pan offers the codes 3 and 4, which have similar meanings as 1 and 2 but will include an additional fixed effect for the person mean of that variable. This is useful if you're trying to model within- and between-person effects of time-varying predictor variables." -->
 
@@ -490,6 +503,9 @@ plot_md_pat(impact_NA[impact_NA$name == "APOE", ])
 # sim.multi from psych
 ```
 
+TODO: rotate labels, make missingness % gradient for clusters?? Look at analysis model, maybe copy from GREAT data example e.g., adjusted prognostic effect of ct on unfortunate outcomes.
+
+gradient would be the number of clusters for which this variable is missing
 
 # Discussion
 
@@ -509,6 +525,8 @@ plot_md_pat(impact_NA[impact_NA$name == "APOE", ])
 - Exporting `mids` objects to other packages like `lme4` or `coxme`? 
 
 - Adding a ICC=0 dataset to show that even if there is no clustering it doesn't hurt.
+
+- env dump in repo
 
 # References
 

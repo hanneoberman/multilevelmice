@@ -4,15 +4,15 @@
 \usepackage[utf8]{inputenc}
 
 \author{
-Hanne Oberman\\Utrecht University \And Johanna Munoz Avila\\University
-Medical Center Utrecht \AND Valentijn de Jong\\University Medical
-Center Utrecht \And Gerko Vink\\Utrecht University \AND Thomas
-Debray\\University Medical Center Utrecht
+Hanne Oberman\\Utrecht University \And Johanna Mu\textasciitilde noz
+Avila\\University Medical Center Utrecht \AND Valentijn de
+Jong\\University Medical Center Utrecht \And Gerko Vink\\Utrecht
+University \AND Thomas Debray\\University Medical Center Utrecht
 }
 \title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
 
-\Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn de
-Jong, Gerko Vink, Thomas Debray}
+\Plainauthor{Hanne Oberman, Johanna Mu\textasciitilde noz
+Avila, Valentijn de Jong, Gerko Vink, Thomas Debray}
 \Plaintitle{Imputation of Incomplete Multilevel Data with mice}
 \Shorttitle{Multilevel \pkg{mice}}
 
@@ -266,6 +266,9 @@ e_{ij} \\
 \texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)}
 \]
 
+TODO: add all estimimates, seed, and version nr., this also shows the
+workflow for pooling etc.
+
 Since the data is simulated and the missingness is induced, we can
 compare our inferences after imputation to the true complete data. The
 data is created in such a way that the clustering variable
@@ -478,6 +481,8 @@ This method assumes random slopes for each variable in the imputation
 model. In contrast to \texttt{2l.norm} this method allows a
 cluster-specific residual error variance.
 
+Schafer book fortran workflows.
+
 \begin{CodeChunk}
 \begin{CodeInput}
 R> pred["popular", ] <- c(-2, 2, 1, 2)
@@ -609,6 +614,13 @@ cluster.\footnote{Observed data pattern should differ per cluster. So,
 
 \end{CodeChunk}
 
+TODO: rotate labels, make missingness \% gradient for clusters?? Look at
+analysis model, maybe copy from GREAT data example e.g., adjusted
+prognostic effect of ct on unfortunate outcomes.
+
+gradient would be the number of clusters for which this variable is
+missing
+
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
 
@@ -637,6 +649,8 @@ cluster.\footnote{Observed data pattern should differ per cluster. So,
 \item
   Adding a ICC=0 dataset to show that even if there is no clustering it
   doesn't hurt.
+\item
+  env dump in repo
 \end{itemize}
 
 \renewcommand\refname{References}
