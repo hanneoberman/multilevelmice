@@ -248,8 +248,10 @@ The analysis model corresponding to this dataset is multilevel
 regression with random intercepts, random slopes and a cross-level
 interaction. The outcome variable is \texttt{popular}, which is
 predicted from the unit-level variable \texttt{sex} and the
-cluster-level variable \texttt{texp}. The regression equation and
-\texttt{lme4} notation for this model are
+cluster-level variable \texttt{texp}. The regression equation\footnote{add
+  the `level notation' (Bryk and Raudenbush, 1992) and/or matrix
+  notation (`linear mixed effects model'; Laird and Ware, 1982) too?}
+and \texttt{lme4} notation for this model are
 
 \[
 \text{popular}_{ij} =
@@ -275,8 +277,28 @@ data is created in such a way that the clustering variable
 \texttt{school} explains quite some variance in the outcome variable
 \texttt{popular}. We express this using the intraclass correlation, ICC
 \(=\) 0.58. We'll evaluate the ICC after each missing data strategy, and
-compare the estimated fixed effect of \texttt{sex} on \texttt{popular}
-\(\gamma_{10} = 0.843\).
+compare the estimated fixed effects:
+
+\begin{CodeChunk}
+\begin{CodeOutput}
+# A tibble: 4 x 2
+  term        estimate                 
+  <chr>       <chr>                    
+1 (Intercept) " 3.314 [ 2.998,  3.629]"
+2 sex         " 1.330 [ 1.069,  1.590]"
+3 texp        " 0.110 [ 0.090,  0.130]"
+4 sex:texp    "-0.034 [-0.051, -0.017]"
+\end{CodeOutput}
+\begin{CodeOutput}
+# A tibble: 4 x 2
+  term                 estimate
+  <chr>                <chr>   
+1 sd__(Intercept)      0.642   
+2 cor__(Intercept).sex 0.077   
+3 sd__sex              0.476   
+4 sd__Observation      0.626   
+\end{CodeOutput}
+\end{CodeChunk}
 
 \hypertarget{incomplete-data}{%
 \subsubsection{Incomplete data}\label{incomplete-data}}
@@ -400,7 +422,7 @@ under certain circumstances and results may be biased
 \citep{drec15, ende16}. But at least, it includes some multilevel
 aspect. This method is also called `fixed cluster imputation', and uses
 N-1 indicator variables representing allocation of N clusters as a fixed
-factor in the model \citep{reit06, ende2016}. Colloquially, this is
+factor in the model \citep{reit06, ende16}. Colloquially, this is
 `multilevel imputation for dummies'.
 
 Add: doesn't work with syst missing (only sporadically). There's some
@@ -442,6 +464,11 @@ With \texttt{2l.norm} we impute the outcome with a multilevel model
 assuming random slopes for each variable in the imputation model and
 homogeneous within-cluster variance.
 
+``Van Buuren (2011) considered the homoscedastic linear mixed model as
+invalid for imputing incomplete predictors, and investigated only the
+2l.norm method, which allows for heterogeneous error variances''
+\citep{buur18}.
+
 \begin{CodeChunk}
 \begin{CodeInput}
 R> pred <- ini$pred
@@ -449,6 +476,7 @@ R> pred["popular", ] <- c(-2, 2, 2, 2)
 R> #-2 for the cluster variable, 2 for random effects
 R> meth <- ini$meth
 R> meth <- c("", "2l.norm", "",  "")
+R> # meth <- c("", "2l.pmm", "",  "")
 R> imp_norm_2l <-
 +   mice(
 +     popmis %>% mutate(school = as.integer(school)),

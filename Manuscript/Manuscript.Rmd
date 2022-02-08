@@ -54,6 +54,7 @@ library(miceadds)
 
 # functions
 `%nin%` <- Negate(`%in%`)
+round3 <- function(x){format(round(x, 3), nsmall = 3)}
 icc <- function(formula, data){multilevel::ICC1(aov(formula, data))}
 # icc for imputed data as function in mice
 miceadds::source.all(path = "../R")
@@ -89,6 +90,15 @@ Ignoring the missingness in analyses can be extremely harmful to inferences. Com
 
 <!-- "We find it useful to distinguish the missingness pattern, which describes which values are missing and observed in the data matrix and the missingness mechanism (or mechanisms), which concerns the relationship between missingness and the values of variables in the data matrix" (Little and Rubin, p. 8). -->
 
+<!-- Table 7.1: Questions to gauge the complexity of a multilevel imputation task. -->
+<!-- 1.	Will the complete-data model include random slopes? -->
+<!-- 2.	Will the data contain systematically missing values? -->
+<!-- 3.	Will the distribution of the residuals be non-normal? -->
+<!-- 4.	Will the error variance differ over clusters? -->
+<!-- 5.	Will there be small clusters? -->
+<!-- 6.	Will there be a small number of clusters? -->
+<!-- 7.	Will the complete-data model have cross-level interactions? -->
+<!-- 8.	Will the dataset be very large? (fimd, section 7.3)-->
 
 ## Aim of this paper
 
@@ -113,13 +123,18 @@ In each case study we highlight one aspect of the imputation workflow. With the 
 #readRDS("../Data/popNCR2.RDS") %>% 
   #filter(class %in% clusters) %>% 
   #mutate(class = as.factor(class))
-popcomp <- foreign::read.spss("../Data/popular.sav", to.data.frame = TRUE) %>% 
+popcomp <- foreign::read.spss("../Data/popular.sav", to.data.frame = TRUE, use.value.labels = FALSE) %>% 
   mutate(school = SCHOOL,
-         popular = as.numeric(POPULAR),
+         popular = POPULAR,
          sex = SEX,
          texp = TEXP,
          .keep = "none")
-comp_est <- lme4::lmer(popular ~ 1 + sex + texp + (1 + sex | school), popcomp) %>% broom.mixed::tidy()
+est_comp <- lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school), popcomp) 
+# %>% 
+#   broom.mixed::tidy(conf.int = TRUE) 
+# %>% 
+  # mutate(
+  #   term = factor(term, levels = c("(Intercept)", "sex", "texp", "sex:texp", "sd__(Intercept)", "cor__(Intercept).sex", "sd__sex", "sd__Observation"), labels = c("Intercept", "Sex", "Teacher experience", "Cross-level interaction", "SD cluster-level residual error", "Cor. cluster-level error and slopes sex", "SD residual slopes sex", "SD unit-level residual error"), ordered = TRUE))
 ```
 
 In this section we'll go over the different steps involved with imputing incomplete multilevel data. The data we're using is the `popmis` dataset from the `mice` package. This is a simulated dataset with pupils ($n = 2000$) clustered within schools ($N = 100$). In this tutorial we'll use the following variables:
@@ -129,7 +144,7 @@ In this section we'll go over the different steps involved with imputing incompl
   - `sex`,	      pupil sex (0=boy, 1=girl; unit-level);
   - `texp`,	      teacher experience (in years; cluster-level).
 
-The analysis model corresponding to this dataset is multilevel regression with random intercepts, random slopes and a cross-level interaction. The outcome variable is `popular`, which is predicted from the unit-level variable `sex` and the cluster-level variable `texp`. The regression equation and `lme4` notation for this model are 
+The analysis model corresponding to this dataset is multilevel regression with random intercepts, random slopes and a cross-level interaction. The outcome variable is `popular`, which is predicted from the unit-level variable `sex` and the cluster-level variable `texp`. The regression equation^[add the 'level notation' (Bryk and Raudenbush, 1992) and/or matrix notation ('linear mixed effects model'; Laird and Ware, 1982) too?] and `lme4` notation for this model are 
 
 $$
 \text{popular}_{ij} =
@@ -155,9 +170,27 @@ $$
 TODO: add all estimimates, seed, and version nr., this also shows the workflow for pooling etc.
 
 
+Since the data is simulated and the missingness is induced, we can compare our inferences after imputation to the true complete data. The data is created in such a way that the clustering variable `school` explains quite some variance in the outcome variable `popular`. We express this using the intraclass correlation,  ICC $=$ `r round(icc(popular ~ as.factor(school), data = popcomp), 2)`. We'll evaluate the ICC after each missing data strategy, and compare the estimated fixed effects:
 
+```{r echo=FALSE}
+# lvl <- c("(Intercept)", "sex", "texp", "sex:texp", "sd__(Intercept)", "cor__(Intercept).sex", "sd__sex", "sd__Observation")
+# lbl = c("Intercept", "Sex", "Teacher experience", "Cross-level interaction", "SD cluster-level residual error", "Cor. cluster-level error and slopes sex", "SD residual slopes sex", "SD unit-level residual error")
+est_comp %>% 
+  broom.mixed::tidy("fixed", conf.int = TRUE) %>% 
+  mutate(term = term,
+         estimate  = paste0(
+           round3(estimate), " [", 
+           round3(conf.low), ", ", 
+           round3(conf.high), "]"), 
+         .keep = "none")
 
-Since the data is simulated and the missingness is induced, we can compare our inferences after imputation to the true complete data. The data is created in such a way that the clustering variable `school` explains quite some variance in the outcome variable `popular`. We express this using the intraclass correlation,  ICC $=$ `r round(icc(popular ~ as.factor(school), data = popcomp), 2)`. We'll evaluate the ICC after each missing data strategy, and compare the estimated fixed effect of `sex` on `popular` $\gamma_{10} = 0.843$.
+est_comp %>% 
+  broom.mixed::tidy("ran_pars") %>% 
+  mutate(term = term, #factor(term, levels = unique(.$term), labels = c()),
+         estimate  = round3(estimate), 
+         .keep = "none")
+```
+
 
 ### Incomplete data
 
@@ -285,7 +318,7 @@ Add: Assumes exchangability between units.
 
 ### Imputation with the cluster variable as predictor (not recommended) 
 
-We'll now use `school` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased [@drec15; @ende16]. But at least, it includes some multilevel aspect. This method is also called 'fixed cluster imputation', and uses N-1 indicator variables representing allocation of N clusters as a fixed factor in the model [@reit06; @ende2016]. Colloquially, this is 'multilevel imputation for dummies'. 
+We'll now use `school` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased [@drec15; @ende16]. But at least, it includes some multilevel aspect. This method is also called 'fixed cluster imputation', and uses N-1 indicator variables representing allocation of N clusters as a fixed factor in the model [@reit06; @ende16]. Colloquially, this is 'multilevel imputation for dummies'. 
 
 Add: doesn't work with syst missing (only sporadically). There's some pro's and con's. May not differ much if the number of clusters is low.
 
@@ -339,12 +372,15 @@ The ICCs are way more in line with the ICCs in the incomplete data. But this is 
 
 With `2l.norm` we impute the outcome with a multilevel model  assuming random slopes for each variable in the imputation model and homogeneous within-cluster variance.
 
+"Van Buuren (2011) considered the homoscedastic linear mixed model as invalid for imputing incomplete predictors, and investigated only the 2l.norm method, which allows for heterogeneous error variances" [@buur18].
+
 ```{r pop_norm}
 pred <- ini$pred
 pred["popular", ] <- c(-2, 2, 2, 2) 
 #-2 for the cluster variable, 2 for random effects
 meth <- ini$meth
 meth <- c("", "2l.norm", "",  "")
+# meth <- c("", "2l.pmm", "",  "")
 imp_norm_2l <-
   mice(
     popmis %>% mutate(school = as.integer(school)),
