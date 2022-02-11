@@ -141,7 +141,7 @@ be accommodated \emph{before} or \emph{within} the analysis of
 scientific interest. Especially the former is very generic and popular.
 Imputing (i.e., filling in) the missing values separates the missing
 data problem from the scientific problem: missing data are replaced by
-plausible values whereafter the completed data is analysed as if it were
+plausible values whereafter the completed data is analyzed as if it were
 completely observed. The \proglang{R} package \pkg{mice} has become the
 de-facto standard for imputation by chained equations, which iteratively
 solves the missingness on a variable-by-variable basis. \pkg{mice} is
@@ -196,12 +196,12 @@ case studies:
 
 For each of these datasets, we will discuss the nature of the
 missingness, choose one or more imputation models and evaluate the
-imputed data, but we will also highlight one specific asect of the
+imputed data, but we will also highlight one specific aspect of the
 imputation workflow. With the \texttt{popmis} data, we show how (not) to
 develop an imputation model. With the \texttt{hiv} data we focus on
 extending the imputation model to include Heckman-type
 selection-inclusion methods. And with the \texttt{impact} data we
-provide a example of multivariate missingness in real-world data.
+provide an example of multivariate missingness in real-world data.
 Together, this should give enough scaffolding for applied researchers
 who are faced with incomplete multilevel data.
 
@@ -270,13 +270,11 @@ compare the estimated fixed effects:
 
 \begin{CodeChunk}
 \begin{CodeOutput}
-# A tibble: 4 x 2
-  term        estimate                 
-  <chr>       <chr>                    
-1 (Intercept) " 3.314 [ 2.998,  3.629]"
-2 sex         " 1.330 [ 1.069,  1.590]"
-3 texp        " 0.110 [ 0.090,  0.130]"
-4 sex:texp    "-0.034 [-0.051, -0.017]"
+                 Estimate with 95% CI
+1 (Intercept)  3.314 [ 2.998,  3.629]
+2         sex  1.330 [ 1.069,  1.590]
+3        texp  0.110 [ 0.090,  0.130]
+4    sex:texp -0.034 [-0.051, -0.017]
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -348,8 +346,9 @@ recommended)}\label{imputation-ignoring-the-cluster-variable-not-recommended}}
 
 The first imputation model that we'll use is likely to be invalid. In
 this model, we ignore the multilevel structure of the data, despite the
-high ICCs. This is purely to illustrate the effects of ignoring the
-clustering in our imputation effort.
+high ICCs. And assumes exchangeability between units. This is purely to
+illustrate the effects of ignoring the clustering in our imputation
+effort.
 
 We'll use predictive mean matching to impute the continuous variables
 and logistic regression to impute the binary variable \texttt{sex}. We
@@ -389,8 +388,6 @@ values for \texttt{texp} have a larger probability to be missing. This
 may not a problem, however, if at least one pupil in each school has
 teacher experience recorded, we can deductively impute the correct
 (i.e.~true) value for every pupil in the school.
-
-Add: Assumes exchangability between units.
 
 \hypertarget{imputation-with-the-cluster-variable-as-predictor-not-recommended}{%
 \subsubsection{Imputation with the cluster variable as predictor (not
@@ -488,8 +485,6 @@ heterogeneity}\label{imputation-with-random-effects-and-heterogeneity}}
 This method assumes random slopes for each variable in the imputation
 model. In contrast to \texttt{2l.norm} this method allows a
 cluster-specific residual error variance.
-
-Schafer book fortran workflows.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -601,32 +596,30 @@ variables:
   \texttt{mort} 6-month mortality (0=alive, 1=dead).
 \end{itemize}
 
-The data is already imputed (Steyerberg et al, 2008), so we'll induce
-missingness ourselves. For example, MAR missingness varying by
-cluster.\footnote{Observed data pattern should differ per cluster. So,
-  in cluster 1, the missingness would depend on age, but not in cluster
-  two. Split the dataframe and run \texttt{ampute()} on each cluster.}
+The analysis model for this dataset is a prediction model with
+\texttt{mort} as the outcome.\footnote{Look at analysis model, maybe
+  copy from GREAT data example e.g., adjusted prognostic effect of ct on
+  unfortunate outcomes. Add something about systematically missing data
+  here.} The data is already imputed (Steyerberg et al, 2008), so we've
+induced missingness again based on the missingness in the original data.
 
 \begin{CodeChunk}
 
 
 \begin{center}\includegraphics{Manuscript_files/figure-latex/impact-1} \end{center}
 
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-2} \end{center}
-
-
-
-\begin{center}\includegraphics{Manuscript_files/figure-latex/impact-3} \end{center}
-
 \end{CodeChunk}
 
-TODO: Look at analysis model, maybe copy from GREAT data example e.g.,
-adjusted prognostic effect of ct on unfortunate outcomes. Add something
-about systematically missing data here. In the md pattern plot: rotate
-labels, make missingness \% gradient for clusters (ie the number of
-clusters for which this variable is missing).
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/unnamed-chunk-3-1} \end{center}
+
+
+
+\begin{center}\includegraphics{Manuscript_files/figure-latex/unnamed-chunk-3-2} \end{center}
+
+\end{CodeChunk}
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
