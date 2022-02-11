@@ -18,12 +18,10 @@ Avila, Valentijn de Jong, Gerko Vink, Thomas Debray}
 
 
 \Abstract{
-Multilevel data is not spared the ubiquitous problem of missing
-information. This is a tutorial paper on imputing incomplete multilevel
-data with \pkg{mice}. Including methods for ignorable and non-ignorable
-missingness. Footnotes in the current version show work in
-progress/under construction. The last section is not part of the
-manuscript, but purely for reminders.
+This is a tutorial paper on imputing incomplete multilevel data with
+\pkg{mice}. Footnotes in the current version show work in progress/under
+construction. The last section is not part of the manuscript, but purely
+for reminders.
 }
 
 \Keywords{missing
@@ -68,36 +66,33 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \section{Introduction}\label{introduction}}
 
 In many contemporary data analysis efforts, some form of hierarchical or
-clustered structure is recorded. For example, students clustered within
-schools, or patients clustered within studies in individual patient data
-meta-analyses. Analyzing such multilevel data requires specialized
-techniques that take the clustered structure into account, since
-ignoring it may be harmful to the statistical inferences and can yield
-biased results. Imagine a case where cross-level interactions between
-unit-level variables and cluster-level variables are present. The
-cluster to which a unit belongs may then influence the unit-level
-observations--and vice versa for each of the units that make up the
-cluster \citep{hox17}. These relations can and should be taken into
-account when developing analysis models for multilevel data for the
+clustered structure is recorded. For example, students may be clustered
+in classes in psychometrics research, or patients may be clustered in
+studies in individual patient data meta-analyses. Ignoring the clustered
+structure of such multilevel data can be harmful to the statistical
+inferences and bias results. Imagine a case where cross-level
+interactions between unit-level variables and cluster-level variables
+are present. The cluster to which a unit belongs may then influence the
+unit-level observations--and vice versa for each of the units that make
+up the cluster \citep{hox17}. These relations can and should be taken
+into account when developing analysis models for multilevel data for the
 simple reason that groups of observations share some common variance.
-
 The variability due to clustering is often measured by means of the
-intraclass coefficient (ICC). The ICC can be seen as the percentage of
-variance that can be attributed to the cluster-level, where a high ICC
-would indicate that a lot of variability is due to the cluster
-structure. Multilevel models typically accommodate for this variability
-by including separate intercepts for each cluster. Such fixed effects
-relieve the restriction imposed by single-level models: equal group
-means across clusters. Additionally, models may include random effects
-of predictors across clusters, and random error terms (heterogeneous
-residual error variances; see e.g. \citet{hox17} and \citet{jong21}).
-There are many names for models that take clustering into account. Some
-popular examples are `multilevel models', `hierarchical models', `mixed
-effect models' and `random effect models'.
+intraclass coefficient \citep[ICC,][]{fish25}. The ICC can be seen as
+the percentage of variance that can be attributed to the cluster-level,
+where a high ICC would indicate that a lot of variability is due to the
+cluster structure. Multilevel models typically accommodate for this
+variability by including a separate group mean for each cluster. In
+addition to random intercepts, multilevel models can also include random
+effects and heterogeneous residual error variances across clusters
+\citep[see e.g.][\citet{hox17} and \citet{jong21}]{gelm06}. There are
+many names for models that take clustering into account. Some popular
+examples are `multilevel models', `hierarchical models', `mixed effect
+models' and `random effect models'.
 
-\hypertarget{incomplete-multilevel-data}{%
-\subsection{Incomplete multilevel
-data}\label{incomplete-multilevel-data}}
+\hypertarget{missingness-in-multilevel-data}{%
+\subsection{Missingness in multilevel
+data}\label{missingness-in-multilevel-data}}
 
 \begin{CodeChunk}
 \begin{figure}
@@ -113,113 +108,110 @@ data}\label{incomplete-multilevel-data}}
 The process of analyzing multilevel data is further complicated when not
 all data entries are observed. Just as with single level data,
 missingness may occur at the unit level. But with multiple levels of
-data comes the potential for clustered missingness. Missingness in
-multilevel data can therefore be categorized into two general patterns:
-systematic missingness and sporadic missingness \citep{resc13}. We have
-visualized the difference between these types of missingness in Figure
-1. The figure shows an \(n \times p\) set
-\(\mathbf{X} = X_1, \dots, X_p\), with \(n\) units distributed over
-\(N\) clusters, and \(p=3\) columns. Column \texttt{X1} is completely
-observed. Column \texttt{X2} is systematically missing and column
-\texttt{X3} is sporadically missing. Systematic missingness can be
-further subdivided into unobserved constants (i.e., the same value
-within clusters) and non-measured random variables (which may differ per
-unit within clusters). In Figure 1, the former would imply that the
-unobserved values for units 3 and 4 on column \texttt{X2} are identical.
-With the latter, the values would differ. The optimal strategy for
-dealing with the missingness may therefore depend on the observed
-missing data pattern.
-
-Another characteristic of the missing data to take into account in
-analyses is the mechanism behind the missingness. Although the essence
-of the true non-response mechanism may not be known, it can be inferred
-or assumed to be one of the following:
-
-\begin{itemize}
-\tightlist
-\item
-  Missing Completely At Random (MCAR), where the probability to be
-  missing is equal across all data entries;
-\item
-  Missing At Random (MAR), where the probability to be missing depends
-  on observed information;
-\item
-  Missing Not At Random (MNAR), where the probability to be missing
-  depends on unrecorded information, making the missingness
-  non-ignorable \citep{rubi76, meng94}. Depending on the assumed
-  missingness mechanism, missing data handling strategies may be more or
-  less suitable, see e.g., \citet{yuce08} and \citet{hox15}.
-\end{itemize}
+data comes the potential for clustered missingness. Incomplete
+multilevel data can be categorized into two general patterns: systematic
+missingness and sporadic missingness \citep{resc13}. Systematic
+missingness implies that one or more variables are never observed in a
+certain cluster. With sporadic missingness there may be observed data
+for some but not all units in a cluster \citep{buur18, jola18}. We have
+visualized this difference in Figure 1, which shows an \(n \times p\)
+set \(\mathbf{X} = X_1, \dots, X_p\), with \(n\) units distributed over
+\(N\) clusters, and \(p=3\) columns. Column \(X1\) is completely
+observed, column \(X2\) is systematically missing, and column \(X3\) is
+sporadically missing. To analyze these incomplete data, we have to take
+the nature of the missingness and the cluster structure into account.
+For example, the sporadic missingness in \(X3\) could be easily amended
+if this would be a cluster-level variable (and thus constant within
+clusters). We could then just extrapolate the true (but missing) value
+of \(X3\) for unit 1 from unit 2, and the value for unit 4 from unit 3.
+If \(X3\) would instead be a unit-level variable (which may vary within
+clusters), we could not just recover the unobserved `truth', but need
+some kind of missing data method or discard the incomplete units
+altogether (i.e., list-wise deletion/complete case analysis). And, with
+the systematic missingness in \(X2\), it is impossible to fit a
+multilevel model since we cannot estimate the intercept of cluster 2. We
+would have to exclude this cluster from our analyses entirely to obtain
+any results. Obviously, excluding observations is not a desirable
+workflow.
 
 Ignoring the missingness in analyses can be extremely harmful to
-inferences. Complete case analysis (i.e., excluding all units with one
-or more missing entries) can introduce bias in statistical inference and
-lowers statistical power. Instead, the missingness should be
-accommodated \emph{before} or \emph{within} the analysis of scientific
-interest. Especially the former is very generic and popular and is
-widely known as imputation. Imputing (i.e., filling in) the missing
-values separates the missing data problem from the scientific problem:
-missing data are replaced by plausible values whereafter the completed
-data is analysed as if it were completely observed. The \proglang{R}
-package \pkg{mice} has become the de-facto standard for imputation by
-chained equations, which iteratively solves the missingness on a
-variable-by-variable basis. \pkg{mice} is known to yield valid
-inferences under many different missing data circumstances
-\citep{buur18}. In this paper, we'll discuss how to use \pkg{mice} in
-the context of multilevel data, under varying missing data mechanisms.
+inferences. Complete case analysis can introduce bias in statistical
+inferences and lowers statistical power. Instead, the missingness should
+be accommodated \emph{before} or \emph{within} the analysis of
+scientific interest. Especially the former is very generic and popular.
+Imputing (i.e., filling in) the missing values separates the missing
+data problem from the scientific problem: missing data are replaced by
+plausible values whereafter the completed data is analysed as if it were
+completely observed. The \proglang{R} package \pkg{mice} has become the
+de-facto standard for imputation by chained equations, which iteratively
+solves the missingness on a variable-by-variable basis. \pkg{mice} is
+known to yield valid inferences under many different missing data
+circumstances \citep{buur18}. In this paper, we will discuss how to use
+\pkg{mice} in the context of multilevel data.
 
 \hypertarget{aim-of-this-paper}{%
 \subsection{Aim of this paper}\label{aim-of-this-paper}}
 
 This papers serves as a tutorial for imputing incomplete multilevel data
 with \pkg{mice}. We provide practical guidelines and code snippets for
-different missing data situations. For reasons of brevity, we focus on
-imputation by chained equations exclusively (although the alternative,
-joint modeling imputation for multilevel data or \pkg{jomo}
-\citet{jomo}, has been implemented in \pkg{mice} as well). Other useful
-resources for the analysis of incomplete multilevel data include the
-\proglang{R} packages \pkg{mitml}, \pkg{miceadds}, and \pkg{mdmb}, and
-the empirical work by \citet{audi18} and \citet{grun18}. Note that this
-tutorial paper assumes a basic level of knowledge on multilevel models.
-We're providing an overview of implementations. It's up-to the reader to
-decide which multilevel strategy suits their data. We won't go into
-detail for the different methods (and equations). This paper is just a
-software tutorial, so we'll keep it practical. Assumed knowledge also
-includes the use of the `piping operator', \texttt{\%\textgreater{}\%},
-adopted from the \texttt{magrittr} package and avidly used among
-\texttt{tidy} workflows, and the \texttt{lme4} notation for multilevel
-models.
+different missing data situations, including missing not at random
+(MNAR) mechanisms \citep[where the probability to be missing depends on
+unrecorded information, making the missingness
+non-ignorable,][]{rubi76, meng94}. For reasons of brevity, we focus on
+imputation by chained equations wit \pkg{mice} exclusively\footnote{Note
+  that the alternative, joint modeling imputation for multilevel data or
+  \pkg{jomo} \citet{jomo}, has been implemented in \pkg{mice} as well
+  but is outside the scope of this tutorial.}. Other useful resources
+for the analysis of incomplete multilevel data include the \proglang{R}
+packages \pkg{mitml}, \pkg{miceadds}, and \pkg{mdmb}, and empirical work
+by \citet{audi18} and \citet{grun18}. Please note that this tutorial
+paper assumes a basic level of knowledge on multilevel
+models.\footnote{Note to self: We're providing an overview of
+  implementations. It's up-to the reader to decide which multilevel
+  strategy suits their data. We won't go into detail for the different
+  methods (and equations). This paper is just a software tutorial, so
+  we'll keep it practical.} Assumed knowledge also includes the use of
+the `piping operator', \texttt{\%\textgreater{}\%}, adopted from the
+\pkg{magrittr} package, and the \pkg{lme4} notation for multilevel
+models.\footnote{Add environment info, seed and version number(s)
+  somewhere!}
 
-To illustrate how to impute incomplete multilevel data, we structure
-this tutorial around three case studies:
+We illustrate how to impute incomplete multilevel data by means of three
+case studies:
 
 \begin{itemize}
 \tightlist
 \item
-  \texttt{mice::popmis} (simulated data on perceived popularity,
-  \(n = 2,000\) pupils across \(N = 100\) schools, with univariate MAR
-  missingness);
+  \texttt{popmis} from the \pkg{mice} package (simulated data on
+  perceived popularity, \(n = 2,000\) pupils across \(N = 100\)
+  schools);
 \item
-  \texttt{GJRM::hiv} (simulated data on HIV diagnoses, \(n = 6,416\)
-  patients across \(N = 9\) regions, with univariate MNAR missingness)
+  \texttt{hiv} from the \pkg{GJRM} package (simulated data on HIV
+  diagnoses, \(n = 6,416\) patients across \(N = 9\) regions);
 \item
-  \texttt{metamisc::impact} (empirical data on traumatic brain injuries,
-  \(n = 11,022\) patients across \(N = 15\) studies, without
-  \texttt{NA}s).
+  \texttt{impact} from the \pkg{metamisc} package (empirical data on
+  traumatic brain injuries, \(n = 11,022\) patients across \(N = 15\)
+  studies).
 \end{itemize}
 
-In each case study we highlight one aspect of the imputation workflow.
-With the \texttt{mice::popmis} data, we show different ways of designing
-an imputation model and what happens if you misspecify this model. With
-the \texttt{GJRM::hiv} data we extend the imputation model to include
-Heckman-type selection-inclusion methods. And with the
-\texttt{metamisc::impact} data we provide a example of multivariate
-missingness in real-world data. For all case studies we discuss the
-nature of the incomplete data, the imputation model(s), and evaluation
-of the imputed data: A. Choose an analysis model (so the imputation
-model will be compatible with the analyses); B. Evaluate the incomplete
-data; C. Develop the imputation model(s); D. Impute the missingness; E.
-Evaluate the imputations.
+For each of these datasets, we will discuss the nature of the
+missingness, choose one or more imputation models and evaluate the
+imputed data, but we will also highlight one specific asect of the
+imputation workflow. With the \texttt{popmis} data, we show how (not) to
+develop an imputation model. With the \texttt{hiv} data we focus on
+extending the imputation model to include Heckman-type
+selection-inclusion methods. And with the \texttt{impact} data we
+provide a example of multivariate missingness in real-world data.
+Together, this should give enough scaffolding for applied researchers
+who are faced with incomplete multilevel data.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{center}
+REVIEW UNTIL THIS POINT SVP
+\end{center}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \hypertarget{how-not-to-impute-case-study-i-popularity}{%
 \section{How (not) to impute (Case Study I:
@@ -268,9 +260,6 @@ e_{ij} \\
 \texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)}
 \]
 
-TODO: add all estimimates, seed, and version nr., this also shows the
-workflow for pooling etc.
-
 Since the data is simulated and the missingness is induced, we can
 compare our inferences after imputation to the true complete data. The
 data is created in such a way that the clustering variable
@@ -288,15 +277,6 @@ compare the estimated fixed effects:
 2 sex         " 1.330 [ 1.069,  1.590]"
 3 texp        " 0.110 [ 0.090,  0.130]"
 4 sex:texp    "-0.034 [-0.051, -0.017]"
-\end{CodeOutput}
-\begin{CodeOutput}
-# A tibble: 4 x 2
-  term                 estimate
-  <chr>                <chr>   
-1 sd__(Intercept)      0.642   
-2 cor__(Intercept).sex 0.077   
-3 sd__sex              0.476   
-4 sd__Observation      0.626   
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -642,12 +622,11 @@ cluster.\footnote{Observed data pattern should differ per cluster. So,
 
 \end{CodeChunk}
 
-TODO: rotate labels, make missingness \% gradient for clusters?? Look at
-analysis model, maybe copy from GREAT data example e.g., adjusted
-prognostic effect of ct on unfortunate outcomes.
-
-gradient would be the number of clusters for which this variable is
-missing
+TODO: Look at analysis model, maybe copy from GREAT data example e.g.,
+adjusted prognostic effect of ct on unfortunate outcomes. Add something
+about systematically missing data here. In the md pattern plot: rotate
+labels, make missingness \% gradient for clusters (ie the number of
+clusters for which this variable is missing).
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}

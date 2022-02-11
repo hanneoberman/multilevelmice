@@ -31,7 +31,7 @@ miss_ind %>%
   geom_tile(fill = "white", size = 1.2) +
   geom_text(aes(label = text), color = "black") +
   scale_x_discrete(position = "top", labels = c("cluster", "X1", "X2", "X3")) +
-  scale_y_discrete() +
+  scale_y_discrete(labels = c("n", "", "4", "3", "2", "1")) +
   scale_color_manual(values = c(plot_col, blank = "white"), name = "Legend:") +
   theme_minimal() +
   labs(x = "", y = "") +
@@ -42,7 +42,7 @@ miss_ind %>%
   # annotate(geom = "text", x = "X0", y = "2", label = "{", vjust = 0, hjust = 0, size = 16) +
   # annotate(geom = "text", x = "X0", y = "0", label = "{...", vjust = 0, hjust = 0, size = 16) +
   theme(
-    axis.text.y = element_blank(),
+    # axis.text.y = element_blank(),
     # text=element_text(family="Arial Unicode MS"),
     legend.position = "none", 
     panel.grid.major = element_blank())
