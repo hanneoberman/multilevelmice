@@ -1,0 +1,552 @@
+---
+documentclass: jss
+author:
+  - name: Hanne Oberman
+    affiliation: Utrecht University
+    address: |
+      | Padualaan 14
+      | 3584 CH Utrecht
+    email: \email{h.i.oberman@uu.nl}
+    url: https://hanneoberman.github.io/
+  - name: Johanna Mu\~noz Avila
+    affiliation: University Medical Center Utrecht \AND
+  - name: Valentijn de Jong
+    affiliation: University Medical Center Utrecht 
+  - name: Gerko Vink
+    affiliation: Utrecht University \AND
+  - name: Thomas Debray
+    affiliation: University Medical Center Utrecht 
+title:
+  formatted: "Imputation of Incomplete Multilevel Data with \\pkg{mice}"
+  plain:     "Imputation of Incomplete Multilevel Data with mice"
+  short:     "Multilevel \\pkg{mice}"
+abstract: >
+  This is a tutorial paper on imputing incomplete multilevel data with \pkg{mice}. Footnotes in the current version show work in progress/under construction. The last section is not part of the manuscript, but purely for reminders.
+keywords:
+  # at least one keyword must be supplied
+  formatted: [missing data, multilevel, clustering, "\\pkg{mice}", "\\proglang{R}"]
+  plain:     [missing data, multilevel, clustering, mice, R]
+preamble: >
+  \usepackage{amsmath}
+header-includes: 
+ - \usepackage{graphicx} 
+ - \usepackage{mathtools}
+ - \usepackage{ulem}
+output: 
+    rticles::jss_article: default
+    word_document: default
+bibliography: ../References/multilevelmice.bib
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r, setup, include=FALSE}
+options(prompt = 'R> ', continue = '+ ')
+
+# seed
+set.seed(123)
+
+# packages
+library(tidyverse)
+library(mice)
+library(miceadds)
+# library(metamisc)
+# library(GJRM)
+# library(pan)
+
+# functions
+`%nin%` <- Negate(`%in%`)
+round3 <- function(x){format(round(x, 3), nsmall = 3)}
+icc <- function(formula, data){multilevel::ICC1(aov(formula, data))}
+# icc for imputed data as function in mice
+miceadds::source.all(path = "../R")
+
+# plot parameters
+plot_col <- mice:::mdc(1:2) %>% setNames(c("observed", "missing"))
+
+# data
+popcomp <- foreign::read.spss("../Data/popular.sav", to.data.frame = TRUE, use.value.labels = FALSE) %>% 
+  mutate(school = SCHOOL,
+         popular = POPULAR,
+         sex = SEX,
+         texp = TEXP,
+         .keep = "none")
+popmis <- mice::popmis[, c("school", "popular", "sex", "texp")] 
+```
+
+
+# Introduction
+
+In many contemporary data analysis efforts, some form of hierarchical or clustered structure is recorded. For example, students may be clustered in classes in psychometrics research, or patients may be clustered in studies in individual patient data meta-analyses. Ignoring the clustered structure of such multilevel data can be harmful to the statistical inferences and bias results. Imagine a case where cross-level interactions between unit-level variables and cluster-level variables are present. The cluster to which a unit belongs may then influence the unit-level observations--and vice versa for each of the units that make up the cluster [@hox17]. These relations can and should be taken into account when developing analysis models for multilevel data for the simple reason that groups of observations share some common variance. The variability due to clustering is often measured by means of the intraclass coefficient [ICC, @fish25]. The ICC can be seen as the percentage of variance that can be attributed to the cluster-level, where a high ICC would indicate that a lot of variability is due to the cluster structure. Multilevel models typically accommodate for this variability by including a separate group mean for each cluster. In addition to random intercepts, multilevel models can also include random effects and heterogeneous residual error variances across clusters [see e.g. @gelm06, @hox17 and @jong21]. There are many names for models that take clustering into account. Some popular examples are 'multilevel models', 'hierarchical models', 'mixed effect models' and 'random effect models'.
+
+## Missingness in multilevel data
+
+```{r patterns, fig.height=3, fig.width=4.1, fig.cap = "Missingness in multilevel data", echo=FALSE}
+plot_md_set()
+```
+
+The process of analyzing multilevel data is further complicated when not all data entries are observed. Just as with single level data, missingness may occur at the unit level. But with multiple levels of data comes the potential for clustered missingness. Incomplete multilevel data can be categorized into two general patterns: systematic missingness and sporadic missingness [@resc13]. Systematic missingness implies that one or more variables are never observed in a certain cluster. With sporadic missingness there may be observed data for some but not all units in a cluster [@buur18; @jola18]. We have visualized this difference in Figure 1, which shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n$ units distributed over $N$ clusters, and $p=3$ columns. Column $X1$ is completely observed, column $X2$ is systematically missing, and column $X3$ is sporadically missing. To analyze these incomplete data, we have to take the nature of the missingness and the cluster structure into account. For example, the sporadic missingness in $X3$ could be easily amended if this would be a cluster-level variable (and thus constant within clusters). We could then just extrapolate the true (but missing) value of $X3$ for unit 1 from unit 2, and the value for unit 4 from unit 3. If $X3$ would instead be a unit-level variable (which may vary within clusters), we could not just recover the unobserved 'truth', but need some kind of missing data method or discard the incomplete units altogether (i.e., list-wise deletion/complete case analysis). And, with the systematic missingness in $X2$, it is impossible to fit a multilevel model since we cannot estimate the intercept of cluster 2. We would have to exclude this cluster from our analyses entirely to obtain any results. Obviously, excluding observations is not a desirable workflow. 
+
+Ignoring the missingness in analyses can be extremely harmful to inferences. Complete case analysis can introduce bias in statistical inferences and lowers statistical power. Instead, the missingness should be accommodated \emph{before} or _within_ the analysis of scientific interest. Especially the former is very generic and popular. Imputing (i.e., filling in) the missing values separates the missing data problem from the scientific problem: missing data are replaced by plausible values whereafter the completed data is analyzed as if it were completely observed. The \proglang{R} package \pkg{mice} has become the de-facto standard for imputation by chained equations, which iteratively solves the missingness on a variable-by-variable basis. \pkg{mice} is known to yield valid inferences under many different missing data circumstances [@buur18]. In this paper, we will discuss how to use \pkg{mice} in the context of multilevel data.
+
+<!-- Another characteristic of the missing data to take into account in analyses is the mechanism behind the missingness. Although the essence of the true non-response mechanism may not be known, it can be inferred or assumed to be one of the following: -->
+<!-- - Missing Completely At Random (MCAR), where the probability to be missing is equal across all data entries; -->
+<!-- - Missing At Random (MAR), where the probability to be missing depends on observed information; -->
+<!-- - Missing Not At Random (MNAR), where the probability to be missing depends on unrecorded information, making the missingness non-ignorable [@rubi76; @meng94]. -->
+<!-- Depending on the assumed missingness mechanism, missing data handling strategies may be more or less suitable, see e.g., @yuce08 and @hox15. -->
+<!-- "We find it useful to distinguish the missingness pattern, which describes which values are missing and observed in the data matrix and the missingness mechanism (or mechanisms), which concerns the relationship between missingness and the values of variables in the data matrix" (Little and Rubin, p. 8). -->
+
+## Aim of this paper
+
+This papers serves as a tutorial for imputing incomplete multilevel data with \pkg{mice}. We provide practical guidelines and code snippets for different missing data situations, including missing not at random (MNAR) mechanisms [where the probability to be missing depends on unrecorded information, making the missingness non-ignorable, @rubi76; @meng94]. For reasons of brevity, we focus on imputation by chained equations wit \pkg{mice} exclusively^[Note that the alternative, joint modeling imputation for multilevel data or \pkg{jomo} @jomo, has been implemented in \pkg{mice} as well but is outside the scope of this tutorial.]. Other useful resources for the analysis of incomplete multilevel data include the \proglang{R} packages \pkg{mitml}, \pkg{miceadds}, and \pkg{mdmb}, and empirical work by @audi18 and @grun18. Please note that this tutorial paper assumes a basic level of knowledge on multilevel models.^[Note to self: We're providing an overview of implementations. It's up-to the reader to decide which multilevel strategy suits their data. We won't go into detail for the different methods (and equations). This paper is just a software tutorial, so we'll keep it practical.] Assumed knowledge also includes the use of the 'piping operator', `%>%`, adopted from the \pkg{magrittr} package, and the \pkg{lme4} notation for multilevel models.^[Add environment info, seed and version number(s) somewhere!]
+
+We illustrate how to impute incomplete multilevel data by means of three case studies:
+
+- `popmis` from the \pkg{mice} package (simulated data on perceived popularity, $n = 2,000$ pupils across $N = 100$ schools);
+- `hiv` from the \pkg{GJRM} package (simulated data on HIV diagnoses, $n = 6,416$ patients across $N = 9$ regions);
+- `impact` from the \pkg{metamisc} package (empirical data on traumatic brain injuries, $n = 11,022$ patients across $N = 15$ studies).
+
+For each of these datasets, we will discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. With the `popmis` data, we show how (not) to develop an imputation model. With the `hiv` data we focus on extending the imputation model to include Heckman-type selection-inclusion methods. And with the `impact` data we provide an example of multivariate missingness in real-world data. Together, this should give enough scaffolding for applied researchers who are faced with incomplete multilevel data.
+
+<!-- Table 7.1: Questions to gauge the complexity of a multilevel imputation task. -->
+<!-- 1.	Will the complete-data model include random slopes? -->
+<!-- 2.	Will the data contain systematically missing values? -->
+<!-- 3.	Will the distribution of the residuals be non-normal? -->
+<!-- 4.	Will the error variance differ over clusters? -->
+<!-- 5.	Will there be small clusters? -->
+<!-- 6.	Will there be a small number of clusters? -->
+<!-- 7.	Will the complete-data model have cross-level interactions? -->
+<!-- 8.	Will the dataset be very large? (fimd, section 7.3)-->
+
+---
+
+\begin{center}
+REVIEW UNTIL THIS POINT SVP
+\end{center}
+
+---
+
+# How (not) to impute (Case Study I: Popularity)
+
+```{r pop, echo=FALSE, message=FALSE, warning=FALSE}
+# estimates complete popularity data
+est_comp <- lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school), popcomp) 
+# fixed effects only
+est_comp_fixed <- est_comp %>% 
+  broom.mixed::tidy("fixed", conf.int = TRUE) %>% 
+  mutate(term = term,
+         estimate  = paste0(
+           round3(estimate), " [", 
+           round3(conf.low), ", ", 
+           round3(conf.high), "]"), 
+         .keep = "none") %>% 
+  as.data.frame()
+# # random effects
+# est_comp %>% 
+#   broom.mixed::tidy("ran_pars") %>% 
+#   mutate(term = term, #factor(term, levels = unique(.$term), labels = c()),
+#          estimate  = round3(estimate), 
+#          .keep = "none")
+# # rename broom.mixed estimates
+# lvl = c("(Intercept)", "sex", "texp", "sex:texp", "sd__(Intercept)", "cor__(Intercept).sex", "sd__sex", "sd__Observation")
+# lbl = c("Intercept", "Sex", "Teacher experience", "Cross-level interaction", "SD cluster-level residual error", "Cor. cluster-level error and slopes sex", "SD residual slopes sex", "SD unit-level residual error")
+
+# compare complete data to missingness
+# popcomp <- popcomp %>% 
+#   cbind(R = is.na(popmis$popular))
+# t.test(x = popcomp$popular[popcomp$R], y = popcomp$popular[!popcomp$R]) 
+# ggplot(popcomp, aes(y=popular, x = R)) +
+#   geom_boxplot()
+```
+
+In this section we'll go over the different steps involved with imputing incomplete multilevel data. The data we're using is the `popmis` dataset from the `mice` package. This is a simulated dataset with pupils ($n = 2000$) clustered within schools ($N = 100$). In this tutorial we'll use the following variables:
+
+  - `school`,     school identification number (clustering variable);
+  - `popular`,    pupil popularity (self-rating between 0 and 10; unit-level);
+  - `sex`,	      pupil sex (0=boy, 1=girl; unit-level);
+  - `texp`,	      teacher experience (in years; cluster-level).
+
+The analysis model corresponding to this dataset is multilevel regression with random intercepts, random slopes and a cross-level interaction. The outcome variable is `popular`, which is predicted from the unit-level variable `sex` and the cluster-level variable `texp`. The regression equation^[add the 'level notation' (Bryk and Raudenbush, 1992) and/or matrix notation ('linear mixed effects model'; Laird and Ware, 1982) too?] and `lme4` notation for this model are 
+
+$$
+\text{popular}_{ij} =
+\gamma_{00} + 
+\gamma_{10} \text{ sex}_{ij} + 
+\gamma_{01} \text{ texp}_{j} + 
+\gamma_{11} \text{ texp}_{j} \times \text{sex}_{ij} + 
+u_{0j} + 
+u_{1j} \text{ sex}_{ij} + 
+e_{ij} \\
+$$
+
+$$
+\texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)}
+$$
+
+<!-- Intercept-only model: lmer(formula = popular ~ 1 + (1|class)) -->
+<!-- First level predictors: lmer(formula = popular ~ 1 + sex + (1|class)) -->
+<!-- First and second level predictors: lmer(popular ~ 1 + sex + texp + (1 | class)) -->
+<!-- First and second level predictors with random slopes: lmer(formula = popular ~ 1 + sex + texp + (1 + sex | class) -->
+<!-- First and second level predictors with random slopes and cross-level interaction: lmer(formula = popular ~ 1 + sex + texp + sex:texp + (1 + sex | class)) -->
+
+Since the data is simulated and the missingness is induced, we can compare our inferences after imputation to the true complete data. The data is created in such a way that the clustering variable `school` explains quite some variance in the outcome variable `popular`. We express this using the intraclass correlation,  ICC $=$ `r round(icc(popular ~ as.factor(school), data = popcomp), 2)`. We'll evaluate the ICC after each missing data strategy, and compare the estimated fixed effects:
+
+```{r comp_est, echo=FALSE}
+est_comp_fixed %>% setNames(c("", "Estimate with 95% CI"))
+```
+
+### Incomplete data
+
+Load the data into the environment and select the relevant variables:
+
+```{r}
+popmis <- mice::popmis[, c("school", "popular", "sex", "texp")] 
+```
+
+
+```{r pop_pat, echo=FALSE, fig.cap = "Missing data pattern in the popularity data", message=FALSE, warning=FALSE}
+# missingness
+plot_md_pat(popmis)
+```
+
+The missingness is univariate and sporadic, which is illustrated in the missing data pattern in Figure \ref{fig:pop_pat}. The ICC in the incomplete data is `r round(icc(popular ~ as.factor(school), data = na.omit(popmis)), 2)`. 
+
+To develop the best imputation model for the incomplete variable `popular`, we need to know whether the missingness depends on the observed values of other variables. We'll highlight only one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`texp`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `texp` separately for the pupils with known popularity and missing popularity.
+
+In Figure \ref{fig:pop_dist} we see that **[update this part]** the distribution for the missing `popular` is further to the right than the distribution for observed `popular`. This would indicate a right-tailed MAR missingness. (In fact, this is exactly what happens, because the missingness in these data was created manually.) We've made it observable by examining the relations between the missingness in popular and the observed data in `texp`. 
+
+```{r pop_dist, fig.cap = "Conditional distributions in the popularity data", echo=FALSE, message=FALSE, warning=FALSE}
+plot_conditional(popmis, x = "texp", z = "popular", cluster = "school")
+# TODO: check if up-side-down plot works
+# TODO: check smoothing in geom_density function and make it the inverse of the sample size
+# TODO: add functions to mice
+# TODO: add title and informative legend (pop obs and pop miss)
+# TODO: add facets for some clusters, or add propensity score distribution `is.na(popular) ~ .`
+# TODO: make it average of cluster dens, not marginal, alternatively add a quartile line around the density with geom_ribbon
+# TODO: add fill and/or some way of expressing how much the densities overlap (overlap coefficient in %?)
+
+# # maybe use facets instead
+# popmis %>%
+#   filter(as.numeric(school) < 5) %>%
+#   ggplot(aes(x = texp, color = school)) +
+#     geom_density() +
+#     facet_wrap(~factor(is.na(popular), labels = c("popular missing", "popular observed")), ncol = 1) +
+#     scale_color_manual(values = plot_col, name = "popular") +
+#     theme_classic() # +
+#     # theme(legend.position = "bottom")
+```
+
+
+### Complete case analysis (not recommended)
+
+Complete case analysis ignores the observations with missingness altogether, which may even introduce bias in MCAR situations. 
+
+### Imputation ignoring the cluster variable (not recommended)
+
+The first imputation model that we'll use is likely to be invalid. In this model, we ignore the multilevel structure of the data, despite the high ICCs. And assumes exchangeability between units. This is purely to illustrate the effects of ignoring the clustering in our imputation effort. 
+
+We'll use predictive mean matching to impute the continuous variables and logistic regression to impute the binary variable `sex`. We do not use the observation identifier `pupil` or cluster identifier `school` as predictors to impute other variables.
+
+```{r pop_ignored, echo=TRUE, message=FALSE, warning=FALSE}
+# dry run to get imputation parameters
+ini <- mice(popmis, maxit = 0)
+
+# extract predictor matrix and adjust
+pred <- ini$pred
+pred[, c("school")] <- 0
+
+# impute the data, ignoring the cluster structure
+imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
+```
+
+
+```{r pop_ignored_eval, echo=FALSE, message=FALSE, warning=FALSE}
+# # check convergence of the imputation model
+# plot(imp_ignored)
+
+# # compare descriptives before and after imputation
+# psych::describe(popmis)[, c("n", "mean", "median", "min", "max", "sd")]
+# psych::describe(mice::complete(imp_ignored))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
+# TODO: add stripplot with boxplot overlay instead of the tables (make pooled one thick on top)
+# TODO: pool mean median and sd
+# feedback Stef: numbers, continuous statistics such as means, and uncertainty estimates. So we can pool the sd's. And leave out the min and max, because those are not normally distr.
+# TODO: add FMI for each of the estimates? at least for the mean
+
+# further inspection of the imputations
+plot_imps(imp_ignored, type = "stripplot", x = "popular")
+# TODO: think about multimodality
+
+
+# # compare ICCs before and after imputation
+# ICCs <- data.frame(
+#   vars = c("popular", "teachpop", "texp"), 
+#   CCA = c(icc(popular ~ school, popmis), 
+#                icc(teachpop ~ school, popmis),
+#                icc(texp ~ school, popmis)), 
+#   ignored = c(icc(popular ~ school, complete(imp_ignored)), 
+#               icc(teachpop ~ school, complete(imp_ignored)), 
+#               icc(texp ~ school, complete(imp_ignored)))
+#   )
+# ICCs
+
+#TODO: think about interactive clusters for the strippplots
+```
+
+As the original ICCs show, 100% of the variance in `texp` can be attributed to the clustering variable `school`. This tells us that the multilevel structure of the data should be taken into account. If we don't, we'll end up with incorrect imputations, biasing the effect of the clusters towards zero.
+
+We can also observe that the teacher experience increases slightly after imputation. This is due to the MNAR missingness in `texp`. Higher values for `texp` have a larger probability to be missing. This may not a problem, however, if at least one pupil in each school has teacher experience recorded, we can deductively impute the correct (i.e. true) value for every pupil in the school. 
+
+<!-- pmm: Single-level predictive mean matching with the school indicator coded as a dummy variable; -->
+<!-- 2l.pan: Multilevel method using the linear mixed model to draw univariate imputations; -->
+<!-- 2l.norm: Multilevel method using the linear mixed model with heterogeneous error variances; -->
+<!-- 2l.pmm: Predictive mean matching based on predictions from the linear mixed model, with random draws from the regression coefficients and the random effects, using five donors. -->
+
+### Imputation with the cluster variable as predictor (not recommended) 
+
+We'll now use `school` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased [@drec15; @ende16]. But at least, it includes some multilevel aspect. This method is also called 'fixed cluster imputation', and uses N-1 indicator variables representing allocation of N clusters as a fixed factor in the model [@reit06; @ende16]. Colloquially, this is 'multilevel imputation for dummies'. 
+
+Add: doesn't work with syst missing (only sporadically). There's some pro's and con's. May not differ much if the number of clusters is low.
+
+The more the random effects are of interest, the more you need ml models.
+
+
+<!-- "Beyond the potential bias, there are other reasons why a multilevel imputation model should be preferred if possible. First, the model is guaranteed to produce unbiased results even in extreme cases with very high missingness rates and/or small intraclass correlations. Second, with the multilevel model, it is possible to include additional variables that are constant on the cluster level, for example, information on the teachers if the cluster levels are chosen to be students within classes or background information on the schools if the clustering is modeled as students within schools. This approach is not possible with fixed effects imputation. While this limitation should not be problematic in terms of bias (the combined school effects are still modeled through the cluster specific intercepts), using this additional information will make the random effects imputation model more efficient." -->
+
+```{r pop_predictor, message=FALSE, warning=FALSE}
+# adjust the predictor matrix
+pred <- ini$pred 
+# pred[, "pupil"] <- 0
+
+# impute the data, cluster as predictor
+imp_predictor <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
+
+```
+
+
+
+```{r pop_predictor_eval, echo=FALSE, message=FALSE, warning=FALSE}
+# # check logged events
+# head(imp_predictor$loggedEvents)
+## "The mice() function detects multicollinearity, and solves the problem by removing one or more predictors for the model", in this case texp is removed as predictor of popular and teachpop.
+
+# # check convergence of the imputation model
+# plot(imp_predictor)
+
+# # compare descriptives before and after imputation
+# psych::describe(popmis)[, c("n", "mean", "median", "min", "max", "sd")]
+# psych::describe(mice::complete(imp_predictor))[, c("n", "mean", "median", "min", "max", "sd")] #note that this is just 1 imputation, not the pooled results
+
+# further inspection of the imputations
+plot_imps(imp_predictor, x = "popular", type = "stripplot")
+
+# # compare ICCs before and after imputation
+# ICCs <- ICCs %>% mutate(
+#            predictor = c(icc(popular ~ school, complete(imp_predictor)), 
+#                         icc(teachpop ~ school, complete(imp_predictor)), 
+#                         icc(texp ~ school, complete(imp_predictor)))
+#            )
+# ICCs
+```
+
+Now, we can clearly see that the imputed values of `texp` are higher than the observed values, which is in line with right-tailed MAR. 
+
+The ICCs are way more in line with the ICCs in the incomplete data. But this is a quick and dirty way of imputing multilevel data. We *should* be using a multilevel model.
+
+
+### Imputation with random effects
+
+With `2l.norm` we impute the outcome with a multilevel model  assuming random slopes for each variable in the imputation model and homogeneous within-cluster variance.
+
+"Van Buuren (2011) considered the homoscedastic linear mixed model as invalid for imputing incomplete predictors, and investigated only the 2l.norm method, which allows for heterogeneous error variances" [@buur18].
+
+```{r pop_norm}
+pred <- ini$pred
+pred["popular", ] <- c(-2, 2, 2, 2) 
+#-2 for the cluster variable, 2 for random effects
+meth <- ini$meth
+meth <- c("", "2l.norm", "",  "")
+# meth <- c("", "2l.pmm", "",  "")
+imp_norm_2l <-
+  mice(
+    popmis %>% mutate(school = as.integer(school)),
+    pred = pred,
+    meth = meth,
+    maxit = 1,
+    print = FALSE
+  )
+```
+
+```{r pop_norm_eval, echo=FALSE}
+# plot(imp_norm)
+plot_imps(imp_norm_2l, x = "popular", type = "stripplot")
+
+# ICCs <- ICCs %>% mutate(
+#            norm = c(icc(popular ~ as.factor(school), complete(imp_norm_2l)), 
+#                     icc(teachpop ~ as.factor(school), complete(imp_norm_2l)), 
+#                     icc(texp ~ as.factor(school), complete(imp_norm_2l)))
+#            )
+# ICCs
+```
+
+### Imputation with random effects and heterogeneity
+
+This method assumes random slopes for each variable in the imputation model. In contrast to `2l.norm` this method allows a cluster-specific residual error variance. 
+
+
+<!-- Look up Schafer book fortran workflows. -->
+
+<!-- "By default, 2l.pan includes the intercept as both a fixed and a random effect. ... There are 5 different codes you can use in the predictor matrix for variables imputed with 2l.pan. The person identifier is coded as -2 (this is different from 2l.norm). To include predictor variables with fixed or random effects, these variables are coded with 1 or 2, respectively. If coded as 2, the corresponding fixed effect is automatically included. In addition, 2l.pan offers the codes 3 and 4, which have similar meanings as 1 and 2 but will include an additional fixed effect for the person mean of that variable. This is useful if you're trying to model within- and between-person effects of time-varying predictor variables." -->
+
+```{r pop_pan}
+pred["popular", ] <- c(-2, 2, 1, 2)
+meth <- c("", "2l.pan", "", "")
+imp_pan_2l <-
+  mice(
+    popmis %>% mutate(school = as.integer(school)),
+    pred = pred,
+    meth = meth,
+    maxit = 1,
+    print = FALSE
+  )
+
+```
+
+
+
+```{r pop_pan_eval, echo=FALSE}
+# plot(imp_pan)
+plot_imps(imp_pan_2l, x = "popular", type = "stripplot")
+# ICCs <- ICCs %>% mutate(
+#            pan = c(icc(popular ~ as.factor(school), complete(imp_pan_2l)), 
+#                     icc(teachpop ~ as.factor(school), complete(imp_pan_2l)), 
+#                     icc(texp ~ as.factor(school), complete(imp_pan_2l)))
+#            )
+# ICCs
+```
+
+
+# How to handle non-random selection (Case study II: HIV)
+
+Data are simulated and included in the `GJRM` package. We will use the following variables:
+
+  - `region` Cluster variable,
+  - `hiv` HIV diagnosis (0=no, 1=yes),
+  - `age` Age of the patient,
+  - `marital` Marital status,
+  - `condom` Condom use during last intercourse,
+  - `smoke` Smoker (levels; inclusion restriction variable).
+
+The imputation of these date is based on the toy example from [IPDMA Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R). 
+
+<!-- - main model = analysis model = predicting the prevalence of hiv -->
+<!-- - people who have hiv are more reluctant to taking the test, not to reveal their status -->
+<!-- - solution: take variables from analysis model like condom use, marital status, age, etc. that relate to hiv prevalence -->
+<!-- - exclusion restriction variable = instrumental variable (from economics) = e.g. how kind the nurse was = smoke in this dataset = should be correlated to the missingness indicator, but *not* the variable itself -->
+<!-- - include these variables in the selection equation -->
+<!-- - take the missingness indicator of the variable of interest for the selection equation as DV -->
+<!-- - heckman models estimate BOTH selection and mean models simultaneously, because linked through the error term -->
+<!-- - if the errors are not correlated, the models are not linked at all -> not MNAR, but just MAR -->
+<!-- - if the rho is significantly different from zero, the errors are correlated and the models are related so we have MNAR -->
+<!-- - now, we add clustering -->
+<!-- - copulas = estimate 2 equations separately and use another equation to link them -->
+<!-- - for each of the clusters, est the copula separately, so we have all coeffs for each cluster, incl the rho and sigma (the errors) -->
+<!-- - put together all of the estimates through a meta-analysis model to get population distribution of the estimates -->
+<!-- - use the population parameter estimates to draw marginal parameters from the distribution to get a cluster/study parameter -->
+<!-- - with systematical miss we can est the values of the imputed values based on the marginal distribution -->
+<!-- - optional to add shrinkage: the marginal in account as well -->
+<!-- - the hiv data was simulated by the copula function/model developer -->
+<!-- - we could add a systematically missing variable in the data, because these are all sporadically -->
+
+```{r hiv, echo=FALSE}
+# data
+data("hiv", package = "GJRM")
+hiv <- hiv %>% 
+  select(c("region","hiv", "age", "marital", "condom", "smoke")) %>% 
+  mutate(region = as.integer(region))
+# md pattern
+plot_md_pat(hiv)
+```
+
+From the missing data pattern we see that we can set `maxit` to 1, since there is only one variable with missingness.
+
+```{r include=FALSE}
+# inclusion restriction variable 
+mod_main <- glm(hiv ~ ., family = "binomial", data = hiv) %>% 
+  broom::tidy(conf.int = TRUE) %>% 
+  .[7, c(2,6,7)] %>% 
+  round(., 3)
+mod_select <- glm(is.na(hiv) ~ ., family = "binomial", data = hiv) %>% 
+  broom::tidy(conf.int = TRUE) %>% 
+  .[7, c(2,6,7)] %>% 
+  round(., 3)
+```
+
+The inclusion restriction variable should be a predictor of the the actual value of the variable of interest, but *not* of missingness indicator for the variable of interest. In this case, the data were simulated to adhere to this requirement. Namely, $\beta_{smoke}$ = `r mod_main$estimate`, 95% CI [`r paste0(mod_main$conf.low, ", ", mod_main$conf.high)`] for the analysis model (`formula = hiv ~ .`), and $\beta_{smoke}$ = `r mod_select$estimate`, 95% CI [`r paste0(mod_select$conf.low, ", ", mod_select$conf.high)`] for the selection model (`formula = is.na(hiv) ~ .`). This means the assumptions for the Heckman-type selection model are met.
+
+
+
+# How to handle multivariate missingness (Case study III: IMPACT)
+
+`impact` is traumatic brain injury data with patients, $n = 11022$, clustered in studies, $N = 15$. With the following 11 variables:
+
+  - `name` Name of the study,
+  - `type` Type of study (RCT: randomized controlled trial, OBS: observational cohort),
+  - `age` Age of the patient,
+  - `motor_score` Glasgow Coma Scale motor score,
+  - `pupil` Pupillary reactivity,
+  - `ct` Marshall Computerized Tomography classification,
+  - `hypox` Hypoxia (0=no, 1=yes),
+  - `hypots` Hypotension (0=no, 1=yes),
+  - `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+  - `edh` Epidural hematoma (0=no, 1=yes),
+  - `mort` 6-month mortality (0=alive, 1=dead).
+
+The analysis model for this dataset is a prediction model with `mort` as the outcome.^[Look at analysis model, maybe copy from GREAT data example e.g., adjusted prognostic effect of ct on unfortunate outcomes. Add something about systematically missing data here.] The data is already imputed (Steyerberg et al, 2008), so we've induced missingness again based on the missingness in the original data.
+
+```{r impact, echo=FALSE, fig.width=6, fig.height=8}
+# load data
+data("impact", package = "metamisc")
+impact_NA <- readRDS("../Data/impact_NA.RDS")
+# # descriptive statistics
+# by(impact, impact$name, summary) 
+# psych::describe(impact)[,c(2:5,8:9)]
+# # missingness
+plot_md_pat(impact_NA)
+# TODO: rotate variable labels
+# TODO: think about nr of clusters: if there's too many, faceting is no option -> some distribution across the clusters like shepley plot
+# TODO: make missingness % gradient for clusters (ie the number of clusters for which this variable is missing).
+
+```
+
+```{r echo=FALSE}
+# md pattern in first cluster
+plot_md_pat(impact_NA[impact_NA$name == "TINT", ])
+plot_md_pat(impact_NA[impact_NA$name == "APOE", ])
+```
+
+<!-- Resche-Rigon and White (2018) proposed a two-stage estimator. At step 1, a linear regression model is fitted to each observed cluster. Any sporadically missing data are imputed, and the model per cluster ignores any systematically missing variables. At step 2, estimates obtained from each cluster are combined using meta-analysis. Systematically missing variables are modeled through a linear random effect model across clusters. -->
+
+
+# Discussion
+
+- JOMO in \pkg{mice} -> on the side for now
+
+- Additional levels of clustering
+
+- More complex data types: timeseries and polynomial relationship in the clustering.
+
+
+# Think about
+
+- Adding some kind of help function to mice that suggests a suitable predictor matrix to the user, given a certain analysis model.
+
+- Adding a `multilevel_ampute()` wrapper function in mice.
+
+- Exporting `mids` objects to other packages like `lme4` or `coxme`? 
+
+- Adding a ICC=0 dataset to show that even if there is no clustering it doesn't hurt.
+
+- env dump in repo
+
+# References
+

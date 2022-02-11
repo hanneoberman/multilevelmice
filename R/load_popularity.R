@@ -1,11 +1,15 @@
 # generate incomplete data based on the popularity dataset
 
-# load complete data
-library(lme4)
-pop_complete <-
-  foreign::read.spss("../Data/popular2.sav", to.data.frame = TRUE)[, 2:7]
-
-mod <- lmer(popular ~ sex + extrav + texp + extrav * texp + (1 | class) + (1 | texp) +  (1 | extrav), pop_complete) %>% broom.mixed::tidy()
+# # load complete data
+# library(lme4)
+# pop_complete <-
+#   foreign::read.spss("../Data/popular2.sav", to.data.frame = TRUE)[, 2:7]
+# 
+# mod <- lmer(popular ~ sex + extrav + texp + extrav * texp + (1 | class) + (1 | texp) +  (1 | extrav), pop_complete) %>% broom.mixed::tidy()
+# 
+# # parameters
+# N = 5
+# n = 25
 
 # # synthesize some more observations
 # icc(popular ~as.factor(class), pop_complete)

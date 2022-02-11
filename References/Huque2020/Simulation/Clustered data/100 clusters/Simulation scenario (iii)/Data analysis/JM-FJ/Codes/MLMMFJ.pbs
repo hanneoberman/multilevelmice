@@ -1,0 +1,20 @@
+#!/bin/bash
+
+##########################
+#                        #
+#   The PBS directives   #
+#                        #
+##########################
+ 
+#PBS -N miSimulation
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=2gb
+#PBS -l walltime=6:00:00
+#PBS -j oe
+#PBS -m ae
+#PBS -J 1-100
+
+module add R/3.5.3
+Rscript MLMMFJ.R 
+
+exit

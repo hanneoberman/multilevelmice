@@ -1,5 +1,6 @@
-library(foreign)
-library(dplyr)
+# env
+# library(dplyr)
+# logistic <- function(x){exp(x)/(1+exp(x))} #equal to plogis()
 
 fit_missingness_models <- function(fname) {
   data <- read.spss(fname, to.data.frame = TRUE)
@@ -98,21 +99,38 @@ fit_missingness_models <- function(fname) {
 
 ampute_impact <- function(impact, p_obs){
   # just for function development 
-  # load("../Data/p_observed_impact.rda")
+  # data("impact", package = "metamisc")
+  # load("Data/p_observed_impact.rda")
   # p_obs <- results
   
   # pre-process coefficients
   p_obs[is.na(p_obs)] <- 0
   betas <- split(p_obs, p_obs$trial)
-  betas <- purrr::map(betas, ~{.[, 4:17] %>% as.data.frame(row.names = unique(p_obs$variable_missing))})
+  betas <- purrr::map(betas, ~{.[, 4:17] %>% as.data.frame(row.names = unique(p_obs$variable_missing)) %>% relocate(beta_pupilOne, .after = beta_pupilNone)})
 
   # create model matrices
   mm <- purrr::map(split(impact, impact$name), ~{model.matrix(name ~ pupil + ct + hypox + hypots + tsah + edh + age + motor_score + mort, .x) %>% as.data.frame()})
   
   # calculate linear predictor for missingness probability and convert to prob_obs
-  pr <- purrr::map2(betas, mm, ~{as.matrix(.y) %*% t(.x[]) %>% plogis() %>% as.data.frame()})
+  pr <- purrr::map2_dfr(betas, mm, ~{as.matrix(.y) %*% t(.x[]) %>% 
+      plogis(.) %>% 
+      as.data.frame() %>% 
+      mutate(across(everything(), ~rbinom(n = nrow(.y), size = 1, prob = .))) %>% 
+      setNames(paste0("R_", names(.))) %>% 
+      cbind(id = rownames(.), .)})
   
   # select lowest values to make incomplete
-  
-  
+  impact_NA <- impact %>% 
+    cbind(id = rownames(.), .) %>% 
+    left_join(pr, by = "id") %>% 
+    mutate(pupil = ifelse(R_pupil == 1, pupil, NA),
+           ct = ifelse(R_ct == 1, ct, NA),
+           hypox = ifelse(R_hypoxia == 1, hypox, NA),
+           hypots = ifelse(R_hypotens == 1, hypots, NA),
+           tsah = ifelse(R_tsah == 1, tsah, NA),
+           edh = ifelse(R_edh == 1, edh, NA),
+           .keep = "unused")
+  return(impact_NA[, -1])
 }
+
+# saveRDS(impact_NA, "Data/impact_NA.RDS")
