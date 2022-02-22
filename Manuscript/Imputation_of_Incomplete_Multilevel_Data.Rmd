@@ -21,7 +21,7 @@ title:
   plain:     "Imputation of Incomplete Multilevel Data with mice"
   short:     "Multilevel \\pkg{mice}"
 abstract: >
-  This is a tutorial paper on imputing incomplete multilevel data with \pkg{mice}. Footnotes in the current version show work in progress/under construction. The last section is not part of the manuscript, but purely for reminders.
+  This is a tutorial paper on imputing incomplete multilevel data with \pkg{mice}. Footnotes in the current version show work in progress/under construction. The last section is not part of the manuscript, but purely for reminders. We aim to submit at JSS, so there is no word count limit ("There is no page limit, nor a limit on the number of figures or tables").
 keywords:
   # at least one keyword must be supplied
   formatted: [missing data, multilevel, clustering, "\\pkg{mice}", "\\proglang{R}"]
@@ -50,6 +50,8 @@ set.seed(123)
 library(tidyverse)
 library(mice)
 library(miceadds)
+library(lme4)
+library(broom.mixed)
 # library(metamisc)
 # library(GJRM)
 # library(pan)
@@ -495,18 +497,46 @@ The inclusion restriction variable should be a predictor of the the actual value
   - `motor_score` Glasgow Coma Scale motor score,
   - `pupil` Pupillary reactivity,
   - `ct` Marshall Computerized Tomography classification,
-  - `hypox` Hypoxia (0=no, 1=yes),
-  - `hypots` Hypotension (0=no, 1=yes),
-  - `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
-  - `edh` Epidural hematoma (0=no, 1=yes),
+  <!-- - `hypox` Hypoxia (0=no, 1=yes), -->
+  <!-- - `hypots` Hypotension (0=no, 1=yes), -->
+  <!-- - `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes), -->
+  <!-- - `edh` Epidural hematoma (0=no, 1=yes), -->
   - `mort` 6-month mortality (0=alive, 1=dead).
 
-The analysis model for this dataset is a prediction model with `mort` as the outcome.^[Look at analysis model, maybe copy from GREAT data example e.g., adjusted prognostic effect of ct on unfortunate outcomes. Add something about systematically missing data here.] The data is already imputed (Steyerberg et al, 2008), so we've induced missingness again based on the missingness in the original data.
+The analysis model for this dataset is a prediction model with `mort` as the outcome.^[Look at analysis model, maybe copy from GREAT data example e.g., adjusted prognostic effect of `ct` on unfortunate outcomes, we just want to know the adjusted odds ratio for `ct`. Add something about systematically missing data here.] The data is already imputed (Steyerberg et al, 2008), so we've induced missingness again based on the missingness in the original data.
+
+$$
+\text{mort}_{ij} =
+\gamma_{00} + 
+\gamma_{01} \text{ type}_{j} + 
+\gamma_{10} \text{ age}_{ij} + 
+\gamma_{10} \text{ moter\_score}_{ij} + 
+\gamma_{10} \text{ pupil}_{ij} + 
+\gamma_{10} \text{ ct}_{ij} + \\
+u_{0j} + 
+u_{1j} \text{ age}_{ij} + 
+u_{1j} \text{ moter\_score}_{ij} +  
+u_{1j} \text{ pupil}_{ij} +  
+u_{1j} \text{ ct}_{ij} +  
+e_{ij} \\
+$$
+
+`glmer(mort ~ 1 + type + age + motor_score + pupil + ct + hypox + hypots + tsah + edh + (1 | name))`
+
+<!-- \gamma_{10} \text{ hypox}_{ij} + -->
+<!-- \gamma_{10} \text{ hypots}_{ij} + -->
+<!-- \gamma_{10} \text{ tsah}_{ij} + -->
+<!-- \gamma_{10} \text{ edh}_{ij} + -->
+
+<!-- u_{1j} \text{ hypox}_{ij} + -->
+<!-- u_{1j} \text{ hypots}_{ij} + -->
+<!-- u_{1j} \text{ tsah}_{ij} + -->
+<!-- u_{1j} \text{ edh}_{ij} + -->
 
 ```{r impact, echo=FALSE, fig.width=6, fig.height=8}
 # load data
 data("impact", package = "metamisc")
-impact_NA <- readRDS("../Data/impact_NA.RDS")
+impact_NA <- readRDS("../Data/impact_NA.RDS") 
 # # descriptive statistics
 # by(impact, impact$name, summary) 
 # psych::describe(impact)[,c(2:5,8:9)]
@@ -515,16 +545,25 @@ plot_md_pat(impact_NA)
 # TODO: rotate variable labels
 # TODO: think about nr of clusters: if there's too many, faceting is no option -> some distribution across the clusters like shepley plot
 # TODO: make missingness % gradient for clusters (ie the number of clusters for which this variable is missing).
-
 ```
 
-```{r echo=FALSE}
+```{r impact_md, echo=FALSE}
 # md pattern in first cluster
 plot_md_pat(impact_NA[impact_NA$name == "TINT", ])
 plot_md_pat(impact_NA[impact_NA$name == "APOE", ])
 ```
 
 <!-- Resche-Rigon and White (2018) proposed a two-stage estimator. At step 1, a linear regression model is fitted to each observed cluster. Any sporadically missing data are imputed, and the model per cluster ignores any systematically missing variables. At step 2, estimates obtained from each cluster are combined using meta-analysis. Systematically missing variables are modeled through a linear random effect model across clusters. -->
+
+```{r impact_cca}
+mod_cca <- glmer(mort ~ type + age + motor_score + pupil + ct + (1 | name), family = "binomial", data = impact_NA) 
+mod_cca %>% broom.mixed::tidy()
+
+```
+
+```{r impact_pred}
+quickpred(impact_NA)
+```
 
 
 # Discussion
