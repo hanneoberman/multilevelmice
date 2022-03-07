@@ -200,7 +200,7 @@ models.\footnote{Note to self: We're providing an overview of
   we'll keep it practical.} Assumed knowledge also includes the use of
 the `piping operator', \texttt{\%\textgreater{}\%}, adopted from the
 \pkg{magrittr} package, and the \pkg{lme4} notation for multilevel
-models.\footnote{Add environment info, seed and version number(s)
+models.\footnote{TODO: Add environment info, seed and version number(s)
   somewhere!}
 
 We illustrate how to impute incomplete multilevel data by means of three
@@ -230,7 +230,8 @@ on extending the imputation model to include Heckman-type
 selection-inclusion methods. With the \texttt{impact} data we provide an
 example of multivariate missingness in real-world data. Together, this
 should give enough scaffolding for applied researchers who are faced
-with incomplete multilevel data.
+with incomplete multilevel data.\footnote{TODO: Add notation paragraph,
+  linking multilevel equations to \pkg{lme4} formulas.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -482,9 +483,8 @@ R> pred <- ini$pred
 R> pred["popular", ] <- c(-2, 2, 2, 2) 
 R> #-2 for the cluster variable, 2 for random effects
 R> meth <- ini$meth
-R> meth <- c("", "2l.norm", "",  "")
-R> # meth <- c("", "2l.pmm", "",  "")
-R> imp_norm_2l <-
+R> meth["popular"] <- "2l.pmm"
+R> imp_pmm_2l <-
 +   mice(
 +     popmis %>% mutate(school = as.integer(school)),
 +     pred = pred,
@@ -496,12 +496,6 @@ R> imp_norm_2l <-
 \end{CodeChunk}
 
 \begin{CodeChunk}
-\begin{CodeOutput}
-Warning: Removed 848 rows containing non-finite values (stat_boxplot).
-\end{CodeOutput}
-\begin{CodeOutput}
-Warning: Removed 848 rows containing missing values (geom_point).
-\end{CodeOutput}
 
 
 \begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eval-1} \end{center}
@@ -532,12 +526,6 @@ R> imp_pan_2l <-
 \end{CodeChunk}
 
 \begin{CodeChunk}
-\begin{CodeOutput}
-Warning: Removed 848 rows containing non-finite values (stat_boxplot).
-\end{CodeOutput}
-\begin{CodeOutput}
-Warning: Removed 848 rows containing missing values (geom_point).
-\end{CodeOutput}
 
 
 \begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval-1} \end{center}
@@ -615,6 +603,14 @@ variables:
 \item
   \texttt{ct} Marshall Computerized Tomography classification,
 \item
+  \texttt{hypox} Hypoxia (0=no, 1=yes),
+\item
+  \texttt{hypots} Hypotension (0=no, 1=yes),
+\item
+  \texttt{tsah} Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+\item
+  \texttt{edh} Epidural hematoma (0=no, 1=yes),
+\item
   \texttt{mort} 6-month mortality (0=alive, 1=dead).
 \end{itemize}
 
@@ -643,7 +639,7 @@ u_{1j} \text{ ct}_{ij} +
 e_{ij} \\
 \]
 
-\texttt{glmer(mort\ \textasciitilde{}\ 1\ +\ type\ +\ age\ +\ motor\_score\ +\ pupil\ +\ ct\ +\ hypox\ +\ hypots\ +\ tsah\ +\ edh\ +\ (1\ \textbar{}\ name))}
+\texttt{glmer(mort\ \textasciitilde{}\ 1\ +\ type\ +\ age\ +\ motor\_score\ +\ pupil\ +\ ct\ +\ (1\ \textbar{}\ name))}
 
 \begin{CodeChunk}
 
@@ -664,39 +660,29 @@ e_{ij} \\
 \end{CodeChunk}
 
 \begin{CodeChunk}
-\begin{CodeInput}
-R> mod_cca <- glmer(mort ~ type + age + motor_score + pupil + ct + (1 | name), family = "binomial", data = impact_NA) 
-\end{CodeInput}
 \begin{CodeOutput}
-Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, : Model is nearly unidentifiable: very large eigenvalue
- - Rescale variables?
+# A tibble: 22 x 5
+   term                 estimate std.error statistic  p.value
+   <chr>                   <dbl>     <dbl>     <dbl>    <dbl>
+ 1 (Intercept)           -3.37     0.205     -16.4   1.97e-60
+ 2 typeRCT                0.395    0.177       2.23  2.59e- 2
+ 3 age                    0.0301   0.00191    15.8   5.01e-56
+ 4 motor_score3          -0.618    0.0829     -7.45  9.33e-14
+ 5 motor_score4          -1.00     0.0850    -11.8   6.07e-32
+ 6 motor_score5/6        -1.53     0.0874    -17.5   7.92e-69
+ 7 pupil                  0.434    0.0398     10.9   9.36e-28
+ 8 ct                     0.428    0.0344     12.4   1.50e-35
+ 9 as.factor(name)CSTAT  -0.177    0.199      -0.892 3.72e- 1
+10 as.factor(name)EBIC    0.560    0.174       3.22  1.30e- 3
+# ... with 12 more rows
 \end{CodeOutput}
-\begin{CodeInput}
-R> mod_cca %>% broom.mixed::tidy()
-\end{CodeInput}
-\begin{CodeOutput}
-# A tibble: 9 x 7
-  effect   group term            estimate std.error statistic   p.value
-  <chr>    <chr> <chr>              <dbl>     <dbl>     <dbl>     <dbl>
-1 fixed    <NA>  (Intercept)      -2.66     0.194      -13.7   1.11e-42
-2 fixed    <NA>  typeRCT          -0.412    0.172       -2.40  1.64e- 2
-3 fixed    <NA>  age               0.0298   0.00190     15.7   2.56e-55
-4 fixed    <NA>  motor_score3     -0.631    0.0823      -7.66  1.82e-14
-5 fixed    <NA>  motor_score4     -0.994    0.0845     -11.8   5.61e-32
-6 fixed    <NA>  motor_score5/6   -1.54     0.0868     -17.7   2.88e-70
-7 fixed    <NA>  pupil             0.438    0.0397      11.0   3.01e-28
-8 fixed    <NA>  ct                0.430    0.0343      12.5   5.34e-36
-9 ran_pars name  sd__(Intercept)   0.257   NA           NA    NA       
-\end{CodeOutput}
-\begin{CodeInput}
-R> # use glm with name as dummy
-R> # only random effect on ct, not the other variables
-R> # make forest plot of ct variable
-R> # is there heterogen in association of ct with mort?
-R> # is there any random effect on that variable at all?
-R> # 
-\end{CodeInput}
 \end{CodeChunk}
+
+If we run the multilevel model on the incomplete date, we get a warning
+about unindentifyability. This means that with CCA as missing data
+method, we cannot trust the estimates. To still obtain some estimates to
+compare later, we fit a simplified analysis model: using the cluster
+variable as indicator in the model.
 
 \begin{CodeChunk}
 \begin{CodeInput}

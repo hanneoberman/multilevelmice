@@ -104,7 +104,7 @@ plot_md_pat <- function(dat) {
       sec.axis = ggplot2::dup_axis(labels = as.character(NA_per_pat),
                                    name = "Number of missing entries per pattern")
     ) +
-    ggplot2::coord_cartesian(clip = "off") +
+    #ggplot2::coord_cartesian() +
     # add labels
     ggplot2::labs(
       x = "Number of missing entries per variable",
@@ -138,7 +138,9 @@ plot_md_pat <- function(dat) {
       axis.title.y.right = ggplot2::element_text(margin = ggplot2::margin(l = 10)),
       panel.grid = ggplot2::element_blank()
     ) +
-    ggplot2::scale_fill_manual(values = c("1" = mice:::mdc(1), "0" = mice:::mdc(2)))
+    ggplot2::scale_fill_manual(values = c("1" = mice:::mdc(1), "0" = mice:::mdc(2))) +
+    coord_cartesian(clip = "off") 
+    
   # output
   return(p)
 }

@@ -76,6 +76,14 @@ popcomp <- foreign::read.spss("../Data/popular.sav", to.data.frame = TRUE, use.v
 popmis <- mice::popmis[, c("school", "popular", "sex", "texp")] 
 ```
 
+<!-- Missing data pattern with clustering -->
+<!-- TODO: simplify argument in md pattern plot and/or network plot for md patterns (summarized per variable?) -->
+<!-- TODO: test if there's a random distribution of missingness in the md pattern? -->
+<!-- TODO: check spss missing data pie chart? -->
+<!-- TODO: similarity of patterns over clusters -->
+<!-- TODO: gradient (alpha) to show in how many of the clusters the row in the pattern occurs -->
+<!-- TODO: 3 columns could be 3 boxplots, over these clusters we have a distribution of these statistics across clusters.  -->
+<!-- TODO: look at vim -->
 
 # Introduction
 
@@ -107,7 +115,7 @@ Ignoring the missingness in analyses can be extremely harmful to inferences. Com
 
 ## Aim of this paper
 
-This papers serves as a tutorial for imputing incomplete multilevel data with \pkg{mice}. We provide practical guidelines and code snippets for different missing data situations, including missing not at random (MNAR) mechanisms [where the probability to be missing depends on unrecorded information, making the missingness non-ignorable, @rubi76; @meng94]. For reasons of brevity, we focus on imputation by chained equations wit \pkg{mice} exclusively^[Note that the alternative, joint modeling imputation for multilevel data or \pkg{jomo} @jomo, has been implemented in \pkg{mice} as well but is outside the scope of this tutorial.]. Other useful resources for the analysis of incomplete multilevel data include the \proglang{R} packages \pkg{mitml}, \pkg{miceadds}, and \pkg{mdmb}, and empirical work by @audi18 and @grun18. Please note that this tutorial paper assumes a basic level of knowledge on multilevel models.^[Note to self: We're providing an overview of implementations. It's up-to the reader to decide which multilevel strategy suits their data. We won't go into detail for the different methods (and equations). This paper is just a software tutorial, so we'll keep it practical.] Assumed knowledge also includes the use of the 'piping operator', `%>%`, adopted from the \pkg{magrittr} package, and the \pkg{lme4} notation for multilevel models.^[Add environment info, seed and version number(s) somewhere!]
+This papers serves as a tutorial for imputing incomplete multilevel data with \pkg{mice}. We provide practical guidelines and code snippets for different missing data situations, including missing not at random (MNAR) mechanisms [where the probability to be missing depends on unrecorded information, making the missingness non-ignorable, @rubi76; @meng94]. For reasons of brevity, we focus on imputation by chained equations wit \pkg{mice} exclusively^[Note that the alternative, joint modeling imputation for multilevel data or \pkg{jomo} @jomo, has been implemented in \pkg{mice} as well but is outside the scope of this tutorial.]. Other useful resources for the analysis of incomplete multilevel data include the \proglang{R} packages \pkg{mitml}, \pkg{miceadds}, and \pkg{mdmb}, and empirical work by @audi18 and @grun18. Please note that this tutorial paper assumes a basic level of knowledge on multilevel models.^[Note to self: We're providing an overview of implementations. It's up-to the reader to decide which multilevel strategy suits their data. We won't go into detail for the different methods (and equations). This paper is just a software tutorial, so we'll keep it practical.] Assumed knowledge also includes the use of the 'piping operator', `%>%`, adopted from the \pkg{magrittr} package, and the \pkg{lme4} notation for multilevel models.^[TODO: Add environment info, seed and version number(s) somewhere!]
 
 We illustrate how to impute incomplete multilevel data by means of three case studies:
 
@@ -115,7 +123,7 @@ We illustrate how to impute incomplete multilevel data by means of three case st
 - `hiv` from the \pkg{GJRM} package [simulated data on HIV diagnoses, $n = 6,416$ patients across $N = 9$ regions, @GJRM];
 - `impact` from the \pkg{metamisc} package [empirical data on traumatic brain injuries, $n = 11,022$ patients across $N = 15$ studies, @metamisc].
 
-For each of these datasets, we will discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. With the `popmis` data, we show how (and how not) to develop an imputation model. With the `hiv` data we focus on extending the imputation model to include Heckman-type selection-inclusion methods. With the `impact` data we provide an example of multivariate missingness in real-world data. Together, this should give enough scaffolding for applied researchers who are faced with incomplete multilevel data.
+For each of these datasets, we will discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. With the `popmis` data, we show how (and how not) to develop an imputation model. With the `hiv` data we focus on extending the imputation model to include Heckman-type selection-inclusion methods. With the `impact` data we provide an example of multivariate missingness in real-world data. Together, this should give enough scaffolding for applied researchers who are faced with incomplete multilevel data.^[TODO: Add notation paragraph, linking multilevel equations to \pkg{lme4} formulas.]
 
 <!-- Table 7.1: Questions to gauge the complexity of a multilevel imputation task. -->
 <!-- 1.	Will the complete-data model include random slopes? -->
@@ -204,6 +212,7 @@ Since the data is simulated and the missingness is induced, we can compare our i
 
 ```{r comp_est, echo=FALSE}
 est_comp_fixed %>% setNames(c("", "Estimate with 95% CI"))
+# TODO: make this a figure with the different methods as facets
 ```
 
 ### Incomplete data
@@ -375,9 +384,8 @@ pred <- ini$pred
 pred["popular", ] <- c(-2, 2, 2, 2) 
 #-2 for the cluster variable, 2 for random effects
 meth <- ini$meth
-meth <- c("", "2l.norm", "",  "")
-# meth <- c("", "2l.pmm", "",  "")
-imp_norm_2l <-
+meth["popular"] <- "2l.pmm"
+imp_pmm_2l <-
   mice(
     popmis %>% mutate(school = as.integer(school)),
     pred = pred,
@@ -389,7 +397,7 @@ imp_norm_2l <-
 
 ```{r pop_norm_eval, echo=FALSE}
 # plot(imp_norm)
-plot_imps(imp_norm_2l, x = "popular", type = "stripplot")
+plot_imps(imp_pmm_2l, x = "popular", type = "stripplot")
 
 # ICCs <- ICCs %>% mutate(
 #            norm = c(icc(popular ~ as.factor(school), complete(imp_norm_2l)), 
@@ -506,10 +514,10 @@ The inclusion restriction variable should be a predictor of the the actual value
   - `motor_score` Glasgow Coma Scale motor score,
   - `pupil` Pupillary reactivity,
   - `ct` Marshall Computerized Tomography classification,
-  <!-- - `hypox` Hypoxia (0=no, 1=yes), -->
-  <!-- - `hypots` Hypotension (0=no, 1=yes), -->
-  <!-- - `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes), -->
-  <!-- - `edh` Epidural hematoma (0=no, 1=yes), -->
+  - `hypox` Hypoxia (0=no, 1=yes),
+  - `hypots` Hypotension (0=no, 1=yes),
+  - `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
+  - `edh` Epidural hematoma (0=no, 1=yes),
   - `mort` 6-month mortality (0=alive, 1=dead).
 
 The analysis model for this dataset is a prediction model with `mort` as the outcome.^[Look at analysis model, maybe copy from GREAT data example e.g., adjusted prognostic effect of `ct` on unfortunate outcomes, we just want to know the adjusted odds ratio for `ct`. Add something about systematically missing data here.] The data is already imputed (Steyerberg et al, 2008), so we've induced missingness again based on the missingness in the original data.
@@ -530,7 +538,9 @@ u_{1j} \text{ ct}_{ij} +
 e_{ij} \\
 $$
 
-`glmer(mort ~ 1 + type + age + motor_score + pupil + ct + hypox + hypots + tsah + edh + (1 | name))`
+`glmer(mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name))`
+
+<!-- + hypox + hypots + tsah + edh  -->
 
 <!-- \gamma_{10} \text{ hypox}_{ij} + -->
 <!-- \gamma_{10} \text{ hypots}_{ij} + -->
@@ -545,12 +555,13 @@ $$
 ```{r impact, echo=FALSE, fig.width=6, fig.height=8}
 # load data
 data("impact", package = "metamisc")
-impact_NA <- readRDS("../Data/impact_NA.RDS") 
+impact_NA <- readRDS("../Data/impact_NA.RDS") #%>% select(!c(hypox, hypots, tsah, edh))
+
 # # descriptive statistics
 # by(impact, impact$name, summary) 
 # psych::describe(impact)[,c(2:5,8:9)]
 # # missingness
-plot_md_pat(impact_NA)
+plot_md_pat(impact_NA) 
 # TODO: rotate variable labels
 # TODO: think about nr of clusters: if there's too many, faceting is no option -> some distribution across the clusters like shepley plot
 # TODO: make missingness % gradient for clusters (ie the number of clusters for which this variable is missing).
@@ -564,9 +575,10 @@ plot_md_pat(impact_NA[impact_NA$name == "APOE", ])
 
 <!-- Resche-Rigon and White (2018) proposed a two-stage estimator. At step 1, a linear regression model is fitted to each observed cluster. Any sporadically missing data are imputed, and the model per cluster ignores any systematically missing variables. At step 2, estimates obtained from each cluster are combined using meta-analysis. Systematically missing variables are modeled through a linear random effect model across clusters. -->
 
-```{r impact_cca}
-mod_cca <- glmer(mort ~ type + age + motor_score + pupil + ct + (1 | name), family = "binomial", data = impact_NA) 
-mod_cca %>% broom.mixed::tidy()
+```{r impact_cca, echo=FALSE}
+# mod_cca <- glmer(mort ~ type + age + motor_score + pupil + ct + (1 | name), family = "binomial", data = impact_NA) 
+mod_cca_dummy <- glm(mort ~ type + age + motor_score + pupil + ct + as.factor(name), family = "binomial", data = impact_NA) 
+mod_cca_dummy %>% broom.mixed::tidy()
 
 # use glm with name as dummy
 # only random effect on ct, not the other variables
@@ -575,6 +587,8 @@ mod_cca %>% broom.mixed::tidy()
 # is there any random effect on that variable at all?
 # 
 ```
+
+If we run the multilevel model on the incomplete date, we get a warning about unindentifyability. This means that with CCA as missing data method, we cannot trust the estimates. To still obtain some estimates to compare later, we fit a simplified analysis model: using the cluster variable as indicator in the model.
 
 ```{r impact_pred}
 pred <- quickpred(impact_NA)
