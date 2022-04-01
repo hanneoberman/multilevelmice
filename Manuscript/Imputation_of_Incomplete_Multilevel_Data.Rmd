@@ -88,9 +88,16 @@ popmis <- mice::popmis[, c("school", "popular", "sex", "texp")]
 <!-- TODO: 3 columns could be 3 boxplots, over these clusters we have a distribution of these statistics across clusters.  -->
 <!-- TODO: look at vim -->
 
+<!-- Comments Thomas: -->
+<!-- .	We need to remind the reader about general knowledge about missing data: it usually leads to loss of power and bias; we distinguish between MCAR, MAR and MNAR in theory but in practice this distinction is less clear; multiple imputation is generally recommended to avoid bias (if data are MCAR or MAR, but also works reasonable in some situations where data are partially MNAR) -->
+<!-- .	We need to clarify what is clustered data, and provide common types (IPDMA, registries with data from multiple hospitals/regions, and multicenter studies). You can directly refer to the examples you will use in the paper here, and build on the text you already had. -->
+<!-- .	We need to clarify why clustering is relevant during imputation, and why this exposes the need for specialized imputation methods and more attention during their implemention ("though shall not simply run mice() on any incomplete dataset") -->
+<!-- .	Maybe we should also emphasise that in more modern types of big data sources (E.g. EHR data ), measurement of data is often selective and MAR assumptions are less tenable.  -->
+
+
 # Introduction
 
-~~In many contemporary data analysis efforts, some form of hierarchical or clustered structure is recorded.~~ Contemporary decision making is driven increasingly often and sometimes even entirely dictated by data. Although data relevant for decision makers were initially collected using small and well-designed studies, there has been a growing need to address more complex questions at a wider scale. This not only requires to collect larger amounts of data, but also from more diverse settings and populations. 
+~~In many contemporary data analysis efforts, some form of hierarchical or clustered structure is recorded.~~ Contemporary decision-making is  increasingly often data-driven and sometimes even entirely dictated by data. Although data relevant for decision makers were initially collected using small and well-designed studies, there has been a growing need to address more complex questions at a wider scale. This not only requires to collect larger amounts of data, but also from more diverse settings and populations. 
 For example, [TD: introduce IPDMA here; eg. HIV studies Johanna is referring to]. Another example is the use of large databases with information from thousands or even millions of individuals from multiple cities, regions or even countries. Finally, a third situation arises when data are collected from multicenter studies [TD: maybe refer to the schools/classes example here]. For example, students may be clustered in classes in psychometrics research, or patients may be clustered in studies in individual patient data meta-analyses in medical research. A common characteristic in aforementioned examples is the presence of clustering. [TD: briefly explain what is clustering?]
 
 Ignoring the clustered structure of such multilevel data can be harmful to the statistical inferences and introduce bias in estimators [@hox17]. 
@@ -126,7 +133,7 @@ We illustrate how to impute incomplete multilevel data by means of three case st
 - `hiv` from the \pkg{GJRM} package [simulated data on HIV diagnoses, $n = 6,416$ patients across $N = 9$ regions, @GJRM];
 - `impact` from the \pkg{metamisc} package [empirical data on traumatic brain injuries, $n = 11,022$ patients across $N = 15$ studies, @metamisc].
 
-For each of these datasets, we will discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. With the `popmis` data, we show how (and how not) to develop an imputation model. With the `hiv` data we focus on extending the imputation model to include Heckman-type selection-inclusion methods. With the `impact` data we provide an example of multivariate missingness in real-world data. Together, this should give enough scaffolding for applied researchers who are faced with incomplete multilevel data.^[TODO: Add notation paragraph or 'translation table' linking multilevel equations to \pkg{lme4} formulas. Use betas instead of gamma's and mu's. Add interpretation of values in predictormatrix (-2 for the cluster variable, 2 for random effects).]
+For each of these datasets, we will discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. With the `popmis` data, we show how (and how not) to develop an imputation model. With the `hiv` data we focus on extending the imputation model to include Heckman-type selection-inclusion methods. With the `impact` data we provide an example of multivariate missingness in real-world data. Together, this should give enough scaffolding for applied researchers who are faced with incomplete multilevel data.^[TODO: Add notation paragraph or 'translation table' linking multilevel equations to \pkg{lme4} formulas. Use betas instead of gamma's and mu's. Add interpretation of values in predictormatrix (-2 for the cluster variable, 2 for random effects). Add ICC and congeneality here as well. And make missingness mechanism table as well.]
 
 <!-- Table 7.1: Questions to gauge the complexity of a multilevel imputation task. -->
 <!-- 1.	Will the complete-data model include random slopes? -->
@@ -147,6 +154,7 @@ library(ggmice)
 library(ggplot2)
 library(dplyr)
 library(lme4)
+library(mitml)
 ```
 
 ---
@@ -258,6 +266,9 @@ ggmice(popmis, aes(texp)) +
   facet_grid(. ~ is.na(popular), labeller = label_both)
 ```
 
+TODO: think about what is a meaningful rule of thumb to signal that the user should be worried?
+
+
 ```{r pop-hist-clust, include=FALSE}
 # popmis %>% 
 #   filter(school < 5) %>% 
@@ -267,7 +278,7 @@ ggmice(popmis, aes(texp)) +
 # # does not make sense because texp is a cluster level variable!
 ```
 
-This shows us that there are no apparent differences in the distribution of `texp` depending on the missingness indicator of `popular` ($t = $ `r t.test(popmis$texp ~ is.na(popmis$popular)) %>% broom::tidy(.) %>% .[, c("statistic", "p.value")] %>% round(., 3) %>% unlist() %>% paste(collapse = ",  p = ")`).
+This shows us that there are no apparent differences in the distribution of `texp` depending on the missingness indicator of `popular` (t = `r t.test(popmis$texp ~ is.na(popmis$popular)) %>% broom::tidy(.) %>% .[, c("statistic", "p.value")] %>% round(., 3) %>% unlist() %>% paste(collapse = ",  p = ")`).
 
 <!-- In Figure \ref{fig:pop_dist} we see that **[update this part]** the distribution for the missing `popular` is further to the right than the distribution for observed `popular`. This would indicate a right-tailed MAR missingness. (In fact, this is exactly what happens, because the missingness in these data was created manually.) We've made it observable by examining the relations between the missingness in popular and the observed data in `texp`.  -->
 
@@ -297,19 +308,37 @@ This shows us that there are no apparent differences in the distribution of `tex
 
 Complete case analysis ignores the observations with missingness altogether, which lowers statistical power and may even introduce bias in MCAR situations. 
 
+```{r pop-cca, echo=FALSE}
+est_cca <- lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school), popmis) 
+
+```
+
+
 ### Imputation ignoring the cluster variable (not recommended)
 
 The first imputation model that we'll use is likely to be invalid. We do *not* use the cluster identifier `school` as imputation model predictor. With this model, we ignore the multilevel structure of the data, despite the high ICC. This assumes exchangeability between units. We include it purely to illustrate the effects of ignoring the clustering in our imputation effort. We'll use the default imputation methods in `mice()` (predictive mean matching to impute the continuous variables and logistic regression to impute binary variables). 
 
-Create a predictor matrix and remove `school` as predictor for `popular`:
+Create a methods vector and predictor matrix for `popular`, and make sure `school` is not included as predictor:
 
-```{r pop_ignored, echo=TRUE, message=FALSE, warning=FALSE}
-# predictor matrix
-pred <- quickpred(popmis)
+```{r pop-ignored-pred, echo=TRUE, message=FALSE, warning=FALSE}
+meth <- make.method(popmis) # methods vector
+pred <- quickpred(popmis)   # predictor matrix
 plot_pred(pred)
+```
 
-# impute the data, ignoring the cluster structure
+Impute the data, ignoring the cluster structure:
+```{r pop-ignored-imp, echo=TRUE, message=FALSE, warning=FALSE}
 imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
+```
+
+Analyze the imputations:
+```{r pop-ignored-fit, echo=TRUE, message=FALSE, warning=FALSE}
+fit_ignored <- imp_ignored %>% 
+  with(lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+fit_ignored %>% 
+  pool() %>% 
+  broom.mixed::tidy()
+testEstimates(as.mitml.result(fit_ignored), var.comp = TRUE)
 ```
 
 

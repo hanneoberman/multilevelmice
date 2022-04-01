@@ -71,23 +71,23 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \section{Introduction}\label{introduction}}
 
 \sout{In many contemporary data analysis efforts, some form of
-hierarchical or clustered structure is recorded.} Contemporary decision
-making is driven increasingly often and sometimes even entirely dictated
-by data. Although data relevant for decision makers were initially
-collected using small and well-designed studies, there has been a
-growing need to address more complex questions at a wider scale. This
-not only requires to collect larger amounts of data, but also from more
-diverse settings and populations. For example, {[}TD: introduce IPDMA
-here; eg. HIV studies Johanna is referring to{]}. Another example is the
-use of large databases with information from thousands or even millions
-of individuals from multiple cities, regions or even countries. Finally,
-a third situation arises when data are collected from multicenter
-studies {[}TD: maybe refer to the schools/classes example here{]}. For
-example, students may be clustered in classes in psychometrics research,
-or patients may be clustered in studies in individual patient data
-meta-analyses in medical research. A common characteristic in
-aforementioned examples is the presence of clustering. {[}TD: briefly
-explain what is clustering?{]}
+hierarchical or clustered structure is recorded.} Contemporary
+decision-making is increasingly often data-driven and sometimes even
+entirely dictated by data. Although data relevant for decision makers
+were initially collected using small and well-designed studies, there
+has been a growing need to address more complex questions at a wider
+scale. This not only requires to collect larger amounts of data, but
+also from more diverse settings and populations. For example, {[}TD:
+introduce IPDMA here; eg. HIV studies Johanna is referring to{]}.
+Another example is the use of large databases with information from
+thousands or even millions of individuals from multiple cities, regions
+or even countries. Finally, a third situation arises when data are
+collected from multicenter studies {[}TD: maybe refer to the
+schools/classes example here{]}. For example, students may be clustered
+in classes in psychometrics research, or patients may be clustered in
+studies in individual patient data meta-analyses in medical research. A
+common characteristic in aforementioned examples is the presence of
+clustering. {[}TD: briefly explain what is clustering?{]}
 
 Ignoring the clustered structure of such multilevel data can be harmful
 to the statistical inferences and introduce bias in estimators
@@ -237,7 +237,8 @@ with incomplete multilevel data.\footnote{TODO: Add notation paragraph
   or `translation table' linking multilevel equations to \pkg{lme4}
   formulas. Use betas instead of gamma's and mu's. Add interpretation of
   values in predictormatrix (-2 for the cluster variable, 2 for random
-  effects).}
+  effects). Add ICC and congeneality here as well. And make missingness
+  mechanism table as well.}
 
 Set-up the R environment and load the necessary packages:
 
@@ -396,9 +397,12 @@ R> ggmice(popmis, aes(texp)) +
 
 \end{CodeChunk}
 
+TODO: think about what is a meaningful rule of thumb to signal that the
+user should be worried?
+
 This shows us that there are no apparent differences in the distribution
 of \texttt{texp} depending on the missingness indicator of
-\texttt{popular} (\$t = \$ -0.873, p = 0.383).
+\texttt{popular} (t = -0.873, p = 0.383).
 
 \hypertarget{complete-case-analysis-not-recommended}{%
 \subsubsection{Complete case analysis (not
@@ -407,6 +411,12 @@ recommended)}\label{complete-case-analysis-not-recommended}}
 Complete case analysis ignores the observations with missingness
 altogether, which lowers statistical power and may even introduce bias
 in MCAR situations.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> est_cca <- lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school), popmis) 
+\end{CodeInput}
+\end{CodeChunk}
 
 \hypertarget{imputation-ignoring-the-cluster-variable-not-recommended}{%
 \subsubsection{Imputation ignoring the cluster variable (not
@@ -433,7 +443,7 @@ R> plot_pred(pred)
 \end{CodeInput}
 
 
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_ignored-1} \end{center}
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-1} \end{center}
 
 \begin{CodeInput}
 R> # impute the data, ignoring the cluster structure
