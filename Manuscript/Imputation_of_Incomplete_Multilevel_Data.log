@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.3.22)  1 APR 2022 16:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.3.22)  5 APR 2022 14:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1040,11 +1040,11 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 
 [4]
 
-Package xcolor Warning: Incompatible color definition on input line 291.
+Package xcolor Warning: Incompatible color definition on input line 292.
 
 
 Package hyperref Warning: Difference (2) between bookmark levels is greater 
-(hyperref)                than one, level fixed on input line 330.
+(hyperref)                than one, level fixed on input line 331.
 
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1.pdf, id=
 183, 353.32pt x 264.99pt>
@@ -1053,26 +1053,27 @@ File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1.pdf
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1.pdf>
 
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop_pat-1.pdf  used on input line 348.
+latex/pop_pat-1.pdf  used on input line 349.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
-Package xcolor Warning: Incompatible color definition on input line 357.
+Package xcolor Warning: Incompatible color definition on input line 358.
 
-<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf, id
-=185, 353.32pt x 264.99pt>
-File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pd
-f Graphic file (type pdf)
-<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf
->
-Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop-corr-1.pdf  used on input line 371.
-(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 5
  []
 
 [5]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf, id
+=194, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pd
+f Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf
+>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
+latex/pop-corr-1.pdf  used on input line 372.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 6 []
  []
@@ -1087,7 +1088,7 @@ f Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1.pdf
 >
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop-hist-1.pdf  used on input line 396.
+latex/pop-hist-1.pdf  used on input line 397.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -1096,69 +1097,54 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 
 [7 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1.pd
 f>]
-<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-1.pdf,
- id=237, 353.32pt x 264.99pt>
-File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-1
-.pdf Graphic file (type pdf)
-<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-1.
-pdf>
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-pred-1
+.pdf, id=237, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-p
+red-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-pr
+ed-1.pdf>
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop-ignored-1.pdf  used on input line 446.
+latex/pop-ignored-pred-1.pdf  used on input line 441.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
-<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_ignored_eval-1
-.pdf, id=238, 353.32pt x 264.99pt>
-File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_ignored_e
-val-1.pdf Graphic file (type pdf)
-<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_ignored_ev
-al-1.pdf>
-Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop_ignored_eval-1.pdf  used on input line 457.
-(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 8 []
  []
 
-[8 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-1
-.pdf>]
-
-Package xcolor Warning: Incompatible color definition on input line 468.
-
-
-Package xcolor Warning: Incompatible color definition on input line 468.
-
-
-Package xcolor Warning: Incompatible color definition on input line 468.
-
-
-Package xcolor Warning: Incompatible color definition on input line 468.
-
-
-Package xcolor Warning: Incompatible color definition on input line 471.
-
-
-Package xcolor Warning: Incompatible color definition on input line 471.
-
-
-Package xcolor Warning: Incompatible color definition on input line 471.
-
-
-Package xcolor Warning: Incompatible color definition on input line 471.
-
-<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor-1.pd
-f, id=259, 353.32pt x 264.99pt>
-File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor
--1.pdf Graphic file (type pdf)
-<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor-
-1.pdf>
+[8 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-p
+red-1.pdf>]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_ignored_eval-1
+.pdf, id=250, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_ignored_e
+val-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_ignored_ev
+al-1.pdf>
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop_predictor-1.pdf  used on input line 488.
+latex/pop_ignored_eval-1.pdf  used on input line 491.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Package xcolor Warning: Incompatible color definition on input line 502.
+
+
+Package xcolor Warning: Incompatible color definition on input line 502.
+
+
+Package xcolor Warning: Incompatible color definition on input line 502.
+
+
+Package xcolor Warning: Incompatible color definition on input line 502.
+
+
+Package xcolor Warning: Incompatible color definition on input line 505.
+
+
+Package xcolor Warning: Incompatible color definition on input line 505.
+
+
+Package xcolor Warning: Incompatible color definition on input line 505.
+
+
+Package xcolor Warning: Incompatible color definition on input line 505.
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -1167,6 +1153,15 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 
 [9 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_ignored_e
 val-1.pdf>]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor-1.pd
+f, id=279, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor
+-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor-
+1.pdf>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
+latex/pop_predictor-1.pdf  used on input line 522.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor_eval
 -1.pdf, id=280, 353.32pt x 264.99pt>
 File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor
@@ -1174,55 +1169,51 @@ _eval-1.pdf Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor_
 eval-1.pdf>
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop_predictor_eval-1.pdf  used on input line 499.
+latex/pop_predictor_eval-1.pdf  used on input line 533.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 10 []
  []
 
 [10 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predicto
-r-1.pdf> <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pre
-dictor_eval-1.pdf>]
+r-1.pdf>]
 
-Package xcolor Warning: Incompatible color definition on input line 521.
+Package xcolor Warning: Incompatible color definition on input line 555.
 
 
-Package xcolor Warning: Incompatible color definition on input line 521.
+Package xcolor Warning: Incompatible color definition on input line 555.
 
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm-1.pdf, id
-=306, 353.32pt x 264.99pt>
+=295, 353.32pt x 264.99pt>
 File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm-1.pd
 f Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm-1.pdf
 >
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop_norm-1.pdf  used on input line 531.
+latex/pop_norm-1.pdf  used on input line 565.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
-<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eval-1.pd
-f, id=307, 353.32pt x 264.99pt>
-File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eval
--1.pdf Graphic file (type pdf)
-<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eval-
-1.pdf>
-Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop_norm_eval-1.pdf  used on input line 550.
-(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 11
  []
 
-[11 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm-1.p
-df>]
-<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval-1.pdf
-, id=322, 353.32pt x 264.99pt>
-File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval-
-1.pdf Graphic file (type pdf)
-<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval-1
-.pdf>
+[11 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predicto
+r_eval-1.pdf>]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eval-1.pd
+f, id=313, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eval
+-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eval-
+1.pdf>
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/pop_pan_eval-1.pdf  used on input line 580.
+latex/pop_norm_eval-1.pdf  used on input line 584.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1232,18 +1223,16 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 12 []
  []
 
-[12 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eva
-l-1.pdf>]
-
-Package xcolor Warning: Incompatible color definition on input line 609.
-
-<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1.pdf, id=340,
- 353.32pt x 264.99pt>
-File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1.pdf Gra
-phic file (type pdf)
-<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1.pdf>
+[12 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm-1.p
+df>]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval-1.pdf
+, id=326, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval-
+1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval-1
+.pdf>
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/hiv-1.pdf  used on input line 614.
+latex/pop_pan_eval-1.pdf  used on input line 614.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1253,18 +1242,39 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 13
  []
 
-[13 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval
--1.pdf>]
+[13 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_norm_eva
+l-1.pdf>]
 
-Package xcolor Warning: Incompatible color definition on input line 667.
+Package xcolor Warning: Incompatible color definition on input line 643.
+
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1.pdf, id=345,
+ 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1.pdf Gra
+phic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1.pdf>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
+latex/hiv-1.pdf  used on input line 648.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 14 []
  []
 
-[14 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1.pdf>]
-Overfull \hbox (206.27391pt too wide) detected at line 689
+[14 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pan_eval
+-1.pdf>]
+
+Package xcolor Warning: Incompatible color definition on input line 701.
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 15
+ []
+
+[15 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1.pdf>]
+Overfull \hbox (206.27391pt too wide) detected at line 723
 [][] \OT1/lmr/m/n/10.95 = \OML/lmm/m/it/10.95 ^^M[] \OT1/lmr/m/n/10.95 + \OML/l
 mm/m/it/10.95 ^^M[][][] \OT1/lmr/m/n/10.95 + \OML/lmm/m/it/10.95 ^^M[][][] \OT1
 /lmr/m/n/10.95 + \OML/lmm/m/it/10.95 ^^M[][][] \OT1/lmr/m/n/10.95 + \OML/lmm/m/
@@ -1276,51 +1286,51 @@ T1/lmr/m/n/10.95 + \OML/lmm/m/it/10.95 e[][]
  []
 
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact-1.pdf, id=3
-74, 433.62pt x 578.16pt>
+78, 433.62pt x 578.16pt>
 File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact-1.pdf 
 Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact-1.pdf>
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/impact-1.pdf  used on input line 696.
+latex/impact-1.pdf  used on input line 730.
 (pdftex.def)             Requested size: 354.12434pt x 472.18872pt.
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-1.pdf, i
-d=375, 353.32pt x 264.99pt>
+d=379, 353.32pt x 264.99pt>
 File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-1.p
 df Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-1.pd
 f>
 Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/impact_md-1.pdf  used on input line 703.
-(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
-
-Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 15
- []
-
-[15 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact-1.pdf
->]
-<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2.pdf, i
-d=390, 353.32pt x 264.99pt>
-File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2.p
-df Graphic file (type pdf)
-<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2.pd
-f>
-Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
-latex/impact_md-2.pdf  used on input line 707.
+latex/impact_md-1.pdf  used on input line 737.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 16 []
  []
 
-[16 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-1.
-pdf> <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2
-.pdf>]
+[16 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact-1.pdf
+>]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2.pdf, i
+d=394, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2.p
+df Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2.pd
+f>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-
+latex/impact_md-2.pdf  used on input line 741.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 17
  []
 
-[17] (./Imputation_of_Incomplete_Multilevel_Data.bbl
+[17 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-1.
+pdf> <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2
+.pdf>]
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 18 []
+ []
+
+[18] (./Imputation_of_Incomplete_Multilevel_Data.bbl
 
 Package xcolor Warning: Incompatible color definition on input line 20.
 
@@ -1346,10 +1356,10 @@ Package xcolor Warning: Incompatible color definition on input line 67.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 18 []
+[] \T1/lmr/m/n/10.95 19
  []
 
-[18]
+[19]
 
 Package xcolor Warning: Incompatible color definition on input line 84.
 
@@ -1364,45 +1374,45 @@ Package xcolor Warning: Incompatible color definition on input line 124.
 
 )
 
-Package xcolor Warning: Incompatible color definition on input line 818.
+Package xcolor Warning: Incompatible color definition on input line 852.
 
 
-Package xcolor Warning: Incompatible color definition on input line 818.
+Package xcolor Warning: Incompatible color definition on input line 852.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 818--818
+Underfull \hbox (badness 10000) in paragraph at lines 852--852
 
  []
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 818.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 852.
 
-Package xcolor Warning: Incompatible color definition on input line 818.
-
-
-Package xcolor Warning: Incompatible color definition on input line 818.
+Package xcolor Warning: Incompatible color definition on input line 852.
 
 
-Package xcolor Warning: Incompatible color definition on input line 818.
+Package xcolor Warning: Incompatible color definition on input line 852.
+
+
+Package xcolor Warning: Incompatible color definition on input line 852.
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 19
+\T1/lmr/m/n/10.95 20 []
  []
 
-[19] (./Imputation_of_Incomplete_Multilevel_Data.aux)
+[20] (./Imputation_of_Incomplete_Multilevel_Data.aux)
 Package rerunfilecheck Info: File `Imputation_of_Incomplete_Multilevel_Data.out
 ' has not changed.
 (rerunfilecheck)             Checksum: C0A48DBDC415B2C11614E4F5C9C117B4;4135.
  ) 
 Here is how much of TeX's memory you used:
- 21901 strings out of 480236
- 429544 string characters out of 5894050
+ 21902 strings out of 480236
+ 429596 string characters out of 5894050
  683441 words of memory out of 5000000
  39323 multiletter control sequences out of 15000+600000
  580598 words of font info for 85 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 99i,9n,103p,680b,492s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 99i,9n,103p,680b,504s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec
 .enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm
 -ts1.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/l
@@ -1430,11 +1440,11 @@ TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/4216318/AppData/R
 oaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt9.pfb><c:/Users/4216318/App
 Data/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb><c:/Users/421
 6318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on Imputation_of_Incomplete_Multilevel_Data.pdf (19 pages, 15767
-54 bytes).
+Output written on Imputation_of_Incomplete_Multilevel_Data.pdf (20 pages, 15785
+52 bytes).
 PDF statistics:
- 562 PDF objects out of 1000 (max. 8388607)
- 461 compressed objects within 5 object streams
- 87 named destinations out of 1000 (max. 500000)
+ 566 PDF objects out of 1000 (max. 8388607)
+ 464 compressed objects within 5 object streams
+ 88 named destinations out of 1000 (max. 500000)
  205 words of extra memory for PDF output out of 10000 (max. 10000000)
 

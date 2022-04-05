@@ -331,14 +331,18 @@ Impute the data, ignoring the cluster structure:
 imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 ```
 
+TODO: remove the broom.mixed output, use mitml only
+
 Analyze the imputations:
 ```{r pop-ignored-fit, echo=TRUE, message=FALSE, warning=FALSE}
 fit_ignored <- imp_ignored %>% 
   with(lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
-fit_ignored %>% 
-  pool() %>% 
-  broom.mixed::tidy()
 testEstimates(as.mitml.result(fit_ignored), var.comp = TRUE)
+```
+```{r eval=FALSE, include=FALSE}
+# fit_ignored %>% 
+#   pool() %>% 
+#   broom.mixed::tidy()
 ```
 
 
@@ -616,30 +620,32 @@ $$
 ```{r impact, echo=FALSE, fig.width=6, fig.height=8}
 # load data
 data("impact", package = "metamisc")
-impact_NA <- readRDS("../Data/impact_NA.RDS") #%>% select(!c(hypox, hypots, tsah, edh))
+impact_NA <- readRDS("../Data/impact_NA.RDS") %>% 
+  mutate(name = as.integer(name),
+         motor_score = as.numeric(motor_score))#%>% select(!c(hypox, hypots, tsah, edh))
 
 # # descriptive statistics
 # by(impact, impact$name, summary) 
 # psych::describe(impact)[,c(2:5,8:9)]
 # # missingness
-plot_md_pat(impact_NA) 
-# TODO: rotate variable labels
+plot_pattern(impact_NA, rotate = TRUE) 
 # TODO: think about nr of clusters: if there's too many, faceting is no option -> some distribution across the clusters like shepley plot
 # TODO: make missingness % gradient for clusters (ie the number of clusters for which this variable is missing).
 ```
 
 ```{r impact_md, echo=FALSE}
-# md pattern in first cluster
-plot_md_pat(impact_NA[impact_NA$name == "TINT", ])
-plot_md_pat(impact_NA[impact_NA$name == "APOE", ])
+# # md pattern in first cluster
+# plot_pattern(impact_NA[impact_NA$name == "TINT", ])
+# plot_pattern(impact_NA[impact_NA$name == "APOE", ])
 ```
 
 <!-- Resche-Rigon and White (2018) proposed a two-stage estimator. At step 1, a linear regression model is fitted to each observed cluster. Any sporadically missing data are imputed, and the model per cluster ignores any systematically missing variables. At step 2, estimates obtained from each cluster are combined using meta-analysis. Systematically missing variables are modeled through a linear random effect model across clusters. -->
 
 ```{r impact_cca, echo=FALSE}
-# mod_cca <- glmer(mort ~ type + age + motor_score + pupil + ct + (1 | name), family = "binomial", data = impact_NA) 
-mod_cca_dummy <- glm(mort ~ type + age + motor_score + pupil + ct + as.factor(name), family = "binomial", data = impact_NA) 
-mod_cca_dummy %>% broom.mixed::tidy()
+mod_cca <- glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial", data = impact_NA) 
+mod_cca %>% broom.mixed::tidy()
+# mod_cca_dummy <- glm(mort ~ type + age + motor_score + pupil + ct + name, family = "binomial", data = impact_NA) 
+# mod_cca_dummy %>% broom.mixed::tidy()
 
 # use glm with name as dummy
 # only random effect on ct, not the other variables
@@ -649,23 +655,36 @@ mod_cca_dummy %>% broom.mixed::tidy()
 # 
 ```
 
-If we run the multilevel model on the incomplete date, we get a warning about unindentifyability. This means that with CCA as missing data method, we cannot trust the estimates. To still obtain some estimates to compare later, we fit a simplified analysis model: using the cluster variable as indicator in the model.
+<!-- If we run the multilevel model on the incomplete date, we get a warning about unindentifyability. This means that with CCA as missing data method, we cannot trust the estimates. To still obtain some estimates to compare later, we fit a simplified analysis model: using the cluster variable as indicator in the model. -->
 
-```{r impact_pred}
+We should impute the variables `ct` and `pupil` and any auxiliary variables we might want to use to impute these incomplete analysis model variables. We can evaluate which variables may be useful auxiliaries by plotting the pairwise complete correlations:
+
+
+```{r impact_corr}
+plot_corr(impact_NA, label = T)
+```
+
+This shows us that `hypox` and `hypot` would not be useful auxiliary variables for imputing `ct`. Depending on the minimum required correlation, `tsah` could be useful, while `edh` has the strongest correlation with `ct` out of all the variables in the data and should definitely be included in the imputation model. For the imputation of `pupil`, none of the potential auxiliary variables has a very strong relation, but `hypots` could be used. We conclude that we can exclude `hypox` from the data since this is neither an analysis model variable, nor an auxiliary variable for imputation.
+
+```{r impact-pred}
+impact_NA <- select(impact_NA, -c(hypox, hypots))
 pred <- quickpred(impact_NA)
+plot_pred(pred)
+
 pred[pred == 1] <- 2
-pred[, "name"] <- -2
 pred["mort", ] <- 2
 pred[, "mort"] <- 2
-diag(pred) <- 0
 pred[c("name", "type", "age", "motor_score", "mort"), ] <- 0
-pred
+pred[, "name"] <- -2
+diag(pred) <- 0
+plot_pred(pred)
 
 meth <- make.method(impact_NA)
 meth[meth != ""] <- "2l.pmm"
 ```
 
 ```{r imp_impact}
+imp <- mice(impact_NA, method = meth, predictorMatrix = pred, m = 2, maxit = 1)
 # imp_impact <- impact_NA %>%
 #   mutate(name = as.integer(name), motor_score = as.numeric(motor_score)) %>%
 #   mice::mice(., m = 2, maxit = 1, method = meth, predictorMatrix = pred)
@@ -673,6 +692,20 @@ meth[meth != ""] <- "2l.pmm"
 # semi-cont with jomo is not ideal (schafer, '97) because you need 2-step approach
 # pmm is better (more efficient) because it will still look for donors (maybe outside of cluster) based on predictive distance, even for very small clusters
 # make assumptions of these methods explicit!
+```
+```{r impact-fit}
+fit <- imp_impact_pmm %>% 
+  with(glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial")) 
+tidy(pool(fit))
+as.mitml.result(fit)
+# testEstimates(as.mitml.result(fit))
+```
+
+Compare estimates to complete data
+
+```{r}
+fit <- glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial", data = impact) 
+tidy(fit)
 ```
 
 

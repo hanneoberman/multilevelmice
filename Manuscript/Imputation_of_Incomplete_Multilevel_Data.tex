@@ -250,6 +250,7 @@ R> library(ggmice)
 R> library(ggplot2)
 R> library(dplyr)
 R> library(lme4)
+R> library(mitml)
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -412,12 +413,6 @@ Complete case analysis ignores the observations with missingness
 altogether, which lowers statistical power and may even introduce bias
 in MCAR situations.
 
-\begin{CodeChunk}
-\begin{CodeInput}
-R> est_cca <- lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school), popmis) 
-\end{CodeInput}
-\end{CodeChunk}
-
 \hypertarget{imputation-ignoring-the-cluster-variable-not-recommended}{%
 \subsubsection{Imputation ignoring the cluster variable (not
 recommended)}\label{imputation-ignoring-the-cluster-variable-not-recommended}}
@@ -432,23 +427,62 @@ methods in \texttt{mice()} (predictive mean matching to impute the
 continuous variables and logistic regression to impute binary
 variables).
 
-Create a predictor matrix and remove \texttt{school} as predictor for
-\texttt{popular}:
+Create a methods vector and predictor matrix for \texttt{popular}, and
+make sure \texttt{school} is not included as predictor:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> # predictor matrix
-R> pred <- quickpred(popmis)
+R> meth <- make.method(popmis) # methods vector
+R> pred <- quickpred(popmis)   # predictor matrix
 R> plot_pred(pred)
 \end{CodeInput}
 
 
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-1} \end{center}
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-pred-1} \end{center}
 
+\end{CodeChunk}
+
+Impute the data, ignoring the cluster structure:
+
+\begin{CodeChunk}
 \begin{CodeInput}
-R> # impute the data, ignoring the cluster structure
 R> imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 \end{CodeInput}
+\end{CodeChunk}
+
+TODO: remove the broom.mixed output, use mitml only
+
+Analyze the imputations:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> fit_ignored <- imp_ignored %>% 
++   with(lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+R> testEstimates(as.mitml.result(fit_ignored), var.comp = TRUE)
+\end{CodeInput}
+\begin{CodeOutput}
+
+Call:
+
+testEstimates(model = as.mitml.result(fit_ignored), var.comp = TRUE)
+
+Final parameter estimates and inferences obtained from 5 imputed data sets.
+
+             Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
+(Intercept)     3.354     0.245    13.704     6.831     0.000     3.260     0.813 
+sex             1.247     0.332     3.759     6.154     0.009     4.160     0.849 
+texp            0.110     0.017     6.320     6.084     0.001     4.286     0.852 
+sex:texp       -0.027     0.022    -1.225     5.914     0.267     4.631     0.862 
+
+                            Estimate 
+Intercept~~Intercept|school    0.177 
+sex~~sex|school                0.232 
+Intercept~~sex|school         -0.043 
+Residual~~Residual             0.670 
+ICC|school                     0.209 
+
+Unadjusted hypothesis test as appropriate in larger samples.
+\end{CodeOutput}
 \end{CodeChunk}
 
 \begin{CodeChunk}
