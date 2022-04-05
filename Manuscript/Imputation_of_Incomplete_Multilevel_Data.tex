@@ -732,66 +732,71 @@ e_{ij} \\
 \end{CodeChunk}
 
 \begin{CodeChunk}
-
-
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-1} \end{center}
-
-
-
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_md-2} \end{center}
-
-\end{CodeChunk}
-
-\begin{CodeChunk}
 \begin{CodeOutput}
-# A tibble: 22 x 5
-   term                 estimate std.error statistic  p.value
-   <chr>                   <dbl>     <dbl>     <dbl>    <dbl>
- 1 (Intercept)           -3.37     0.205     -16.4   1.97e-60
- 2 typeRCT                0.395    0.177       2.23  2.59e- 2
- 3 age                    0.0301   0.00191    15.8   5.01e-56
- 4 motor_score3          -0.618    0.0829     -7.45  9.33e-14
- 5 motor_score4          -1.00     0.0850    -11.8   6.07e-32
- 6 motor_score5/6        -1.53     0.0874    -17.5   7.92e-69
- 7 pupil                  0.434    0.0398     10.9   9.36e-28
- 8 ct                     0.428    0.0344     12.4   1.50e-35
- 9 as.factor(name)CSTAT  -0.177    0.199      -0.892 3.72e- 1
-10 as.factor(name)EBIC    0.560    0.174       3.22  1.30e- 3
-# ... with 12 more rows
+# A tibble: 9 x 7
+  effect   group term                    estimate std.error statistic   p.value
+  <chr>    <chr> <chr>                      <dbl>     <dbl>     <dbl>     <dbl>
+1 fixed    <NA>  (Intercept)              -2.66     0.194      -13.7   1.11e-42
+2 fixed    <NA>  typeRCT                  -0.412    0.172       -2.40  1.64e- 2
+3 fixed    <NA>  age                       0.0298   0.00190     15.7   2.56e-55
+4 fixed    <NA>  as.factor(motor_score)2  -0.631    0.0823      -7.66  1.82e-14
+5 fixed    <NA>  as.factor(motor_score)3  -0.994    0.0845     -11.8   5.61e-32
+6 fixed    <NA>  as.factor(motor_score)4  -1.54     0.0868     -17.7   2.88e-70
+7 fixed    <NA>  pupil                     0.438    0.0397      11.0   3.01e-28
+8 fixed    <NA>  ct                        0.430    0.0343      12.5   5.34e-36
+9 ran_pars name  sd__(Intercept)           0.257   NA           NA    NA       
 \end{CodeOutput}
 \end{CodeChunk}
 
-If we run the multilevel model on the incomplete date, we get a warning
-about unindentifyability. This means that with CCA as missing data
-method, we cannot trust the estimates. To still obtain some estimates to
-compare later, we fit a simplified analysis model: using the cluster
-variable as indicator in the model.
+We should impute the variables \texttt{ct} and \texttt{pupil} and any
+auxiliary variables we might want to use to impute these incomplete
+analysis model variables. We can evaluate which variables may be useful
+auxiliaries by plotting the pairwise complete correlations:
 
 \begin{CodeChunk}
 \begin{CodeInput}
+R> plot_corr(impact_NA, label = T)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_corr-1} \end{center}
+
+\end{CodeChunk}
+
+This shows us that \texttt{hypox} and \texttt{hypot} would not be useful
+auxiliary variables for imputing \texttt{ct}. Depending on the minimum
+required correlation, \texttt{tsah} could be useful, while \texttt{edh}
+has the strongest correlation with \texttt{ct} out of all the variables
+in the data and should definitely be included in the imputation model.
+For the imputation of \texttt{pupil}, none of the potential auxiliary
+variables has a very strong relation, but \texttt{hypots} could be used.
+We conclude that we can exclude \texttt{hypox} from the data since this
+is neither an analysis model variable, nor an auxiliary variable for
+imputation.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> impact_NA <- select(impact_NA, -c(hypox, hypots))
 R> pred <- quickpred(impact_NA)
+R> plot_pred(pred)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact-pred-1} \end{center}
+
+\begin{CodeInput}
 R> pred[pred == 1] <- 2
-R> pred[, "name"] <- -2
 R> pred["mort", ] <- 2
 R> pred[, "mort"] <- 2
-R> diag(pred) <- 0
 R> pred[c("name", "type", "age", "motor_score", "mort"), ] <- 0
-R> pred
+R> pred[, "name"] <- -2
+R> diag(pred) <- 0
+R> plot_pred(pred)
 \end{CodeInput}
-\begin{CodeOutput}
-            name type age motor_score pupil ct hypox hypots tsah edh mort
-name           0    0   0           0     0  0     0      0    0   0    0
-type           0    0   0           0     0  0     0      0    0   0    0
-age            0    0   0           0     0  0     0      0    0   0    0
-motor_score    0    0   0           0     0  0     0      0    0   0    0
-pupil         -2    0   0           2     0  2     0      2    0   0    2
-ct            -2    2   2           2     2  0     0      0    2   2    2
-hypox         -2    2   0           2     0  0     0      2    0   0    2
-hypots        -2    0   0           2     2  0     2      0    0   0    2
-tsah          -2    0   2           0     0  2     0      0    0   0    2
-edh           -2    0   0           0     0  2     0      0    0   0    2
-mort           0    0   0           0     0  0     0      0    0   0    0
-\end{CodeOutput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact-pred-2} \end{center}
+
 \begin{CodeInput}
 R> meth <- make.method(impact_NA)
 R> meth[meth != ""] <- "2l.pmm"
@@ -800,6 +805,7 @@ R> meth[meth != ""] <- "2l.pmm"
 
 \begin{CodeChunk}
 \begin{CodeInput}
+R> imp <- mice(impact_NA, method = meth, predictorMatrix = pred, m = 2, maxit = 1)
 R> # imp_impact <- impact_NA %>%
 R> #   mutate(name = as.integer(name), motor_score = as.numeric(motor_score)) %>%
 R> #   mice::mice(., m = 2, maxit = 1, method = meth, predictorMatrix = pred)
@@ -808,6 +814,41 @@ R> # semi-cont with jomo is not ideal (schafer, '97) because you need 2-step app
 R> # pmm is better (more efficient) because it will still look for donors (maybe outside of cluster) based on predictive distance, even for very small clusters
 R> # make assumptions of these methods explicit!
 \end{CodeInput}
+\end{CodeChunk}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> fit <- imp_impact_pmm %>% 
++   with(glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial")) 
+R> tidy(pool(fit))
+R> as.mitml.result(fit)
+R> # testEstimates(as.mitml.result(fit))
+\end{CodeInput}
+\end{CodeChunk}
+
+Compare estimates to complete data
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> fit <- glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial", data = impact) 
+R> tidy(fit)
+\end{CodeInput}
+\begin{CodeOutput}
+# A tibble: 11 x 7
+   effect   group term                   estimate std.error statistic    p.value
+   <chr>    <chr> <chr>                     <dbl>     <dbl>     <dbl>      <dbl>
+ 1 fixed    <NA>  (Intercept)             -2.29     0.171      -13.4   4.94e- 41
+ 2 fixed    <NA>  typeRCT                 -0.338    0.172       -1.96  5.01e-  2
+ 3 fixed    <NA>  age                      0.0322   0.00160     20.2   2.13e- 90
+ 4 fixed    <NA>  as.factor(motor_score~  -0.593    0.0698      -8.50  1.95e- 17
+ 5 fixed    <NA>  as.factor(motor_score~  -0.904    0.0713     -12.7   8.43e- 37
+ 6 fixed    <NA>  as.factor(motor_score~  -1.29     0.0732     -17.6   1.67e- 69
+ 7 fixed    <NA>  pupilNone                1.32     0.0616      21.4   2.09e-101
+ 8 fixed    <NA>  pupilOne                 0.626    0.0711       8.80  1.36e- 18
+ 9 fixed    <NA>  ctIII                    0.810    0.0700      11.6   5.12e- 31
+10 fixed    <NA>  ctIV/V                   0.832    0.0593      14.0   9.47e- 45
+11 ran_pars name  sd__(Intercept)          0.277   NA           NA    NA        
+\end{CodeOutput}
 \end{CodeChunk}
 
 \hypertarget{discussion}{%

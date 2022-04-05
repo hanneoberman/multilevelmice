@@ -108,8 +108,24 @@ Multilevel models typically accommodate for this variability by including a sepa
 
 ## Missingness in multilevel data
 
-```{r patterns, fig.height=3, fig.width=4.1, fig.cap = "Missingness in multilevel data", echo=FALSE}
-plot_md_set()
+```{r patterns, fig.height=2.5, fig.width=4.1, fig.cap = "Missingness in multilevel data", echo=FALSE}
+# blankcol <- c(rep("", 4), "...", "")
+# dat <- expand.grid(rows = 1:6, cols = 1:6) %>% 
+#   cbind(text = c("1", "1", "2", "2", "...", "N", rep(blankcol, 3), rep("...", 6), blankcol),
+#         miss = c(rep("", 14), "NA", "NA", "", "", "NA", "", "", "NA", rep("", 14)))
+dat <- expand.grid(rows = 1:6, cols = 1:6) %>% 
+  cbind(text = c("1", "1", "2", "2", "", "N", rep("", 30)),
+        miss = c(rep("", 14), "NA", "NA", "", "", "NA", "", "", "NA", rep("", 14)))
+
+ggplot(dat, aes(x = cols, y = rows)) +
+  geom_tile(fill = "white", color = "black") +
+  geom_text(aes(label = text), color = "black") +
+  geom_text(aes(label = miss), color = mice:::mdc(2), family = "mono", fontface = "bold") + 
+  scale_x_continuous(breaks = 1:6, labels = c("cluster", expression(X[1]), expression(X[2]), expression(X[3]), "...", expression(X[p])), name = NULL, position = "top") +
+  scale_y_continuous(breaks = 1:6, labels = c(1:4, "...", "n"), name = NULL, trans = "reverse") +
+  theme_minimal() +
+  theme(panel.grid = element_blank())
+
 ```
 
 The process of analyzing multilevel data is further complicated when not all data entries are observed. Just as with single level data, missingness may occur at the unit level. But with multiple levels of data comes the potential for clustered missingness. Therefore, incomplete multilevel data can be categorized into two general patterns: systematic missingness and sporadic missingness [@resc13]. Systematic missingness implies that one or more variables are never observed in a certain cluster. With sporadic missingness there may be observed data for some but not all units in a cluster [@buur18; @jola18]. We have visualized this difference in Figure 1, which shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n$ units distributed over $N$ clusters, and $p=3$ columns. Column $X1$ is completely observed, column $X2$ is systematically missing in cluster 2, and column $X3$ is sporadically missing. To analyze these incomplete data, we have to take the nature of the missingness and the cluster structure into account. For example, the sporadic missingness in $X3$ could be easily amended if this would be a cluster-level variable (and thus constant within clusters). We could then just extrapolate the true (but missing) value of $X3$ for unit 1 from unit 2, and the value for unit 4 from unit 3. If $X3$ would instead be a unit-level variable (which may vary within clusters), we could not just recover the unobserved 'truth', but would need to use some kind of missing data method or discard the incomplete units altogether (i.e., list-wise deletion/complete case analysis). Further, with the systematic missingness in $X2$, it is impossible to fit a multilevel model since we cannot estimate the intercept of cluster 2. We would have to exclude this cluster from our analyses entirely to obtain any results. Obviously, excluding observations is not a desirable workflow. 
@@ -683,7 +699,7 @@ meth <- make.method(impact_NA)
 meth[meth != ""] <- "2l.pmm"
 ```
 
-```{r imp_impact}
+```{r imp_impact, eval = FALSE}
 imp <- mice(impact_NA, method = meth, predictorMatrix = pred, m = 2, maxit = 1)
 # imp_impact <- impact_NA %>%
 #   mutate(name = as.integer(name), motor_score = as.numeric(motor_score)) %>%
@@ -693,7 +709,7 @@ imp <- mice(impact_NA, method = meth, predictorMatrix = pred, m = 2, maxit = 1)
 # pmm is better (more efficient) because it will still look for donors (maybe outside of cluster) based on predictive distance, even for very small clusters
 # make assumptions of these methods explicit!
 ```
-```{r impact-fit}
+```{r impact-fit, eval = FALSE}
 fit <- imp_impact_pmm %>% 
   with(glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial")) 
 tidy(pool(fit))
