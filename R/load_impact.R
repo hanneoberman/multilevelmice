@@ -124,7 +124,9 @@ ampute_impact <- function(impact, p_obs){
     cbind(id = rownames(.), .) %>% 
     left_join(pr, by = "id") %>% 
     mutate(pupil = ifelse(R_pupil == 1, pupil, NA),
+           pupil = factor(pupil, levels = 1:3, labels = c("Both", "None", "One")),
            ct = ifelse(R_ct == 1, ct, NA),
+           ct = factor(ct, levels = 1:3, labels = c("I/II", "III", "IV/V")),
            hypox = ifelse(R_hypoxia == 1, hypox, NA),
            hypots = ifelse(R_hypotens == 1, hypots, NA),
            tsah = ifelse(R_tsah == 1, tsah, NA),
