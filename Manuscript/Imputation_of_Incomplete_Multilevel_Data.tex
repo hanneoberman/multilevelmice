@@ -7,15 +7,15 @@
 \usepackage[utf8]{inputenc}
 
 \author{
-Hanne Oberman\\Utrecht University \And Johanna Mu\textasciitilde\{n\}oz
-Avila\\University Medical Center Utrecht \AND Valentijn de
-Jong\\University Medical Center Utrecht \And Gerko Vink\\Utrecht
-University \AND Thomas Debray\\University Medical Center Utrecht
+Hanne Oberman\\Utrecht University \And Johanna Munoz Avila\\University
+Medical Center Utrecht \AND Valentijn de Jong\\University Medical
+Center Utrecht \And Gerko Vink\\Utrecht University \AND Thomas
+Debray\\University Medical Center Utrecht
 }
 \title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
 
-\Plainauthor{Hanne Oberman, Johanna Mu\textasciitilde\{n\}oz
-Avila, Valentijn de Jong, Gerko Vink, Thomas Debray}
+\Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn de
+Jong, Gerko Vink, Thomas Debray}
 \Plaintitle{Imputation of Incomplete Multilevel Data with mice}
 \Shorttitle{Multilevel \pkg{mice}}
 
@@ -70,68 +70,48 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-\sout{In many contemporary data analysis efforts, some form of
-hierarchical or clustered structure is recorded.} Contemporary
-decision-making is increasingly often data-driven and sometimes even
-entirely dictated by data. Although data relevant for decision makers
-were initially collected using small and well-designed studies, there
-has been a growing need to address more complex questions at a wider
-scale. This not only requires to collect larger amounts of data, but
-also from more diverse settings and populations. For example, {[}TD:
-introduce IPDMA here; eg. HIV studies Johanna is referring to{]}.
-Another example is the use of large databases with information from
-thousands or even millions of individuals from multiple cities, regions
-or even countries. Finally, a third situation arises when data are
-collected from multicenter studies {[}TD: maybe refer to the
-schools/classes example here{]}. For example, students may be clustered
-in classes in psychometrics research, or patients may be clustered in
-studies in individual patient data meta-analyses in medical research. A
-common characteristic in aforementioned examples is the presence of
-clustering. {[}TD: briefly explain what is clustering?{]}
+In many contemporary data analysis efforts, some form of hierarchical or
+clustered data structures are recorded. In the simplest case, such a
+structure entails the nesting of units within clusters (e.g., students
+within school classes). More complex clustered structures may occur when
+there are multiple hierarchical levels (e.g., patients within hospitals
+within regions or countries), or when the clustering is non-nested
+(e.g., data from diverse settings and populations within large
+databases). The clustered structure of multilevel data should be taken
+into account when developing analysis models: 1) for the simple reason
+that groups of observations share some common variance, and 2) because
+ignoring multilevel structures can be harmful to the statistical
+inferences and introduce bias in estimators \citep{hox17}. There are
+many names for models that take clustering into account. Some popular
+examples are `multilevel models', `hierarchical models', `mixed effect
+models' and `random effect models'. Table \ref{tab:def} provides an
+overview of some key concepts in multilevel modeling.
 
-Ignoring the clustered structure of such multilevel data can be harmful
-to the statistical inferences and introduce bias in estimators
-\citep{hox17}. \sout{Imagine a case where cross-level interactions
-between unit-level variables and cluster-level variables are present.
-The cluster to which a unit belongs may then influence the unit-level
-observations--and vice versa for each of the units that make up the
-cluster.} These relations can and should be taken into account when
-developing analysis models for multilevel data for the simple reason
-that groups of observations share some common variance. \sout{The
-variability due to clustering is often measured by means of the
-intraclass coefficient (ICC). The ICC can be seen as the percentage of
-variance that can be attributed to the cluster-level, where a high ICC
-would indicate that a lot of variability is due to the cluster
-structure.} Multilevel models typically accommodate for this variability
-by including a separate group mean for each cluster. In addition to
-random intercepts, multilevel models can also include random effects and
-heterogeneous residual error variances across clusters \citep[see
-e.g.][\citet{hox17} and \citet{jong21}]{gelm06}. There are many names
-for models that take clustering into account. Some popular examples are
-`multilevel models', `hierarchical models', `mixed effect models' and
-`random effect models'. {[}TD: emphasize when/why we need to account for
-clustering in the analysis of clustered data. Why is the presence of
-clustering relevant when considering multiple imputation of missing
-data? e.g.~distinction between systematically and sporadically missing
-data. But also: mechanisms of missing data (e.g.~MCAR, MAR, MNAR) may
-differ between clusters. But also: relation between observed data may
-differ between clusters? When/ why should we avoid using traditional
-imputation methods? e.g.~congeniality issues.{]}
+\begin{table}[tb]
+\caption{Key concepts in multilevel modeling}
+\label{tab:def}
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Concept} & \textbf{Details}   \\
+\hline
+ICC                 & The variability due to clustering is often measured by means of the \\
+                    & intraclass coefficient (ICC). The ICC can be seen as the percentage \\
+                    & of variance that can be attributed to the cluster-level, where a high \\
+                    & ICC would indicate that a lot of variability is due to the cluster \\
+                    & structure. \\
+Random intercept    & Multilevel models typically accommodate for variability by including \\
+                    & a separate group mean for each cluster. In addition to random \\
+                    & intercepts, multilevel models can also include random effects and \\
+                    & heterogeneous residual error variances across clusters [see e.g. \\
+                    & @gelm06, @hox17 and @jong21]. \\
+\hline
+\end{tabular}
+\end{table}
 
 \hypertarget{missingness-in-multilevel-data}{%
 \subsection{Missingness in multilevel
 data}\label{missingness-in-multilevel-data}}
-
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/patterns-1} 
-
-}
-
-\caption[Missingness in multilevel data]{Missingness in multilevel data}\label{fig:patterns}
-\end{figure}
-\end{CodeChunk}
 
 The process of analyzing multilevel data is further complicated when not
 all data entries are observed. Just as with single level data,
@@ -162,6 +142,17 @@ multilevel model since we cannot estimate the intercept of cluster 2. We
 would have to exclude this cluster from our analyses entirely to obtain
 any results. Obviously, excluding observations is not a desirable
 workflow.
+
+\begin{CodeChunk}
+\begin{figure}
+
+{\centering \includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/patterns-1} 
+
+}
+
+\caption[Missingness in multilevel data]{Missingness in multilevel data}\label{fig:patterns}
+\end{figure}
+\end{CodeChunk}
 
 Ignoring the missingness in analyses can be extremely harmful to
 inferences. Complete case analysis can introduce bias in statistical
