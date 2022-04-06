@@ -139,7 +139,8 @@ plot_imps <- function(imp, type = c("bwplot", "stripplot", "densityplot"), x, y 
     p <- p + geom_point(
       aes(x = .imp, y = get(x), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed")),
       position = position_jitter(width = 0.25, height = 0),
-      data = p$data) 
+      data = p$data,
+      na.rm = TRUE) 
   }  
   if (type == "stripplot" | type == "bwplot"){
     p <- p + geom_boxplot(
@@ -148,7 +149,8 @@ plot_imps <- function(imp, type = c("bwplot", "stripplot", "densityplot"), x, y 
       width = 0.5,
       alpha = 0.5,
       outlier.shape = NA,
-      data = p$data) + 
+      data = p$data,
+      na.rm = TRUE) + 
       labs(x = "Imputation",
            y = x,
            color = "",
@@ -159,7 +161,8 @@ plot_imps <- function(imp, type = c("bwplot", "stripplot", "densityplot"), x, y 
   if (type == "densityplot"){
   p <-  p + geom_density(
     aes(x = get(x), group = .imp, color = ifelse(.imp < 1, "Observed", "Imputed")),
-    data = p$data) +
+    data = p$data,
+    na.rm = TRUE) +
     labs(x = x,
          color = "",
          fill = "")
@@ -169,7 +172,8 @@ plot_imps <- function(imp, type = c("bwplot", "stripplot", "densityplot"), x, y 
   if (type == "xyplot") {
   p <- p + geom_point(
     aes(x = get(x), y = get(y), color = ifelse(.imp < 1, "Observed", "Imputed")),
-    data = p$data) +
+    data = p$data,
+    na.rm = TRUE) +
     labs(x = x,
          y = y,
          color = "")
