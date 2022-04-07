@@ -170,7 +170,7 @@ This papers serves as a tutorial for imputing incomplete multilevel data with \p
 
 # Case study
 
-We illustrate how to impute incomplete multilevel data by means of a case study: `impact` from the \pkg{metamisc} package [empirical data on traumatic brain injuries, $n = 11,022$ patients across $N = 15$ studies, @metamisc]. `impact` is traumatic brain injury data with patients, $n = 11022$, clustered in studies, $N = 15$. With the following 11 variables:
+We illustrate how to impute incomplete multilevel data by means of a case study: `impact` from the \pkg{metamisc} package [empirical data on traumatic brain injuries, $n = 11,022$ units across $N = 15$ clusters, @metamisc]. [TODO: add more info about the complete data.] The `impact` data set contains traumatic brain injury data on $n = 11022$ patients clustered in $N = 15$ studies with the following 11 variables:
 
   - `name` Name of the study,
   - `type` Type of study (RCT: randomized controlled trial, OBS: observational cohort),
@@ -184,13 +184,12 @@ We illustrate how to impute incomplete multilevel data by means of a case study:
   - `edh` Epidural hematoma (0=no, 1=yes),
   - `mort` 6-month mortality (0=alive, 1=dead).
 
-[TODO: add more info about the complete data.] The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on unfortunate outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
+The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on unfortunate outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
 ```{r mod}
-mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name)
+mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) # TODO: add random effects ct?
 ```
 
 Note that variables `hypots`, `hypox`, `tsah` and `edh` are not part of the analysis model, and may thus serve as auxiliary variables for imputation. 
-
 
 ## Setup
 
@@ -210,8 +209,8 @@ The `impact` data included in the \pkg{metamisc} package is a complete data set.
 
 Load the complete and incomplete data into the R workspace:
 ```{r data, eval = FALSE}
-data("impact", package = "metamisc")
-dat <- read.table("link/to/the/data.txt")
+data("impact", package = "metamisc")      # complete data
+dat <- read.table("link/to/the/data.txt") # incomplete data
 ```
 
 ```{r data-actually, include=FALSE}
@@ -221,8 +220,32 @@ dat <- readRDS("../Data/impact_incomplete.RDS")
 
 We will use the following estimates as comparative truth in this tutorial [TODO: make this a table or forest plot instead, to see if there is heterogeneity in the association of `ct` with `mort`]:
 ```{r truth}
-fit <- glmer(mod, family = "binomial", data = impact) 
-tidy(fit, conf.int = TRUE, exponentiate = TRUE) 
+fit <- glmer(mod, family = "binomial", data = impact) # fit the model
+tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
+```
+
+```{r forest, echo=FALSE}
+fits <-
+  purrr::map_dfr(
+    unique(impact$name),
+    ~ {
+      glm(
+        mort ~ 1 + age + motor_score + pupil + ct,
+        family = "binomial",
+        data = filter(impact, name == .x)
+      )
+    } %>%
+      broom::tidy(conf.int = TRUE, exponentiate = TRUE) %>%
+      .[, c("term", "estimate", "conf.low", "conf.high")] %>%
+      cbind(name = as.character(.x), .)
+  )
+filter(fits, term %in% c("ctIII")) %>% #, "ctIV/V"
+  ggplot(aes(y = name, x = estimate)) +
+  geom_vline(xintercept = 1, size = 1.5, color = "grey95") +
+  geom_point() +
+  geom_linerange(aes(y = name, xmin = conf.low, xmax = conf.high)) +
+  labs(y = "Study", x = "Odds ratio", color = NULL) +
+  theme_classic()
 ```
 
 [TODO: add ICC before/after imputation and interpret: This tells us that the multilevel structure of the data should probably be taken into account. If we don't, we'll may end up with incorrect imputations, biasing the effect of the clusters towards zero.]
@@ -233,7 +256,7 @@ tidy(fit, conf.int = TRUE, exponentiate = TRUE)
 
 To explore the missingness, it is wise to look at the missing data pattern:
 ```{r pattern, fig.height=7.1}
-plot_pattern(dat, rotate = TRUE)
+plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
 ```
 
 This shows... [TODO: fill in that we need to impute `ct` and `pupil`.]
@@ -242,12 +265,12 @@ To develop the best imputation model, we need to investigate the relations betwe
 
 We should impute the variables `ct` and `pupil` and any auxiliary variables we might want to use to impute these incomplete analysis model variables. We can evaluate which variables may be useful auxiliaries by plotting the pairwise complete correlations:
 ```{r impact_corr}
-plot_corr(dat, rotate = TRUE)
+plot_corr(dat, rotate = TRUE) # plot correlations 
 ```
 
 This shows us that `hypox` and `hypot` would not be useful auxiliary variables for imputing `ct`. Depending on the minimum required correlation, `tsah` could be useful, while `edh` has the strongest correlation with `ct` out of all the variables in the data and should definitely be included in the imputation model. For the imputation of `pupil`, none of the potential auxiliary variables has a very strong relation, but `hypots` could be used. We conclude that we can exclude `hypox` from the data, since this is neither an analysis model variable nor an auxiliary variable for imputation:
 ```{r}
-dat <- select(dat, !hypox)
+dat <- select(dat, !hypox)  # remove variable
 ```
 
 <!-- We'll highlight one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`texp`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `texp` separately for the pupils with known popularity and missing popularity. -->
@@ -256,8 +279,8 @@ dat <- select(dat, !hypox)
 
 As previously stated, complete case analysis lowers statistical power and may bias results. The complete case analysis estimates are:
 ```{r cca}
-fit <- glmer(mod, family = "binomial", data = na.omit(dat)) 
-tidy(fit, conf.int = TRUE, exponentiate = TRUE) 
+fit <- glmer(mod, family = "binomial", data = na.omit(dat)) # fit the model
+tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 ```
 
 As we can see... [TODO: fill in.] 

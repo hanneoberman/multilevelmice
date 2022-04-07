@@ -251,10 +251,11 @@ models (see Table \ref{tab:mod}).
 
 We illustrate how to impute incomplete multilevel data by means of a
 case study: \texttt{impact} from the \pkg{metamisc} package
-\citep[empirical data on traumatic brain injuries, \(n = 11,022\)
-patients across \(N = 15\) studies,][]{metamisc}. \texttt{impact} is
-traumatic brain injury data with patients, \(n = 11022\), clustered in
-studies, \(N = 15\). With the following 11 variables:
+\citep[empirical data on traumatic brain injuries, \(n = 11,022\) units
+across \(N = 15\) clusters,][]{metamisc}. {[}TODO: add more info about
+the complete data.{]} The \texttt{impact} data set contains traumatic
+brain injury data on \(n = 11022\) patients clustered in \(N = 15\)
+studies with the following 11 variables:
 
 \begin{itemize}
 \tightlist
@@ -283,12 +284,12 @@ studies, \(N = 15\). With the following 11 variables:
   \texttt{mort} 6-month mortality (0=alive, 1=dead).
 \end{itemize}
 
-{[}TODO: add more info about the complete data.{]} The analysis model
-for this dataset is a prediction model with \texttt{mort} as the
-outcome. In this tutorial we'll estimate the adjusted prognostic effect
-of \texttt{ct} on unfortunate outcomes. The estimand is the adjusted
-odds ratio for \texttt{ct}, after including \texttt{type}, \texttt{age}
-\texttt{motor\_score} and \texttt{pupil} into the analysis model:
+The analysis model for this dataset is a prediction model with
+\texttt{mort} as the outcome. In this tutorial we'll estimate the
+adjusted prognostic effect of \texttt{ct} on unfortunate outcomes. The
+estimand is the adjusted odds ratio for \texttt{ct}, after including
+\texttt{type}, \texttt{age} \texttt{motor\_score} and \texttt{pupil}
+into the analysis model:
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -330,8 +331,8 @@ Load the complete and incomplete data into the R workspace:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> data("impact", package = "metamisc")
-R> dat <- read.table("link/to/the/data.txt")
+R> data("impact", package = "metamisc")      # complete data
+R> dat <- read.table("link/to/the/data.txt") # incomplete data
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -342,8 +343,8 @@ there is heterogeneity in the association of \texttt{ct} with
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> fit <- glmer(mod, family = "binomial", data = impact) 
-R> tidy(fit, conf.int = TRUE, exponentiate = TRUE) 
+R> fit <- glmer(mod, family = "binomial", data = impact) # fit the model
+R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 11 x 9
@@ -363,6 +364,13 @@ R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)
 \end{CodeOutput}
 \end{CodeChunk}
 
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/forest-1} \end{center}
+
+\end{CodeChunk}
+
 {[}TODO: add ICC before/after imputation and interpret: This tells us
 that the multilevel structure of the data should probably be taken into
 account. If we don't, we'll may end up with incorrect imputations,
@@ -379,7 +387,7 @@ pattern:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> plot_pattern(dat, rotate = TRUE)
+R> plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
 \end{CodeInput}
 
 
@@ -406,7 +414,7 @@ auxiliaries by plotting the pairwise complete correlations:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> plot_corr(dat, rotate = TRUE)
+R> plot_corr(dat, rotate = TRUE) # plot correlations 
 \end{CodeInput}
 
 
@@ -427,7 +435,7 @@ imputation:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> dat <- select(dat, !hypox)
+R> dat <- select(dat, !hypox)  # remove variable
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -439,8 +447,8 @@ and may bias results. The complete case analysis estimates are:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> fit <- glmer(mod, family = "binomial", data = na.omit(dat)) 
-R> tidy(fit, conf.int = TRUE, exponentiate = TRUE) 
+R> fit <- glmer(mod, family = "binomial", data = na.omit(dat)) # fit the model
+R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 11 x 9
