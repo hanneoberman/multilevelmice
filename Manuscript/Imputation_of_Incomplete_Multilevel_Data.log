@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.4.6)  7 APR 2022 10:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.4.6)  11 APR 2022 10:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -724,12 +724,12 @@ Package xcolor Warning: Incompatible color definition on input line 233.
 Package xcolor Warning: Incompatible color definition on input line 234.
 
 
-Package xcolor Warning: Incompatible color definition on input line 255.
+Package xcolor Warning: Incompatible color definition on input line 257.
 
 
-Package xcolor Warning: Incompatible color definition on input line 255.
+Package xcolor Warning: Incompatible color definition on input line 257.
 
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 263.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 265.
 (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -739,12 +739,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 
 [4]
 
-Package xcolor Warning: Incompatible color definition on input line 328.
+Package xcolor Warning: Incompatible color definition on input line 330.
 
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/forest-1.pdf, id=143, 353.32pt x 264.99pt>
 File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/forest-1.pdf Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/forest-1.pdf>
-Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/forest-1.pdf  used on input line 370.
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/forest-1.pdf  used on input line 373.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -755,7 +755,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pattern-1.pdf, id=150, 353.32pt x 512.91624pt>
 File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pattern-1.pdf Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pattern-1.pdf>
-Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pattern-1.pdf  used on input line 394.
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pattern-1.pdf  used on input line 397.
 (pdftex.def)             Requested size: 354.12434pt x 514.08896pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -774,7 +774,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_corr-1.pdf, id=177, 353.32pt x 264.99pt>
 File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_corr-1.pdf Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_corr-1.pdf>
-Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_corr-1.pdf  used on input line 421.
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/impact_corr-1.pdf  used on input line 424.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -785,7 +785,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 <Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/ignore-1.pdf, id=195, 353.32pt x 264.99pt>
 File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/ignore-1.pdf Graphic file (type pdf)
 <use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/ignore-1.pdf>
-Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/ignore-1.pdf  used on input line 507.
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/ignore-1.pdf  used on input line 510.
 (pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -824,26 +824,26 @@ Package xcolor Warning: Incompatible color definition on input line 90.
 
 )
 
-Package xcolor Warning: Incompatible color definition on input line 553.
+Package xcolor Warning: Incompatible color definition on input line 556.
 
 
-Package xcolor Warning: Incompatible color definition on input line 553.
+Package xcolor Warning: Incompatible color definition on input line 556.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 553--553
+Underfull \hbox (badness 10000) in paragraph at lines 556--556
 
  []
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 553.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 556.
 
-Package xcolor Warning: Incompatible color definition on input line 553.
-
-
-Package xcolor Warning: Incompatible color definition on input line 553.
+Package xcolor Warning: Incompatible color definition on input line 556.
 
 
-Package xcolor Warning: Incompatible color definition on input line 553.
+Package xcolor Warning: Incompatible color definition on input line 556.
+
+
+Package xcolor Warning: Incompatible color definition on input line 556.
 
 
 Underfull \vbox (badness 2261) has occurred while \output is active []
@@ -865,13 +865,13 @@ Package rerunfilecheck Info: File `Imputation_of_Incomplete_Multilevel_Data.out'
 Here is how much of TeX's memory you used:
  21718 strings out of 480228
  420169 string characters out of 5893579
- 674520 words of memory out of 5000000
+ 674496 words of memory out of 5000000
  39193 multiletter control sequences out of 15000+600000
  550332 words of font info for 69 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  99i,9n,103p,422b,504s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}<c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb><c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on Imputation_of_Incomplete_Multilevel_Data.pdf (12 pages, 391506 bytes).
+Output written on Imputation_of_Incomplete_Multilevel_Data.pdf (12 pages, 392370 bytes).
 PDF statistics:
  332 PDF objects out of 1000 (max. 8388607)
  269 compressed objects within 3 object streams

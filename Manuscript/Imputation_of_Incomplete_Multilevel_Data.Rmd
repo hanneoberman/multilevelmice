@@ -89,11 +89,11 @@ ICC                 & The variability due to clustering is often measured by mea
                     & of variance that can be attributed to the cluster-level, where a high \\
                     & ICC would indicate that a lot of variability is due to the cluster \\
                     & structure. \\
-Random intercept    & Multilevel models typically accommodate for variability by including \\
+Random effect       & Multilevel models typically accommodate for variability by including \\
                     & a separate group mean for each cluster. In addition to random \\
                     & intercepts, multilevel models can also include random effects and \\
                     & heterogeneous residual error variances across clusters [see e.g. \\
-                    & @gelm06, @hox17 and @jong21]. \\
+                    & @gelm06, @hox17 and @jong21]. TODO: add stratification. \\
 \hline
 \end{tabular}
 \end{table}
@@ -141,7 +141,7 @@ MAR     & Missing At Random, where the probability to be missing depends on obse
 MNAR    & Missing Not At Random (MNAR), where the probability to be missing \\
 & depends on unrecorded information, making the missingness non-ignorable \\
 & [@rubi76; @meng94]. \\
-& [TODO: add congeniality.] \\
+& [TODO: add congeniality, but maybe in-text?] \\
 \hline
 \end{tabular}
 \end{table}
@@ -155,7 +155,7 @@ Since excluding observations is not a desirable workflow, the missingness in mul
 This papers serves as a tutorial for imputing incomplete multilevel data with \pkg{mice} in \proglang{R}. We provide practical guidelines and code snippets for different missing data situations, including non-ignorable mechanisms. For reasons of brevity, we focus on multilevel imputation by chained equations with \pkg{mice} exclusively; other imputation methods and packages (e.g., \pkg{jomo} and \pkg{mdmb}) are outside the scope of this tutorial. Assumed knowledge includes basic familiarity with multilevel imputation [see e.g. @audi18 and @grun18] and the \pkg{lme4} notation for multilevel models (see Table \ref{tab:mod}).
 
 \begin{table}[tb]
-\caption{Concepts in missing data methods}
+\caption{Notation}
 \label{tab:mod}
 \centering
 \begin{tabular}{ll}
@@ -167,6 +167,7 @@ This papers serves as a tutorial for imputing incomplete multilevel data with \p
 \end{tabular}
 \end{table}
 
+TODO: add paragraph about novice and more experienced readers.
 
 # Case study
 
@@ -205,7 +206,7 @@ library(broom.mixed)  # for multilevel estimates
 library(mitml)        # for multilevel pooling
 ```
 
-The `impact` data included in the \pkg{metamisc} package is a complete data set. The original data has already been imputed once (Steyerberg et al, 2008). For the purpose of this tutorial we have induced missingness (mimicking the missing data in the original data set before imputation). The resulting incomplete data can be accessed from [zenodo link to be created](https://zenodo.com).
+The `impact` data included in the \pkg{metamisc} package is a complete data set. The original data has already been imputed once (Steyerberg et al, 2008). For the purpose of this tutorial we have induced missingness (mimicking the missing data in the original data set before imputation). The resulting incomplete data can be accessed from [zenodo link to be created](https://zenodo.com). TODO: email script to thomas.
 
 Load the complete and incomplete data into the R workspace:
 ```{r data, eval = FALSE}
@@ -244,8 +245,11 @@ filter(fits, term %in% c("ctIII")) %>% #, "ctIV/V"
   geom_vline(xintercept = 1, size = 1.5, color = "grey95") +
   geom_point() +
   geom_linerange(aes(y = name, xmin = conf.low, xmax = conf.high)) +
-  labs(y = "Study", x = "Odds ratio", color = NULL) +
+  labs(y = "Study", x = "Adjusted odds ratio for ct", color = NULL) +
   theme_classic()
+# TODO: add heterogeneity in distribution of ct -> prevalence in ct across clusters with CI
+# TODO: missingness prop inside clusters
+# TODO: make row height proportional to pattern frequency
 ```
 
 [TODO: add ICC before/after imputation and interpret: This tells us that the multilevel structure of the data should probably be taken into account. If we don't, we'll may end up with incorrect imputations, biasing the effect of the clusters towards zero.]
@@ -259,7 +263,7 @@ To explore the missingness, it is wise to look at the missing data pattern:
 plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
 ```
 
-This shows... [TODO: fill in that we need to impute `ct` and `pupil`.]
+This shows... [TODO: fill in that we need to impute `ct` and `pupil`.] TODO: remove axis labels
 
 To develop the best imputation model, we need to investigate the relations between the observed values of the incomplete variables and the observed values of other variables, and the relation between the missingness indicators of the incomplete variables and the observed values of the other variables. To see whether the missingness depends on the observed values of other variables, we... [TODO: fill in that we can test this statistically or use visual inspection (e.g. a histogram faceted by the missingness indicator).]
 

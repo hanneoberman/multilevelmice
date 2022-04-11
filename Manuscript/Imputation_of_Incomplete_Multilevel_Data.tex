@@ -108,11 +108,11 @@ ICC                 & The variability due to clustering is often measured by mea
                     & of variance that can be attributed to the cluster-level, where a high \\
                     & ICC would indicate that a lot of variability is due to the cluster \\
                     & structure. \\
-Random intercept    & Multilevel models typically accommodate for variability by including \\
+Random effect       & Multilevel models typically accommodate for variability by including \\
                     & a separate group mean for each cluster. In addition to random \\
                     & intercepts, multilevel models can also include random effects and \\
                     & heterogeneous residual error variances across clusters [see e.g. \\
-                    & @gelm06, @hox17 and @jong21]. \\
+                    & @gelm06, @hox17 and @jong21]. TODO: add stratification. \\
 \hline
 \end{tabular}
 \end{table}
@@ -191,7 +191,7 @@ MAR     & Missing At Random, where the probability to be missing depends on obse
 MNAR    & Missing Not At Random (MNAR), where the probability to be missing \\
 & depends on unrecorded information, making the missingness non-ignorable \\
 & [@rubi76; @meng94]. \\
-& [TODO: add congeniality.] \\
+& [TODO: add congeniality, but maybe in-text?] \\
 \hline
 \end{tabular}
 \end{table}
@@ -234,7 +234,7 @@ familiarity with multilevel imputation \citep[see e.g.][ and
 models (see Table \ref{tab:mod}).
 
 \begin{table}[tb]
-\caption{Concepts in missing data methods}
+\caption{Notation}
 \label{tab:mod}
 \centering
 \begin{tabular}{ll}
@@ -245,6 +245,8 @@ models (see Table \ref{tab:mod}).
 \hline
 \end{tabular}
 \end{table}
+
+TODO: add paragraph about novice and more experienced readers.
 
 \hypertarget{case-study}{%
 \section{Case study}\label{case-study}}
@@ -293,7 +295,7 @@ into the analysis model:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name)
+R> mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) # TODO: add random effects ct?
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -325,7 +327,8 @@ complete data set. The original data has already been imputed once
 (Steyerberg et al, 2008). For the purpose of this tutorial we have
 induced missingness (mimicking the missing data in the original data set
 before imputation). The resulting incomplete data can be accessed from
-\href{https://zenodo.com}{zenodo link to be created}.
+\href{https://zenodo.com}{zenodo link to be created}. TODO: email script
+to thomas.
 
 Load the complete and incomplete data into the R workspace:
 
@@ -396,7 +399,7 @@ R> plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
 \end{CodeChunk}
 
 This shows\ldots{} {[}TODO: fill in that we need to impute \texttt{ct}
-and \texttt{pupil}.{]}
+and \texttt{pupil}.{]} TODO: remove axis labels
 
 To develop the best imputation model, we need to investigate the
 relations between the observed values of the incomplete variables and
