@@ -110,8 +110,8 @@ ICC                 & The variability due to clustering is often measured by mea
                     & structure. \\
 Random effect       & Multilevel models typically accommodate for variability by including \\
                     & a separate group mean for each cluster. In addition to random \\
-                    & intercepts, multilevel models can also include random effects and \\
-                    & heterogeneous residual error variances across clusters [see e.g. \\
+                    & intercepts, multilevel models can also include random coefficients \\
+                    & and heterogeneous residual error variances across clusters [see e.g. \\
                     & @gelm06, @hox17 and @jong21]. TODO: add stratification. \\
 \hline
 \end{tabular}
@@ -216,8 +216,9 @@ the context of multilevel data.
 {[}TODO: clarify why clustering is relevant during imputation, and why
 this exposes the need for specialized imputation methods and more
 attention during their implementation (``thou shall not simply run
-\texttt{mice()} on any incomplete dataset''). And add overview of
-possible predictor matrix values.{]}
+\texttt{mice()} on any incomplete dataset''). Add that the more the
+random effects are of interest, the more you need ml models. And add
+overview of possible predictor matrix values.{]}
 
 \hypertarget{aim-of-this-paper}{%
 \subsection{Aim of this paper}\label{aim-of-this-paper}}
@@ -264,7 +265,8 @@ case studies:
   studies,][]{metamisc}.
 \end{itemize}
 
-For each of these datasets, we will discuss the nature of the
+\textbf{TODO: add where novice and more experienced readers should start
+reading.} For each of these datasets, we will discuss the nature of the
 missingness, choose one or more imputation models and evaluate the
 imputed data, but we will also highlight one specific aspect of the
 imputation workflow. With the \texttt{popmis} data, we show how (and how
@@ -274,8 +276,6 @@ selection-inclusion methods. With the \texttt{impact} data we provide an
 example of multivariate missingness in real-world data. Together, this
 should give enough scaffolding for applied researchers who are faced
 with incomplete multilevel data.
-
-\textbf{TODO: add paragraph about novice and more experienced readers.}
 
 \hypertarget{setup}{%
 \subsection{Setup}\label{setup}}
@@ -325,9 +325,11 @@ interaction. The outcome variable is \texttt{popular}, which is
 predicted from the unit-level variable \texttt{sex} and the
 cluster-level variable \texttt{texp}:
 
-\[
-\texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)}
-\]
+\begin{CodeChunk}
+\begin{CodeInput}
+R> mod <- popular ~ 1 + sex + texp + sex:texp + (1 + sex | school)
+\end{CodeInput}
+\end{CodeChunk}
 
 Load the data into the environment and select the relevant variables:
 
@@ -354,12 +356,12 @@ R> plot_pattern(popmis)
 \end{CodeChunk}
 
 The missingness is univariate and sporadic, which is illustrated in the
-missing data pattern in Figure \ref{fig:pop_pat}. This tells us that the
-multilevel structure of the data should probably be taken into account.
-If we don't, we'll may end up with incorrect imputations, biasing the
-effect of the clusters towards zero.
+missing data pattern in Figure \ref{fig:pop_pat}.
 
-Plot the correlations in the incomplete data:
+To develop the best imputation model for the incomplete variable
+\texttt{popular}, we need to know whether the observed values of
+\texttt{popular} are related to observed values of other variables. Plot
+the pair-wise complete correlations in the incomplete data:
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -371,15 +373,16 @@ R> plot_corr(popmis)
 
 \end{CodeChunk}
 
-To develop the best imputation model for the incomplete variable
-\texttt{popular}, we need to know whether the missingness depends on the
-observed values of other variables. We'll highlight one other variable
-to illustrate, but ideally one would inspect all relations. The
-questions we'll ask are: `Does the missing data of pupil popularity
-(\texttt{popular}) depend on observed teacher popularity
-(\texttt{texp})?'. This can be evaluated statistically, but visual
-inspection usually suffices. We'll make a histogram of \texttt{texp}
-separately for the pupils with known popularity and missing popularity.
+This shows us that both \texttt{sex} and \texttt{texp} may be useful
+imputation model predictors. Moreover, the missingness in
+\texttt{popular} may depend on the observed values of other variables.
+We'll highlight one other variable to illustrate, but ideally one would
+inspect all relations. The questions we'll ask are: `Does the missing
+data of pupil popularity (\texttt{popular}) depend on observed teacher
+popularity (\texttt{texp})?'. This can be evaluated statistically, but
+visual inspection usually suffices. We'll make a histogram of
+\texttt{texp} separately for the pupils with known popularity and
+missing popularity.
 
 Plot the histogram for teacher experience conditional on the missingness
 indicator of \texttt{popular}:
@@ -388,7 +391,7 @@ indicator of \texttt{popular}:
 \begin{CodeInput}
 R> ggmice(popmis, aes(texp)) +
 +   geom_histogram(fill = "white") +
-+   facet_grid(. ~ is.na(popular), labeller = label_both)
++   facet_grid(. ~ is.na(popular), scales = "free", labeller = label_both)
 \end{CodeInput}
 
 
@@ -402,14 +405,6 @@ of \texttt{texp} depending on the missingness indicator of
 is a meaningful rule of thumb to signal that the user should be
 worried?}
 
-\hypertarget{complete-case-analysis-not-recommended}{%
-\subsubsection{Complete case analysis (not
-recommended)}\label{complete-case-analysis-not-recommended}}
-
-Complete case analysis ignores the observations with missingness
-altogether, which lowers statistical power and may even introduce bias
-in MCAR situations.
-
 \hypertarget{imputation-ignoring-the-cluster-variable-not-recommended}{%
 \subsubsection{Imputation ignoring the cluster variable (not
 recommended)}\label{imputation-ignoring-the-cluster-variable-not-recommended}}
@@ -419,10 +414,7 @@ The first imputation model that we'll use is likely to be invalid. We do
 model predictor. With this model, we ignore the multilevel structure of
 the data, despite the high ICC. This assumes exchangeability between
 units. We include it purely to illustrate the effects of ignoring the
-clustering in our imputation effort. We'll use the default imputation
-methods in \texttt{mice()} (predictive mean matching to impute the
-continuous variables and logistic regression to impute binary
-variables).
+clustering in our imputation effort.
 
 Create a methods vector and predictor matrix for \texttt{popular}, and
 make sure \texttt{school} is not included as predictor:
@@ -447,7 +439,7 @@ R> imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
 \end{CodeInput}
 \end{CodeChunk}
 
-TODO: remove the broom.mixed output, use mitml only
+\textbf{TODO: remove the broom.mixed output, use mitml only}
 
 Analyze the imputations:
 
@@ -466,17 +458,17 @@ testEstimates(model = as.mitml.result(fit_ignored), var.comp = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     3.354     0.245    13.704     6.831     0.000     3.260     0.813 
-sex             1.247     0.332     3.759     6.154     0.009     4.160     0.849 
-texp            0.110     0.017     6.320     6.084     0.001     4.286     0.852 
-sex:texp       -0.027     0.022    -1.225     5.914     0.267     4.631     0.862 
+(Intercept)     3.489     0.179    19.542     9.227     0.000     1.927     0.714 
+sex             1.138     0.197     5.776    11.588     0.000     1.424     0.644 
+texp            0.100     0.014     7.339     6.914     0.000     3.177     0.809 
+sex:texp       -0.019     0.015    -1.217     7.708     0.260     2.576     0.773 
 
                             Estimate 
-Intercept~~Intercept|school    0.177 
-sex~~sex|school                0.232 
-Intercept~~sex|school         -0.043 
-Residual~~Residual             0.670 
-ICC|school                     0.209 
+Intercept~~Intercept|school    0.123 
+sex~~sex|school                0.143 
+Intercept~~sex|school          0.014 
+Residual~~Residual             0.656 
+ICC|school                     0.158 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -495,12 +487,9 @@ N-1 indicator variables representing allocation of N clusters as a fixed
 factor in the model \citep{reit06, ende16}. Colloquially, this is
 `multilevel imputation for dummies'.
 
-TODO: Add that it doesn't work with syst missing (only sporadically).
-There's some pro's and con's. May not differ much if the number of
-clusters is low.
-
-TODO: Add that the more the random effects are of interest, the more you
-need ml models.
+\textbf{TODO: Add that it doesn't work with syst missing (only
+sporadically). There's some pro's and con's. May not differ much if the
+number of clusters is low.}
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -598,7 +587,7 @@ into the analysis model:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) # TODO: add random effects ct?
+R> mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) 
 \end{CodeInput}
 \end{CodeChunk}
 
