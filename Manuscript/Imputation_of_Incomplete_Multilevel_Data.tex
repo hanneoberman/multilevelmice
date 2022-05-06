@@ -108,11 +108,11 @@ ICC                 & The variability due to clustering is often measured by mea
                     & of variance that can be attributed to the cluster-level, where a high \\
                     & ICC would indicate that a lot of variability is due to the cluster \\
                     & structure. \\
-Random intercept    & Multilevel models typically accommodate for variability by including \\
+Random effect       & Multilevel models typically accommodate for variability by including \\
                     & a separate group mean for each cluster. In addition to random \\
-                    & intercepts, multilevel models can also include random effects and \\
-                    & heterogeneous residual error variances across clusters [see e.g. \\
-                    & @gelm06, @hox17 and @jong21]. \\
+                    & intercepts, multilevel models can also include random coefficients \\
+                    & and heterogeneous residual error variances across clusters [see e.g. \\
+                    & @gelm06, @hox17 and @jong21]. TODO: add stratification. \\
 \hline
 \end{tabular}
 \end{table}
@@ -191,7 +191,7 @@ MAR     & Missing At Random, where the probability to be missing depends on obse
 MNAR    & Missing Not At Random (MNAR), where the probability to be missing \\
 & depends on unrecorded information, making the missingness non-ignorable \\
 & [@rubi76; @meng94]. \\
-& [TODO: add congeniality.] \\
+& [TODO: add congeniality, but maybe in-text?] \\
 \hline
 \end{tabular}
 \end{table}
@@ -216,8 +216,9 @@ the context of multilevel data.
 {[}TODO: clarify why clustering is relevant during imputation, and why
 this exposes the need for specialized imputation methods and more
 attention during their implementation (``thou shall not simply run
-\texttt{mice()} on any incomplete dataset''). And add overview of
-possible predictor matrix values.{]}
+\texttt{mice()} on any incomplete dataset''). Add that the more the
+random effects are of interest, the more you need ml models. And add
+overview of possible predictor matrix values.{]}
 
 \hypertarget{aim-of-this-paper}{%
 \subsection{Aim of this paper}\label{aim-of-this-paper}}
@@ -234,7 +235,7 @@ familiarity with multilevel imputation \citep[see e.g.][ and
 models (see Table \ref{tab:mod}).
 
 \begin{table}[tb]
-\caption{Concepts in missing data methods}
+\caption{Notation}
 \label{tab:mod}
 \centering
 \begin{tabular}{ll}
@@ -246,15 +247,309 @@ models (see Table \ref{tab:mod}).
 \end{tabular}
 \end{table}
 
-\hypertarget{case-study}{%
-\section{Case study}\label{case-study}}
+We illustrate how to impute incomplete multilevel data by means of three
+case studies:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{popmis} from the \pkg{mice} package \citep[simulated data on
+  perceived popularity, \(n = 2,000\) pupils across \(N = 100\)
+  schools,][]{mice};
+\item
+  \texttt{hiv} from the \pkg{GJRM} package \citep[simulated data on HIV
+  diagnoses, \(n = 6,416\) patients across \(N = 9\) regions,][]{GJRM};
+\item
+  \texttt{impact} from the \pkg{metamisc} package \citep[empirical data
+  on traumatic brain injuries, \(n = 11,022\) patients across \(N = 15\)
+  studies,][]{metamisc}.
+\end{itemize}
+
+\textbf{TODO: add where novice and more experienced readers should start
+reading.} For each of these datasets, we will discuss the nature of the
+missingness, choose one or more imputation models and evaluate the
+imputed data, but we will also highlight one specific aspect of the
+imputation workflow. With the \texttt{popmis} data, we show how (and how
+not) to develop an imputation model. With the \texttt{hiv} data we focus
+on extending the imputation model to include Heckman-type
+selection-inclusion methods. With the \texttt{impact} data we provide an
+example of multivariate missingness in real-world data. Together, this
+should give enough scaffolding for applied researchers who are faced
+with incomplete multilevel data.
+
+\hypertarget{setup}{%
+\subsection{Setup}\label{setup}}
+
+{[}TODO: Add environment info, seed and version number(s) somewhere.{]}
+Set up the R environment and load the necessary packages:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> set.seed(2022)
+R> library(mice)         # for imputation
+R> library(ggmice)       # for visualization
+R> library(ggplot2)      # for visualization
+R> library(dplyr)        # for data wrangling
+R> library(lme4)         # for multilevel modeling
+R> library(broom.mixed)  # for multilevel estimates
+R> library(mitml)        # for multilevel pooling
+\end{CodeInput}
+\end{CodeChunk}
+
+\hypertarget{case-study-i-popularity-data}{%
+\section{Case study I: popularity
+data}\label{case-study-i-popularity-data}}
+
+In this section we'll go over the different steps involved with imputing
+incomplete multilevel data. The data we're using is the \texttt{popmis}
+dataset from the \texttt{mice} package. This is a simulated dataset with
+pupils (\(n = 2000\)) clustered within schools (\(N = 100\)). In this
+tutorial we'll use the following variables:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{school}, school identification number (clustering variable);
+\item
+  \texttt{popular}, pupil popularity (self-rating between 0 and 10;
+  unit-level);
+\item
+  \texttt{sex}, pupil sex (0=boy, 1=girl; unit-level);
+\item
+  \texttt{texp}, teacher experience (in years; cluster-level).
+\end{itemize}
+
+The analysis model corresponding to this dataset is multilevel
+regression with random intercepts, random slopes and a cross-level
+interaction. The outcome variable is \texttt{popular}, which is
+predicted from the unit-level variable \texttt{sex} and the
+cluster-level variable \texttt{texp}:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> mod <- popular ~ 1 + sex + texp + sex:texp + (1 + sex | school)
+\end{CodeInput}
+\end{CodeChunk}
+
+Load the data into the environment and select the relevant variables:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> popmis <- popmis[, c("school", "popular", "sex", "texp")] 
+\end{CodeInput}
+\end{CodeChunk}
+
+Plot the missing data pattern:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> plot_pattern(popmis)
+\end{CodeInput}
+\begin{figure}
+
+{\centering \includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1} 
+
+}
+
+\caption[Missing data pattern in the popularity data]{Missing data pattern in the popularity data}\label{fig:pop_pat}
+\end{figure}
+\end{CodeChunk}
+
+The missingness is univariate and sporadic, which is illustrated in the
+missing data pattern in Figure \ref{fig:pop_pat}.
+
+To develop the best imputation model for the incomplete variable
+\texttt{popular}, we need to know whether the observed values of
+\texttt{popular} are related to observed values of other variables. Plot
+the pair-wise complete correlations in the incomplete data:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> plot_corr(popmis)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1} \end{center}
+
+\end{CodeChunk}
+
+This shows us that both \texttt{sex} and \texttt{texp} may be useful
+imputation model predictors. Moreover, the missingness in
+\texttt{popular} may depend on the observed values of other variables.
+We'll highlight one other variable to illustrate, but ideally one would
+inspect all relations. The questions we'll ask are: `Does the missing
+data of pupil popularity (\texttt{popular}) depend on observed teacher
+popularity (\texttt{texp})?'. This can be evaluated statistically, but
+visual inspection usually suffices. We'll make a histogram of
+\texttt{texp} separately for the pupils with known popularity and
+missing popularity.
+
+Plot the histogram for teacher experience conditional on the missingness
+indicator of \texttt{popular}:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> ggmice(popmis, aes(texp)) +
++   geom_histogram(fill = "white") +
++   facet_grid(. ~ is.na(popular), scales = "free", labeller = label_both)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1} \end{center}
+
+\end{CodeChunk}
+
+This shows us that there are no apparent differences in the distribution
+of \texttt{texp} depending on the missingness indicator of
+\texttt{popular} (t = -0.873, p = 0.383). \textbf{TODO: think about what
+is a meaningful rule of thumb to signal that the user should be
+worried?}
+
+\hypertarget{imputation-ignoring-the-cluster-variable-not-recommended}{%
+\subsubsection{Imputation ignoring the cluster variable (not
+recommended)}\label{imputation-ignoring-the-cluster-variable-not-recommended}}
+
+The first imputation model that we'll use is likely to be invalid. We do
+\emph{not} use the cluster identifier \texttt{school} as imputation
+model predictor. With this model, we ignore the multilevel structure of
+the data, despite the high ICC. This assumes exchangeability between
+units. We include it purely to illustrate the effects of ignoring the
+clustering in our imputation effort.
+
+Create a methods vector and predictor matrix for \texttt{popular}, and
+make sure \texttt{school} is not included as predictor:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> meth <- make.method(popmis) # methods vector
+R> pred <- quickpred(popmis)   # predictor matrix
+R> plot_pred(pred)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-pred-1} \end{center}
+
+\end{CodeChunk}
+
+Impute the data, ignoring the cluster structure:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
+\end{CodeInput}
+\end{CodeChunk}
+
+\textbf{TODO: remove the broom.mixed output, use mitml only}
+
+Analyze the imputations:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> fit_ignored <- imp_ignored %>% 
++   with(lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+R> testEstimates(as.mitml.result(fit_ignored), var.comp = TRUE)
+\end{CodeInput}
+\begin{CodeOutput}
+
+Call:
+
+testEstimates(model = as.mitml.result(fit_ignored), var.comp = TRUE)
+
+Final parameter estimates and inferences obtained from 5 imputed data sets.
+
+             Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
+(Intercept)     3.489     0.179    19.542     9.227     0.000     1.927     0.714 
+sex             1.138     0.197     5.776    11.588     0.000     1.424     0.644 
+texp            0.100     0.014     7.339     6.914     0.000     3.177     0.809 
+sex:texp       -0.019     0.015    -1.217     7.708     0.260     2.576     0.773 
+
+                            Estimate 
+Intercept~~Intercept|school    0.123 
+sex~~sex|school                0.143 
+Intercept~~sex|school          0.014 
+Residual~~Residual             0.656 
+ICC|school                     0.158 
+
+Unadjusted hypothesis test as appropriate in larger samples.
+\end{CodeOutput}
+\end{CodeChunk}
+
+\hypertarget{imputation-with-the-cluster-variable-as-predictor-not-recommended}{%
+\subsubsection{Imputation with the cluster variable as predictor (not
+recommended)}\label{imputation-with-the-cluster-variable-as-predictor-not-recommended}}
+
+We'll now use \texttt{school} as a predictor to impute all other
+variables. This is still not recommended practice, since it only works
+under certain circumstances and results may be biased
+\citep{drec15, ende16}. But at least, it includes some multilevel
+aspect. This method is also called `fixed cluster imputation', and uses
+N-1 indicator variables representing allocation of N clusters as a fixed
+factor in the model \citep{reit06, ende16}. Colloquially, this is
+`multilevel imputation for dummies'.
+
+\textbf{TODO: Add that it doesn't work with syst missing (only
+sporadically). There's some pro's and con's. May not differ much if the
+number of clusters is low.}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # adjust the predictor matrix
+R> pred["popular", "school"] <- 1 
+R> plot_pred(pred)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_predictor-1} \end{center}
+
+\begin{CodeInput}
+R> # impute the data, cluster as predictor
+R> imp_predictor <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
+\end{CodeInput}
+\end{CodeChunk}
+
+\hypertarget{case-study-ii-hiv-data}{%
+\section{Case study II: HIV data}\label{case-study-ii-hiv-data}}
+
+Data are simulated and included in the \texttt{GJRM} package. We will
+use the following variables:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{region} Cluster variable,
+\item
+  \texttt{hiv} HIV diagnosis (0=no, 1=yes),
+\item
+  \texttt{age} Age of the patient,
+\item
+  \texttt{marital} Marital status,
+\item
+  \texttt{condom} Condom use during last intercourse,
+\item
+  \texttt{smoke} Smoker (levels; inclusion restriction variable).
+\end{itemize}
+
+The imputation of these date is based on the toy example from
+\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{IPDMA
+Heckman Github repo}.
+
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1} \end{center}
+
+\end{CodeChunk}
+
+\hypertarget{case-study-iii-impact-data}{%
+\section{Case study III: IMPACT data}\label{case-study-iii-impact-data}}
 
 We illustrate how to impute incomplete multilevel data by means of a
 case study: \texttt{impact} from the \pkg{metamisc} package
-\citep[empirical data on traumatic brain injuries, \(n = 11,022\)
-patients across \(N = 15\) studies,][]{metamisc}. \texttt{impact} is
-traumatic brain injury data with patients, \(n = 11022\), clustered in
-studies, \(N = 15\). With the following 11 variables:
+\citep[empirical data on traumatic brain injuries, \(n = 11,022\) units
+across \(N = 15\) clusters,][]{metamisc}. {[}TODO: add more info about
+the complete data.{]} The \texttt{impact} data set contains traumatic
+brain injury data on \(n = 11022\) patients clustered in \(N = 15\)
+studies with the following 11 variables:
 
 \begin{itemize}
 \tightlist
@@ -283,16 +578,16 @@ studies, \(N = 15\). With the following 11 variables:
   \texttt{mort} 6-month mortality (0=alive, 1=dead).
 \end{itemize}
 
-{[}TODO: add more info about the complete data.{]} The analysis model
-for this dataset is a prediction model with \texttt{mort} as the
-outcome. In this tutorial we'll estimate the adjusted prognostic effect
-of \texttt{ct} on unfortunate outcomes. The estimand is the adjusted
-odds ratio for \texttt{ct}, after including \texttt{type}, \texttt{age}
-\texttt{motor\_score} and \texttt{pupil} into the analysis model:
+The analysis model for this dataset is a prediction model with
+\texttt{mort} as the outcome. In this tutorial we'll estimate the
+adjusted prognostic effect of \texttt{ct} on unfortunate outcomes. The
+estimand is the adjusted odds ratio for \texttt{ct}, after including
+\texttt{type}, \texttt{age} \texttt{motor\_score} and \texttt{pupil}
+into the analysis model:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name)
+R> mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) 
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -300,38 +595,20 @@ Note that variables \texttt{hypots}, \texttt{hypox}, \texttt{tsah} and
 \texttt{edh} are not part of the analysis model, and may thus serve as
 auxiliary variables for imputation.
 
-\hypertarget{setup}{%
-\subsection{Setup}\label{setup}}
-
-{[}TODO: Add environment info, seed and version number(s) somewhere.{]}
-Set up the R environment and load the necessary packages:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> set.seed(2022)
-R> library(mice)         # for imputation
-R> library(ggmice)       # for visualization
-R> library(ggplot2)      # for visualization
-R> library(dplyr)        # for data wrangling
-R> library(lme4)         # for multilevel modeling
-R> library(broom.mixed)  # for multilevel estimates
-R> library(mitml)        # for multilevel pooling
-\end{CodeInput}
-\end{CodeChunk}
-
 The \texttt{impact} data included in the \pkg{metamisc} package is a
 complete data set. The original data has already been imputed once
 (Steyerberg et al, 2008). For the purpose of this tutorial we have
 induced missingness (mimicking the missing data in the original data set
 before imputation). The resulting incomplete data can be accessed from
-\href{https://zenodo.com}{zenodo link to be created}.
+\href{https://zenodo.com}{zenodo link to be created}. TODO: email script
+to thomas.
 
 Load the complete and incomplete data into the R workspace:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> data("impact", package = "metamisc")
-R> dat <- read.table("link/to/the/data.txt")
+R> data("impact", package = "metamisc")      # complete data
+R> dat <- read.table("link/to/the/data.txt") # incomplete data
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -342,8 +619,8 @@ there is heterogeneity in the association of \texttt{ct} with
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> fit <- glmer(mod, family = "binomial", data = impact) 
-R> tidy(fit, conf.int = TRUE, exponentiate = TRUE) 
+R> fit <- glmer(mod, family = "binomial", data = impact) # fit the model
+R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 11 x 9
@@ -363,6 +640,13 @@ R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)
 \end{CodeOutput}
 \end{CodeChunk}
 
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/forest-1} \end{center}
+
+\end{CodeChunk}
+
 {[}TODO: add ICC before/after imputation and interpret: This tells us
 that the multilevel structure of the data should probably be taken into
 account. If we don't, we'll may end up with incorrect imputations,
@@ -379,7 +663,7 @@ pattern:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> plot_pattern(dat, rotate = TRUE)
+R> plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
 \end{CodeInput}
 
 
@@ -388,7 +672,7 @@ R> plot_pattern(dat, rotate = TRUE)
 \end{CodeChunk}
 
 This shows\ldots{} {[}TODO: fill in that we need to impute \texttt{ct}
-and \texttt{pupil}.{]}
+and \texttt{pupil}.{]} TODO: remove axis labels
 
 To develop the best imputation model, we need to investigate the
 relations between the observed values of the incomplete variables and
@@ -406,7 +690,7 @@ auxiliaries by plotting the pairwise complete correlations:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> plot_corr(dat, rotate = TRUE)
+R> plot_corr(dat, rotate = TRUE) # plot correlations 
 \end{CodeInput}
 
 
@@ -427,7 +711,7 @@ imputation:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> dat <- select(dat, !hypox)
+R> dat <- select(dat, !hypox)  # remove variable
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -439,8 +723,8 @@ and may bias results. The complete case analysis estimates are:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> fit <- glmer(mod, family = "binomial", data = na.omit(dat)) 
-R> tidy(fit, conf.int = TRUE, exponentiate = TRUE) 
+R> fit <- glmer(mod, family = "binomial", data = na.omit(dat)) # fit the model
+R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 11 x 9
