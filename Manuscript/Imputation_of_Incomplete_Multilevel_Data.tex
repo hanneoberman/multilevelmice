@@ -112,7 +112,7 @@ Random effect       & Multilevel models typically accommodate for variability by
                     & a separate group mean for each cluster. In addition to random \\
                     & intercepts, multilevel models can also include random coefficients \\
                     & and heterogeneous residual error variances across clusters [see e.g. \\
-                    & @gelm06, @hox17 and @jong21]. TODO: add stratification. \\
+                    & @gelm06, @hox17 and @jong21]. [TODO: add stratification.] \\
 \hline
 \end{tabular}
 \end{table}
@@ -172,7 +172,7 @@ this distinction is less clear. Since the essence of the true
 non-response mechanism may not be known, it is generally inferred or
 assumed to be ignorable (i.e., MCAR or MAR). {[}TODO: add that this
 assumption may not always be valid, especially with modern types of big
-dasta sources.{]} Depending on the actual missingness-generating
+data sources.{]} Depending on the actual missingness-generating
 mechanism, missing data handling strategies may be more or less
 suitable, see e.g., \citet{yuce08} and \citet{hox15}.
 
@@ -216,9 +216,10 @@ the context of multilevel data.
 {[}TODO: clarify why clustering is relevant during imputation, and why
 this exposes the need for specialized imputation methods and more
 attention during their implementation (``thou shall not simply run
-\texttt{mice()} on any incomplete dataset''). Add that the more the
-random effects are of interest, the more you need ml models. And add
-overview of possible predictor matrix values.{]}
+\texttt{mice()} on any incomplete dataset'').{]} {[}TODO: Add that the
+more the random effects are of interest, the more you need multilevel
+imputation models.{]} {[}TODO: Add an overview of all possible predictor
+matrix values in manuscript or \texttt{ggmice} legend.{]}
 
 \hypertarget{aim-of-this-paper}{%
 \subsection{Aim of this paper}\label{aim-of-this-paper}}
@@ -265,9 +266,9 @@ case studies:
   studies,][]{metamisc}.
 \end{itemize}
 
-\textbf{TODO: add where novice and more experienced readers should start
-reading.} For each of these datasets, we will discuss the nature of the
-missingness, choose one or more imputation models and evaluate the
+{[}TODO: add where novice vs more experienced readers should start
+reading.{]} For each of these datasets, we will discuss the nature of
+the missingness, choose one or more imputation models and evaluate the
 imputed data, but we will also highlight one specific aspect of the
 imputation workflow. With the \texttt{popmis} data, we show how (and how
 not) to develop an imputation model. With the \texttt{hiv} data we focus
@@ -291,7 +292,6 @@ R> library(ggmice)       # for visualization
 R> library(ggplot2)      # for visualization
 R> library(dplyr)        # for data wrangling
 R> library(lme4)         # for multilevel modeling
-R> library(broom.mixed)  # for multilevel estimates
 R> library(mitml)        # for multilevel pooling
 \end{CodeInput}
 \end{CodeChunk}
@@ -401,9 +401,8 @@ R> ggmice(popmis, aes(texp)) +
 
 This shows us that there are no apparent differences in the distribution
 of \texttt{texp} depending on the missingness indicator of
-\texttt{popular} (t = -0.873, p = 0.383). \textbf{TODO: think about what
-is a meaningful rule of thumb to signal that the user should be
-worried?}
+\texttt{popular} (t = -0.873, p = 0.383). {[}TODO: think about what is a
+meaningful rule of thumb to signal that the user should be worried?{]}
 
 \hypertarget{imputation-ignoring-the-cluster-variable-not-recommended}{%
 \subsubsection{Imputation ignoring the cluster variable (not
@@ -435,40 +434,45 @@ Impute the data, ignoring the cluster structure:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> imp_ignored <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
+R> imp <- mice(popmis, pred = pred, print = FALSE)
 \end{CodeInput}
 \end{CodeChunk}
-
-\textbf{TODO: remove the broom.mixed output, use mitml only}
 
 Analyze the imputations:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> fit_ignored <- imp_ignored %>% 
-+   with(lme4::lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
-R> testEstimates(as.mitml.result(fit_ignored), var.comp = TRUE)
+R> fit <- with(imp, 
++             lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+\end{CodeInput}
+\end{CodeChunk}
+
+Print the estimates:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> testEstimates(as.mitml.result(fit), extra.pars = TRUE)
 \end{CodeInput}
 \begin{CodeOutput}
 
 Call:
 
-testEstimates(model = as.mitml.result(fit_ignored), var.comp = TRUE)
+testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     3.489     0.179    19.542     9.227     0.000     1.927     0.714 
-sex             1.138     0.197     5.776    11.588     0.000     1.424     0.644 
-texp            0.100     0.014     7.339     6.914     0.000     3.177     0.809 
-sex:texp       -0.019     0.015    -1.217     7.708     0.260     2.576     0.773 
+(Intercept)     3.445     0.153    22.473    20.745     0.000     0.783     0.486 
+sex             1.175     0.205     5.728    13.364     0.000     1.208     0.602 
+texp            0.103     0.010     9.991    15.982     0.000     1.001     0.553 
+sex:texp       -0.020     0.014    -1.460    11.610     0.171     1.421     0.644 
 
                             Estimate 
-Intercept~~Intercept|school    0.123 
-sex~~sex|school                0.143 
-Intercept~~sex|school          0.014 
-Residual~~Residual             0.656 
-ICC|school                     0.158 
+Intercept~~Intercept|school    0.158 
+sex~~sex|school                0.186 
+Intercept~~sex|school         -0.025 
+Residual~~Residual             0.704 
+ICC|school                     0.183 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -487,9 +491,9 @@ N-1 indicator variables representing allocation of N clusters as a fixed
 factor in the model \citep{reit06, ende16}. Colloquially, this is
 `multilevel imputation for dummies'.
 
-\textbf{TODO: Add that it doesn't work with syst missing (only
-sporadically). There's some pro's and con's. May not differ much if the
-number of clusters is low.}
+{[}TODO: Add that it doesn't work with systematic missingness (only with
+sporadic). There's some pros and cons, and it may not even differ much
+if the number of clusters is low.{]}
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -503,8 +507,48 @@ R> plot_pred(pred)
 
 \begin{CodeInput}
 R> # impute the data, cluster as predictor
-R> imp_predictor <- mice(popmis, maxit = 1, pred = pred, print = FALSE)
+R> imp <- mice(popmis, pred = pred, print = FALSE)
 \end{CodeInput}
+\end{CodeChunk}
+
+Analyze the imputations:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> fit <- with(imp, 
++             lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+\end{CodeInput}
+\end{CodeChunk}
+
+Print the estimates:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> testEstimates(as.mitml.result(fit), extra.pars = TRUE)
+\end{CodeInput}
+\begin{CodeOutput}
+
+Call:
+
+testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
+
+Final parameter estimates and inferences obtained from 5 imputed data sets.
+
+             Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
+(Intercept)     3.341     0.179    18.648    14.134     0.000     1.137     0.587 
+sex             1.267     0.216     5.866    12.916     0.000     1.255     0.612 
+texp            0.108     0.012     9.061    12.109     0.000     1.351     0.631 
+sex:texp       -0.030     0.014    -2.058    11.313     0.063     1.467     0.651 
+
+                            Estimate 
+Intercept~~Intercept|school    0.198 
+sex~~sex|school                0.231 
+Intercept~~sex|school         -0.042 
+Residual~~Residual             0.622 
+ICC|school                     0.242 
+
+Unadjusted hypothesis test as appropriate in larger samples.
+\end{CodeOutput}
 \end{CodeChunk}
 
 \hypertarget{case-study-ii-hiv-data}{%
@@ -600,8 +644,7 @@ complete data set. The original data has already been imputed once
 (Steyerberg et al, 2008). For the purpose of this tutorial we have
 induced missingness (mimicking the missing data in the original data set
 before imputation). The resulting incomplete data can be accessed from
-\href{https://zenodo.com}{zenodo link to be created}. TODO: email script
-to thomas.
+\href{https://zenodo.com}{zenodo link to be created}.
 
 Load the complete and incomplete data into the R workspace:
 
@@ -612,39 +655,21 @@ R> dat <- read.table("link/to/the/data.txt") # incomplete data
 \end{CodeInput}
 \end{CodeChunk}
 
-We will use the following estimates as comparative truth in this
-tutorial {[}TODO: make this a table or forest plot instead, to see if
-there is heterogeneity in the association of \texttt{ct} with
-\texttt{mort}{]}:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> fit <- glmer(mod, family = "binomial", data = impact) # fit the model
-R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
-\end{CodeInput}
-\begin{CodeOutput}
-# A tibble: 11 x 9
-   effect group term  estimate std.error statistic    p.value conf.low conf.high
-   <chr>  <chr> <chr>    <dbl>     <dbl>     <dbl>      <dbl>    <dbl>     <dbl>
- 1 fixed  <NA>  (Int~    0.101   0.0173     -13.4   4.94e- 41   0.0723     0.141
- 2 fixed  <NA>  type~    0.713   0.123       -1.96  5.01e-  2   0.509      1.00 
- 3 fixed  <NA>  age      1.03    0.00165     20.2   2.13e- 90   1.03       1.04 
- 4 fixed  <NA>  moto~    0.553   0.0386      -8.50  1.95e- 17   0.482      0.634
- 5 fixed  <NA>  moto~    0.405   0.0289     -12.7   8.43e- 37   0.352      0.466
- 6 fixed  <NA>  moto~    0.275   0.0202     -17.6   1.67e- 69   0.239      0.318
- 7 fixed  <NA>  pupi~    3.73    0.230       21.4   2.09e-101   3.31       4.21 
- 8 fixed  <NA>  pupi~    1.87    0.133        8.80  1.36e- 18   1.63       2.15 
- 9 fixed  <NA>  ctIII    2.25    0.157       11.6   5.12e- 31   1.96       2.58 
-10 fixed  <NA>  ctIV~    2.30    0.136       14.0   9.47e- 45   2.05       2.58 
-11 ran_p~ name  sd__~    0.277  NA           NA    NA          NA         NA    
-\end{CodeOutput}
-\end{CodeChunk}
+The estimated effects in the complete data are visualized in Figure
+\ref{}.
 
 \begin{CodeChunk}
 
 
 \begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/forest-1} \end{center}
 
+\end{CodeChunk}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # fit <- glmer(mod, family = "binomial", data = impact) # fit the model
+R> # tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
+\end{CodeInput}
 \end{CodeChunk}
 
 {[}TODO: add ICC before/after imputation and interpret: This tells us
@@ -672,7 +697,7 @@ R> plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
 \end{CodeChunk}
 
 This shows\ldots{} {[}TODO: fill in that we need to impute \texttt{ct}
-and \texttt{pupil}.{]} TODO: remove axis labels
+and \texttt{pupil}.{]}
 
 To develop the best imputation model, we need to investigate the
 relations between the observed values of the incomplete variables and
@@ -748,26 +773,6 @@ As we can see\ldots{} {[}TODO: fill in.{]}
 
 \hypertarget{imputation-model}{%
 \subsection{Imputation model}\label{imputation-model}}
-
-The first imputation model that we'll use is likely to be invalid. We do
-\emph{not} use the cluster identifier \texttt{name} as imputation model
-predictor. With this model, we ignore the multilevel structure of the
-data, despite the high ICC. This assumes exchangeability between units.
-We include it purely to illustrate the effects of ignoring the
-clustering in our imputation effort. We'll use the default imputation
-methods in \texttt{mice()} (predictive mean matching to impute the
-continuous variables and logistic regression to impute binary
-variables).
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\begin{center}
-
-Updated until here!
-
-\end{center}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 Create a methods vector and predictor matrix, and make sure
 \texttt{name} is not included as predictor:
