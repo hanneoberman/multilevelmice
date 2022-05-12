@@ -135,4 +135,4 @@ ampute_impact <- function(impact, p_obs){
   return(impact_NA[, -1])
 }
 
-# saveRDS(impact_NA, "Data/impact_NA.RDS")
+# saveRDS(impact_NA, "Data/impact_incomplete.RDS")
