@@ -204,6 +204,8 @@ library(mitml)        # for multilevel pooling
 
 # Case study I: popularity data
 
+[TODO: explain case study]
+
 In this section we'll go over the different steps involved with imputing incomplete multilevel data with the R package mice. We consider the simulated `popmis` dataset, which included pupils ($n = 2000$) clustered within schools ($N = 100$). The following variables are of primary interest: 
 
   - `school`,     school identification number (clustering variable);
@@ -342,7 +344,31 @@ Print the estimates:
 testEstimates(as.mitml.result(fit), extra.pars = TRUE)
 ```
 
+### Imputation with multilevel model
+
+```{r pop_multilevel, message=FALSE, warning=FALSE}
+# adjust the predictor matrix
+pred["popular", "school"] <- -2 
+plot_pred(pred)
+
+# impute the data, cluster as predictor
+imp <- mice(popmis, pred = pred, print = FALSE)
+```
+
+Analyze the imputations:
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+fit <- with(imp, 
+            lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+```
+
+Print the estimates:
+```{r}
+testEstimates(as.mitml.result(fit), extra.pars = TRUE)
+```
+
 # Case study II: HIV data
+
+[TODO: change the order of case study 2 and 3]
 
 Data are simulated and included in the `GJRM` package. We will use the following variables:
   
@@ -366,9 +392,10 @@ hiv <- hiv %>%
 plot_pattern(hiv)
 ```
 
-[TODO: think about introducing systematically missing hiv.]
 
 # Case study III: IMPACT data
+
+[TODO: check if there is systematic missingness in this dataset, if not make Marshall Computerized Tomography classification (ct) systematically missing.]
 
 We illustrate how to impute incomplete multilevel data by means of a case study: `impact` from the \pkg{metamisc} package [empirical data on traumatic brain injuries, $n = 11,022$ units across $N = 15$ clusters, @metamisc]. [TODO: add more info about the complete data.] The `impact` data set contains traumatic brain injury data on $n = 11022$ patients clustered in $N = 15$ studies with the following 11 variables:
 
@@ -420,14 +447,19 @@ fits <-
       broom::tidy(conf.int = TRUE, exponentiate = TRUE) %>%
       .[, c("term", "estimate", "conf.low", "conf.high")] %>%
       cbind(name = as.character(.x), .)
-  )
-filter(fits, term %in% c("ctIII")) %>% #, "ctIV/V"
-  ggplot(aes(y = name, x = estimate)) +
+  ) %>% filter(term %in% c("ctIII", "ctIV/V"))
+
+n <- impact %>% group_by(name) %>% 
+  tally()
+
+fits %>% left_join(n, by = "name") %>% 
+  ggplot(aes(y = name, x = estimate, color = term, size = n)) +
   geom_vline(xintercept = 1, size = 1.5, color = "grey95") +
-  geom_point() +
-  geom_linerange(aes(y = name, xmin = conf.low, xmax = conf.high)) +
+  geom_linerange(aes(y = name, xmin = conf.low, xmax = conf.high, size = 0.5), position = position_dodge(width = 0.5)) +
+  geom_point(shape = 20, position = position_dodge(width = 0.5)) +
   labs(y = "Study", x = "Adjusted odds ratio for ct", color = NULL) +
-  theme_classic()
+  theme_classic() +
+  scale_size(guide = 'none')
 # TODO: add heterogeneity in distribution of ct -> prevalence in ct across clusters with CI
 # TODO: missingness prop inside clusters
 # TODO: make row height proportional to pattern frequency
@@ -437,6 +469,8 @@ filter(fits, term %in% c("ctIII")) %>% #, "ctIV/V"
 # fit <- glmer(mod, family = "binomial", data = impact) # fit the model
 # tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
 ```
+
+[TODO: show how much variance there is after different methods]
 
 [TODO: add ICC before/after imputation and interpret: This tells us that the multilevel structure of the data should probably be taken into account. If we don't, we'll may end up with incorrect imputations, biasing the effect of the clusters towards zero.]
 

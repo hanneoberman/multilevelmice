@@ -282,6 +282,8 @@ R> library(mitml)        # for multilevel pooling
 \section{Case study I: popularity
 data}\label{case-study-i-popularity-data}}
 
+{[}TODO: explain case study{]}
+
 In this section we'll go over the different steps involved with imputing
 incomplete multilevel data with the R package mice. We consider the
 simulated \texttt{popmis} dataset, which included pupils (\(n = 2000\))
@@ -446,17 +448,17 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     3.469     0.139    24.958    32.413     0.000     0.542     0.388 
-sex             1.128     0.167     6.744    22.962     0.000     0.716     0.462 
-texp            0.102     0.011     9.237    11.848     0.000     1.387     0.637 
-sex:texp       -0.018     0.011    -1.616    16.878     0.125     0.949     0.538 
+(Intercept)     3.436     0.179    19.207    11.230     0.000     1.480     0.653 
+sex             1.210     0.208     5.812    13.898     0.000     1.157     0.591 
+texp            0.101     0.014     7.261     7.456     0.000     2.738     0.784 
+sex:texp       -0.020     0.017    -1.153     7.534     0.284     2.686     0.780 
 
                             Estimate 
-Intercept~~Intercept|school    0.150 
-sex~~sex|school                0.143 
-Intercept~~sex|school          0.002 
-Residual~~Residual             0.677 
-ICC|school                     0.182 
+Intercept~~Intercept|school    0.158 
+sex~~sex|school                0.212 
+Intercept~~sex|school         -0.026 
+Residual~~Residual             0.663 
+ICC|school                     0.188 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -519,17 +521,77 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     3.369     0.163    20.666    17.473     0.000     0.917     0.529 
-sex             1.228     0.178     6.910    44.805     0.000     0.426     0.328 
-texp            0.105     0.012     8.713    10.517     0.000     1.609     0.673 
-sex:texp       -0.027     0.011    -2.416    57.000     0.019     0.360     0.289 
+(Intercept)     3.361     0.177    18.967    16.581     0.000     0.965     0.543 
+sex             1.250     0.243     5.145     9.696     0.000     1.796     0.699 
+texp            0.105     0.014     7.425     8.751     0.000     2.087     0.731 
+sex:texp       -0.026     0.019    -1.388     6.889     0.208     3.202     0.810 
 
                             Estimate 
-Intercept~~Intercept|school    0.178 
-sex~~sex|school                0.255 
-Intercept~~sex|school         -0.036 
-Residual~~Residual             0.628 
-ICC|school                     0.220 
+Intercept~~Intercept|school    0.216 
+sex~~sex|school                0.240 
+Intercept~~sex|school         -0.045 
+Residual~~Residual             0.615 
+ICC|school                     0.259 
+
+Unadjusted hypothesis test as appropriate in larger samples.
+\end{CodeOutput}
+\end{CodeChunk}
+
+\hypertarget{imputation-with-multilevel-model}{%
+\subsubsection{Imputation with multilevel
+model}\label{imputation-with-multilevel-model}}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> # adjust the predictor matrix
+R> pred["popular", "school"] <- -2 
+R> plot_pred(pred)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_multilevel-1} \end{center}
+
+\begin{CodeInput}
+R> # impute the data, cluster as predictor
+R> imp <- mice(popmis, pred = pred, print = FALSE)
+\end{CodeInput}
+\end{CodeChunk}
+
+Analyze the imputations:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> fit <- with(imp, 
++             lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+\end{CodeInput}
+\end{CodeChunk}
+
+Print the estimates:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> testEstimates(as.mitml.result(fit), extra.pars = TRUE)
+\end{CodeInput}
+\begin{CodeOutput}
+
+Call:
+
+testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
+
+Final parameter estimates and inferences obtained from 5 imputed data sets.
+
+             Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
+(Intercept)     3.333     0.177    18.832    16.459     0.000     0.972     0.545 
+sex             1.356     0.193     7.014    37.019     0.000     0.490     0.362 
+texp            0.106     0.012     8.870    13.221     0.000     1.222     0.606 
+sex:texp       -0.034     0.012    -2.901    51.319     0.005     0.387     0.306 
+
+                            Estimate 
+Intercept~~Intercept|school    0.213 
+sex~~sex|school                0.307 
+Intercept~~sex|school         -0.084 
+Residual~~Residual             0.622 
+ICC|school                     0.254 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -537,6 +599,8 @@ Unadjusted hypothesis test as appropriate in larger samples.
 
 \hypertarget{case-study-ii-hiv-data}{%
 \section{Case study II: HIV data}\label{case-study-ii-hiv-data}}
+
+{[}TODO: change the order of case study 2 and 3{]}
 
 Data are simulated and included in the \texttt{GJRM} package. We will
 use the following variables:
@@ -568,10 +632,12 @@ Heckman Github repo}.
 
 \end{CodeChunk}
 
-{[}TODO: think about introducing systematically missing hiv.{]}
-
 \hypertarget{case-study-iii-impact-data}{%
 \section{Case study III: IMPACT data}\label{case-study-iii-impact-data}}
+
+{[}TODO: check if there is systematic missingness in this dataset, if
+not make Marshall Computerized Tomography classification (ct)
+systematically missing.{]}
 
 We illustrate how to impute incomplete multilevel data by means of a
 case study: \texttt{impact} from the \pkg{metamisc} package
@@ -657,6 +723,8 @@ R> # fit <- glmer(mod, family = "binomial", data = impact) # fit the model
 R> # tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
 \end{CodeInput}
 \end{CodeChunk}
+
+{[}TODO: show how much variance there is after different methods{]}
 
 {[}TODO: add ICC before/after imputation and interpret: This tells us
 that the multilevel structure of the data should probably be taken into
