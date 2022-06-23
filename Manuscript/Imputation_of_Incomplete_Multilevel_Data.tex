@@ -313,15 +313,24 @@ unit-level variable \texttt{sex} and the cluster-level variable
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> mod <- popular ~ 1 + sex + texp + sex:texp + (1 + sex | school)
+R> mod <- popular ~ 1 + sex + (1 | school)
 \end{CodeInput}
+\end{CodeChunk}
+
+The true effect is:
+
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/unnamed-chunk-3-1} \end{center}
+
 \end{CodeChunk}
 
 Load the data into the environment and select the relevant variables:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> popmis <- popmis[, c("school", "popular", "sex", "texp")] 
+R> popmis <- popmis[, c("school", "popular", "sex")] 
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -359,36 +368,25 @@ R> plot_corr(popmis)
 
 \end{CodeChunk}
 
-This shows us that both \texttt{sex} and \texttt{texp} may be useful
-imputation model predictors. Moreover, the missingness in
-\texttt{popular} may depend on the observed values of other variables.
-We'll highlight one other variable to illustrate, but ideally one would
-inspect all relations. The questions we'll ask are: `Does the missing
-data of pupil popularity (\texttt{popular}) depend on observed teacher
-popularity (\texttt{texp})?'. This can be evaluated statistically, but
-visual inspection usually suffices. We'll make a histogram of
-\texttt{texp} separately for the pupils with known popularity and
-missing popularity.
-
-Plot the histogram for teacher experience conditional on the missingness
-indicator of \texttt{popular}:
+This shows us that \texttt{sex} may be a useful imputation model
+predictor. Moreover, the missingness in \texttt{popular} may depend on
+the observed values of other variables.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> ggmice(popmis, aes(texp)) +
-+   geom_histogram(fill = "white") +
-+   facet_grid(. ~ is.na(popular), scales = "free", labeller = label_both)
+R> # ggmice(popmis, aes(sex)) +
+R> #   geom_histogram(fill = "white") +
+R> #   facet_grid(. ~ is.na(popular), scales = "free", labeller = label_both)
+R> 
+R> ggplot(popmis, aes(y = popular, group = sex)) +
++   geom_boxplot() + 
++   theme_classic()
 \end{CodeInput}
 
 
 \begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1} \end{center}
 
 \end{CodeChunk}
-
-This shows us that there are no apparent differences in the distribution
-of \texttt{texp} depending on the missingness indicator of
-\texttt{popular} (t = -0.873, p = 0.383). {[}TODO: think about what is a
-meaningful rule of thumb to signal that the user should be worried?{]}
 
 \hypertarget{imputation-ignoring-the-cluster-variable-not-recommended}{%
 \subsubsection{Imputation ignoring the cluster variable (not
@@ -429,7 +427,7 @@ Analyze the imputations:
 \begin{CodeChunk}
 \begin{CodeInput}
 R> fit <- with(imp, 
-+             lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
++             lmer(popular ~ 1 + sex  + (1 | school))) 
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -448,17 +446,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     3.436     0.179    19.207    11.230     0.000     1.480     0.653 
-sex             1.210     0.208     5.812    13.898     0.000     1.157     0.591 
-texp            0.101     0.014     7.261     7.456     0.000     2.738     0.784 
-sex:texp       -0.020     0.017    -1.153     7.534     0.284     2.686     0.780 
+(Intercept)     4.820     0.353    13.648     4.245     0.000    33.200     0.979 
+sex             0.971     0.376     2.581     4.128     0.059    63.141     0.989 
 
                             Estimate 
-Intercept~~Intercept|school    0.158 
-sex~~sex|school                0.212 
-Intercept~~sex|school         -0.026 
-Residual~~Residual             0.663 
-ICC|school                     0.188 
+Intercept~~Intercept|school    0.259 
+Residual~~Residual             1.065 
+ICC|school                     0.197 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -502,7 +496,7 @@ Analyze the imputations:
 \begin{CodeChunk}
 \begin{CodeInput}
 R> fit <- with(imp, 
-+             lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
++             lmer(popular ~ 1 + sex + (1 | school))) 
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -521,17 +515,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     3.361     0.177    18.967    16.581     0.000     0.965     0.543 
-sex             1.250     0.243     5.145     9.696     0.000     1.796     0.699 
-texp            0.105     0.014     7.425     8.751     0.000     2.087     0.731 
-sex:texp       -0.026     0.019    -1.388     6.889     0.208     3.202     0.810 
+(Intercept)     5.121     0.390    13.125     4.242     0.000    33.503     0.979 
+sex             0.673     0.418     1.611     4.121     0.180    66.343     0.989 
 
                             Estimate 
-Intercept~~Intercept|school    0.216 
-sex~~sex|school                0.240 
-Intercept~~sex|school         -0.045 
-Residual~~Residual             0.615 
-ICC|school                     0.259 
+Intercept~~Intercept|school    0.317 
+Residual~~Residual             1.253 
+ICC|school                     0.213 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -562,7 +552,7 @@ Analyze the imputations:
 \begin{CodeChunk}
 \begin{CodeInput}
 R> fit <- with(imp, 
-+             lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
++             lmer(popular ~ 1 + sex + (1 | school))) 
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -581,17 +571,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     3.333     0.177    18.832    16.459     0.000     0.972     0.545 
-sex             1.356     0.193     7.014    37.019     0.000     0.490     0.362 
-texp            0.106     0.012     8.870    13.221     0.000     1.222     0.606 
-sex:texp       -0.034     0.012    -2.901    51.319     0.005     0.387     0.306 
+(Intercept)     4.941     0.422    11.708     4.203     0.000    39.844     0.982 
+sex             1.029     0.537     1.916     4.076     0.127   105.671     0.993 
 
                             Estimate 
-Intercept~~Intercept|school    0.213 
-sex~~sex|school                0.307 
-Intercept~~sex|school         -0.084 
-Residual~~Residual             0.622 
-ICC|school                     0.254 
+Intercept~~Intercept|school    0.306 
+Residual~~Residual             1.308 
+ICC|school                     0.195 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}

@@ -219,7 +219,7 @@ The research objective of the popmis dataset is to predict the pupils' popularit
 <!-- \texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)} -->
 <!-- $$ -->
 ```{r}
-mod <- popular ~ 1 + sex + texp + sex:texp + (1 + sex | school)
+mod <- popular ~ 1 + sex + (1 | school)
 ```
 
 
@@ -229,19 +229,48 @@ popcomp <- foreign::read.spss("../Data/popular.sav", to.data.frame = TRUE, use.v
   mutate(school = SCHOOL,
          popular = POPULAR,
          sex = SEX,
-         texp = TEXP,
          .keep = "none")
 
 est_true <- lme4::lmer(mod, popcomp) %>% broom.mixed::tidy()
 # testEstimates(as.mitml.result(fit_ignored), var.comp = TRUE)
-
-popmis <- mice::popmis[, c("school", "popular", "sex", "texp")] 
 ```
+
+The true effect is:
+
+```{r echo=FALSE}
+fits <-
+  purrr::map_dfr(
+    unique(popcomp$school),
+    ~ {
+      lm(
+        mod,
+        data = filter(popcomp, school == .x)
+      )
+    } %>%
+      broom::tidy(conf.int = TRUE, exponentiate = TRUE) %>%
+      .[, c("term", "estimate", "conf.low", "conf.high")] %>%
+      cbind(school = as.character(.x), .)
+  ) %>% filter(term %in% "sex")
+
+n <- popcomp %>% group_by(school) %>% 
+  tally() %>% 
+  mutate(school = as.character(school))
+
+fits %>% left_join(n, by = "school") %>% 
+  ggplot(aes(y = school, x = estimate, size = n)) +
+  geom_vline(xintercept = 1, size = 1.5, color = "grey95") +
+  geom_linerange(aes(y = school, xmin = conf.low, xmax = conf.high, size = 0.5), position = position_dodge(width = 0.5)) +
+  geom_point(shape = 20, position = position_dodge(width = 0.5)) +
+  labs(y = "Study", x = "", color = NULL) +
+  theme_classic() +
+  scale_size(guide = 'none')
+```
+
 
 Load the data into the environment and select the relevant variables:
 
 ```{r}
-popmis <- popmis[, c("school", "popular", "sex", "texp")] 
+popmis <- popmis[, c("school", "popular", "sex")] 
 ```
 
 Plot the missing data pattern:
@@ -260,18 +289,24 @@ To develop the best imputation model for the incomplete variable `popular`, we n
 plot_corr(popmis)
 ```
 
-This shows us that both `sex` and `texp` may be useful imputation model predictors. Moreover, the missingness in `popular` may depend on the observed values of other variables. We'll highlight one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`texp`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `texp` separately for the pupils with known popularity and missing popularity.
+This shows us that  `sex`  may be a useful imputation model predictor. Moreover, the missingness in `popular` may depend on the observed values of other variables. 
 
-Plot the histogram for teacher experience conditional on the missingness indicator of `popular`:
+<!-- We'll highlight one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`texp`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `texp` separately for the pupils with known popularity and missing popularity. -->
+
+<!-- Plot the histogram for teacher experience conditional on the missingness indicator of `popular`: -->
 
 ```{r pop-hist}
-ggmice(popmis, aes(texp)) +
-  geom_histogram(fill = "white") +
-  facet_grid(. ~ is.na(popular), scales = "free", labeller = label_both)
+# ggmice(popmis, aes(sex)) +
+#   geom_histogram(fill = "white") +
+#   facet_grid(. ~ is.na(popular), scales = "free", labeller = label_both)
+
+ggplot(popmis, aes(y = popular, group = sex)) +
+  geom_boxplot() + 
+  theme_classic()
 ```
 
-This shows us that there are no apparent differences in the distribution of `texp` depending on the missingness indicator of `popular` (t = `r t.test(popmis$texp ~ is.na(popmis$popular)) %>% broom::tidy(.) %>% .[, c("statistic", "p.value")] %>% round(., 3) %>% unlist() %>% paste(collapse = ",  p = ")`).
- [TODO: think about what is a meaningful rule of thumb to signal that the user should be worried?]
+<!-- This shows us that there are no apparent differences in the distribution of `texp` depending on the missingness indicator of `popular` (t = r t.test(popmis$texp ~ is.na(popmis$popular)) %>% broom::tidy(.) %>% .[, c("statistic", "p.value")] %>% round(., 3) %>% unlist() %>% paste(collapse = ",  p = ")). -->
+<!--  [TODO: think about what is a meaningful rule of thumb to signal that the user should be worried?] -->
  
  
 <!-- ### Complete case analysis (not recommended) -->
@@ -308,7 +343,7 @@ imp <- mice(popmis, pred = pred, print = FALSE)
 Analyze the imputations:
 ```{r pop-ignored-fit, echo=TRUE, message=FALSE, warning=FALSE}
 fit <- with(imp, 
-            lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+            lmer(popular ~ 1 + sex  + (1 | school))) 
 ```
 
 Print the estimates:
@@ -336,7 +371,7 @@ imp <- mice(popmis, pred = pred, print = FALSE)
 Analyze the imputations:
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 fit <- with(imp, 
-            lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+            lmer(popular ~ 1 + sex + (1 | school))) 
 ```
 
 Print the estimates:
@@ -358,7 +393,7 @@ imp <- mice(popmis, pred = pred, print = FALSE)
 Analyze the imputations:
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 fit <- with(imp, 
-            lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+            lmer(popular ~ 1 + sex + (1 | school))) 
 ```
 
 Print the estimates:
