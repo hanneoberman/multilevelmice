@@ -78,6 +78,8 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
+TODO: send complete manuscript by september 30th!
+
 Many datasets include individuals from multiple settings, geographic
 regions, or even different studies. In the simplest case, individuals
 (e.g., students) are nested within so-called clusters (e.g., school
@@ -260,6 +262,9 @@ study 1) and directly head to practical applications of multilevel
 imputation under MAR conditions (case study IMPACT) or under MNAR
 conditions (case study HIV).
 
+TODO: explicit statement about not going into workings of the methods.
+Galimer 2l methods.
+
 \hypertarget{setup}{%
 \subsection{Setup}\label{setup}}
 
@@ -270,6 +275,7 @@ Set up the R environment and load the necessary packages:
 \begin{CodeInput}
 R> set.seed(2022)
 R> library(mice)         # for imputation
+R> library(miceadds)     # for imputation
 R> library(ggmice)       # for visualization
 R> library(ggplot2)      # for visualization
 R> library(dplyr)        # for data wrangling
@@ -446,13 +452,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     4.820     0.353    13.648     4.245     0.000    33.200     0.979 
-sex             0.971     0.376     2.581     4.128     0.059    63.141     0.989 
+(Intercept)     5.010     0.316    15.841     4.324     0.000    25.159     0.972 
+sex             0.748     0.413     1.812     4.112     0.142    72.195     0.990 
 
                             Estimate 
-Intercept~~Intercept|school    0.259 
-Residual~~Residual             1.065 
-ICC|school                     0.197 
+Intercept~~Intercept|school    0.271 
+Residual~~Residual             1.125 
+ICC|school                     0.213 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -515,13 +521,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     5.121     0.390    13.125     4.242     0.000    33.503     0.979 
-sex             0.673     0.418     1.611     4.121     0.180    66.343     0.989 
+(Intercept)     5.043     0.293    17.187     4.469     0.000    17.558     0.961 
+sex             0.799     0.329     2.428     4.206     0.069    39.298     0.982 
 
                             Estimate 
-Intercept~~Intercept|school    0.317 
-Residual~~Residual             1.253 
-ICC|school                     0.213 
+Intercept~~Intercept|school    0.335 
+Residual~~Residual             1.296 
+ICC|school                     0.208 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -571,55 +577,21 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     4.941     0.422    11.708     4.203     0.000    39.844     0.982 
-sex             1.029     0.537     1.916     4.076     0.127   105.671     0.993 
+(Intercept)     5.051     0.259    19.541     4.645     0.000    12.876     0.947 
+sex             0.820     0.235     3.484     4.426     0.021    19.256     0.964 
 
                             Estimate 
-Intercept~~Intercept|school    0.306 
-Residual~~Residual             1.308 
-ICC|school                     0.195 
+Intercept~~Intercept|school    0.350 
+Residual~~Residual             1.318 
+ICC|school                     0.217 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
 \end{CodeChunk}
 
-\hypertarget{case-study-ii-hiv-data}{%
-\section{Case study II: HIV data}\label{case-study-ii-hiv-data}}
-
-{[}TODO: change the order of case study 2 and 3{]}
-
-Data are simulated and included in the \texttt{GJRM} package. We will
-use the following variables:
-
-\begin{itemize}
-\tightlist
-\item
-  \texttt{region} Cluster variable,
-\item
-  \texttt{hiv} HIV diagnosis (0=no, 1=yes),
-\item
-  \texttt{age} Age of the patient,
-\item
-  \texttt{marital} Marital status,
-\item
-  \texttt{condom} Condom use during last intercourse,
-\item
-  \texttt{smoke} Smoker (levels; inclusion restriction variable).
-\end{itemize}
-
-The imputation of these date is based on the toy example from
-\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{IPDMA
-Heckman Github repo}.
-
-\begin{CodeChunk}
-
-
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1} \end{center}
-
-\end{CodeChunk}
-
-\hypertarget{case-study-iii-impact-data}{%
-\section{Case study III: IMPACT data}\label{case-study-iii-impact-data}}
+\hypertarget{case-study-ii-impact-data-syst-missingness-pred-matrix}{%
+\section{Case study II: IMPACT data (syst missingness, pred
+matrix)}\label{case-study-ii-impact-data-syst-missingness-pred-matrix}}
 
 {[}TODO: check if there is systematic missingness in this dataset, if
 not make Marshall Computerized Tomography classification (ct)
@@ -647,7 +619,9 @@ studies with the following 11 variables:
 \item
   \texttt{pupil} Pupillary reactivity,
 \item
-  \texttt{ct} Marshall Computerized Tomography classification,
+  \texttt{ct} Marshall Computerized Tomography classification, {[}TODO:
+  make this one var? also shows that you don't always need random
+  effects everywhere?{]}
 \item
   \texttt{hypox} Hypoxia (0=no, 1=yes),
 \item
@@ -780,8 +754,9 @@ R> dat <- select(dat, !hypox)  # remove variable
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{complete-case-analysis}{%
-\subsection{Complete case analysis}\label{complete-case-analysis}}
+\hypertarget{complete-case-analysis-todo-remove-this}{%
+\subsection{Complete case analysis {[}TODO: remove
+this?{]}}\label{complete-case-analysis-todo-remove-this}}
 
 As previously stated, complete case analysis lowers statistical power
 and may bias results. The complete case analysis estimates are:
@@ -793,19 +768,21 @@ R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 11 x 9
-   effect  group term  estimate std.error statistic   p.value conf.low conf.high
-   <chr>   <chr> <chr>    <dbl>     <dbl>     <dbl>     <dbl>    <dbl>     <dbl>
- 1 fixed   <NA>  (Int~   0.0863   0.0182     -11.6   2.99e-31   0.0571     0.130
- 2 fixed   <NA>  type~   0.757    0.137       -1.54  1.22e- 1   0.531      1.08 
- 3 fixed   <NA>  age     1.03     0.00265     12.9   7.40e-38   1.03       1.04 
- 4 fixed   <NA>  moto~   0.651    0.0732      -3.82  1.34e- 4   0.522      0.811
- 5 fixed   <NA>  moto~   0.489    0.0555      -6.30  2.97e-10   0.391      0.611
- 6 fixed   <NA>  moto~   0.274    0.0321     -11.0   2.28e-28   0.218      0.345
- 7 fixed   <NA>  pupi~   3.20     0.317       11.7   8.18e-32   2.63       3.88 
- 8 fixed   <NA>  pupi~   1.75     0.195        5.06  4.27e- 7   1.41       2.18 
- 9 fixed   <NA>  ctIII   2.41     0.268        7.89  3.05e-15   1.94       2.99 
-10 fixed   <NA>  ctIV~   2.30     0.214        8.95  3.55e-19   1.92       2.76 
-11 ran_pa~ name  sd__~   0.230   NA           NA    NA         NA         NA    
+   effect   group term        estim~1 std.er~2 stati~3   p.value conf.~4 conf.~5
+   <chr>    <chr> <chr>         <dbl>    <dbl>   <dbl>     <dbl>   <dbl>   <dbl>
+ 1 fixed    <NA>  (Intercept)  0.0863  0.0182   -11.6   2.99e-31  0.0571   0.130
+ 2 fixed    <NA>  typeRCT      0.757   0.137     -1.54  1.22e- 1  0.531    1.08 
+ 3 fixed    <NA>  age          1.03    0.00265   12.9   7.40e-38  1.03     1.04 
+ 4 fixed    <NA>  motor_scor~  0.651   0.0732    -3.82  1.34e- 4  0.522    0.811
+ 5 fixed    <NA>  motor_scor~  0.489   0.0555    -6.30  2.97e-10  0.391    0.611
+ 6 fixed    <NA>  motor_scor~  0.274   0.0321   -11.0   2.28e-28  0.218    0.345
+ 7 fixed    <NA>  pupilNone    3.20    0.317     11.7   8.18e-32  2.63     3.88 
+ 8 fixed    <NA>  pupilOne     1.75    0.195      5.06  4.27e- 7  1.41     2.18 
+ 9 fixed    <NA>  ctIII        2.41    0.268      7.89  3.05e-15  1.94     2.99 
+10 fixed    <NA>  ctIV/V       2.30    0.214      8.95  3.55e-19  1.92     2.76 
+11 ran_pars name  sd__(Inter~  0.230  NA         NA    NA        NA       NA    
+# ... with abbreviated variable names 1: estimate, 2: std.error, 3: statistic,
+#   4: conf.low, 5: conf.high
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -815,7 +792,7 @@ As we can see\ldots{} {[}TODO: fill in.{]}
 \subsection{Imputation model}\label{imputation-model}}
 
 Create a methods vector and predictor matrix, and make sure
-\texttt{name} is not included as predictor:
+\texttt{name} is not included as predictor, but as clustering variable:
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -831,6 +808,261 @@ R> plot_pred(pred)
 
 {[}TODO: mutate data to get the right data types for imputation
 (e.g.~integer for clustering variable).{]}
+
+\hypertarget{case-study-iii-hiv-data}{%
+\section{Case study III: HIV data}\label{case-study-iii-hiv-data}}
+
+Data are simulated and included in the \texttt{GJRM} package. We will
+use the following variables:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{region} Cluster variable,
+\item
+  \texttt{hiv} HIV diagnosis (0=no, 1=yes),
+\item
+  \texttt{age} Age of the patient,
+\item
+  \texttt{marital} Marital status,
+\item
+  \texttt{condom} Condom use during last intercourse,
+\item
+  \texttt{smoke} Smoker (levels; inclusion restriction variable).
+\end{itemize}
+
+The imputation of these date is based on the toy example from
+\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{IPDMA
+Heckman Github repo}.
+
+\begin{CodeChunk}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1} \end{center}
+
+\end{CodeChunk}
+
+R=region+language+(1\textbar InterviewID) model with with interviewer as
+random effects, because the observations are not independent. Interviews
+are not allocated randomly. In theory we expect the
+inclusion-restriction variable to be randomly assigned, that's why we're
+adding region and language to compensate for non-random allocation.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> data("hiv",  package = "GJRM")
+R> # We select  5 predictor variables over 9 regions
+R> colnames(hiv)
+\end{CodeInput}
+\begin{CodeOutput}
+ [1] "hivconsent"      "hiv"             "age"             "education"      
+ [5] "wealth"          "region"          "marital"         "std"            
+ [9] "age1sex_cat"     "highhiv"         "partner"         "condom"         
+[13] "aidscare"        "knowsdiedofaids" "evertestedHIV"   "smoke"          
+[17] "religion"        "ethnicity"       "language"        "interviewerID"  
+[21] "sw"             
+\end{CodeOutput}
+\begin{CodeInput}
+R> hivdata <- hiv[,c("hiv","hivconsent","age","marital","condom","highhiv","interviewerID","region","language")]
+R> # Study/group variable has to be recoded as integer
+R> hivdata$region<-as.integer(hivdata$region)
+R> 
+R> # Categorical variables have to be recoded as factor
+R> # to use the 2l.binary imputation method, it is required that the level names should not have any space between words
+R> 
+R> hivdata$hiv <- as.factor(hivdata$hiv) #to use the 2l.heckman method, it is required that
+R> #the missing variable is stored as a factor in the dataset, otherwise the method will 
+R> #apply the imputation correction for a  missing continuous variable instead for 
+R> #a missing binary variable,which is in this case the binary response of the hiv test.
+R> 
+R> hivdata$marital <- as.factor(hivdata$marital)
+R> levels(hivdata$marital)<-c("never_married","currently_married","formerly_married")
+R> hivdata$condom <- as.factor(hivdata$condom)
+R> levels(hivdata$condom)<-c("No_Condom_Last_Intercourse","Condom_Last_Intercourse")
+R> hivdata$highhiv <- as.factor(hivdata$highhiv)
+R> levels(hivdata$highhiv)<-c("Not_High_Risk_of_HIV","High_Risk_of_HIV")
+R> hivdata$interviewerID <- as.factor(hivdata$interviewerID)
+R> 
+R> hivdata$interviewerID <-  as.factor(as.character(hivdata$interviewerID))
+R> interv<-as.data.frame(table(hivdata$interviewerID,hivdata$region))
+R> 
+R> summary(hivdata)
+\end{CodeInput}
+\begin{CodeOutput}
+   hiv         hivconsent          age                     marital    
+ 0   :4457   Min.   :0.0000   Min.   :15.00   never_married    :2513  
+ 1   : 641   1st Qu.:1.0000   1st Qu.:20.00   currently_married:3582  
+ NA's:1318   Median :1.0000   Median :28.00   formerly_married : 321  
+             Mean   :0.7946   Mean   :30.12                           
+             3rd Qu.:1.0000   3rd Qu.:37.00                           
+             Max.   :1.0000   Max.   :59.00                           
+                                                                      
+                        condom                     highhiv     interviewerID 
+ No_Condom_Last_Intercourse:5319   Not_High_Risk_of_HIV:4655   404    : 306  
+ Condom_Last_Intercourse   :1097   High_Risk_of_HIV    :1761   303    : 248  
+                                                               807    : 247  
+                                                               403    : 246  
+                                                               903    : 241  
+                                                               305    : 232  
+                                                               (Other):4896  
+     region                   language   
+ Min.   :1.000   Language: bemba  :2347  
+ 1st Qu.:3.000   Language: nyanja :1927  
+ Median :5.000   Language: other  : 606  
+ Mean   :4.946   Language: lozi   : 604  
+ 3rd Qu.:7.000   Language: tonga  : 476  
+ Max.   :9.000   Language: english: 456  
+                 (Other)          :   0  
+\end{CodeOutput}
+\begin{CodeInput}
+R> #  We obtain here the random effects for each interviewer, this is an approximation 
+R> #of the interviewer's skill which will be used as an exclusion constraint. 
+R> #Here, since the location of the interviewer was not randomly assigned to the 
+R> #subjects, the assignment was corrected for region and language. 
+R> 
+R> hivdata$hivconsent <- as.factor(hivdata$hivconsent)
+R> ID_mixed <- lme4::glmer(hivconsent ~ region + language+(1 | interviewerID), data = hivdata, family = binomial)
+R> reffect  <- ranef(ID_mixed)$interviewerID
+R> reffect$interviewerID <- levels(hivdata$interviewerID)
+R> colnames(reffect)     <- c("IDreffect","interviewerID")
+R> hivdata  <-  merge(hivdata, reffect, by="interviewerID", all.x=TRUE)
+R> 
+R> hivdata$interviewerID<-NULL
+R> hivdata$hivconsent<-NULL
+R> hivdata$language<-NULL
+R> summary(hivdata)
+\end{CodeInput}
+\begin{CodeOutput}
+   hiv            age                     marital    
+ 0   :4457   Min.   :15.00   never_married    :2513  
+ 1   : 641   1st Qu.:20.00   currently_married:3582  
+ NA's:1318   Median :28.00   formerly_married : 321  
+             Mean   :30.12                           
+             3rd Qu.:37.00                           
+             Max.   :59.00                           
+                        condom                     highhiv         region     
+ No_Condom_Last_Intercourse:5319   Not_High_Risk_of_HIV:4655   Min.   :1.000  
+ Condom_Last_Intercourse   :1097   High_Risk_of_HIV    :1761   1st Qu.:3.000  
+                                                               Median :5.000  
+                                                               Mean   :4.946  
+                                                               3rd Qu.:7.000  
+                                                               Max.   :9.000  
+   IDreffect        
+ Min.   :-0.682850  
+ 1st Qu.:-0.195361  
+ Median :-0.080531  
+ Mean   :-0.007813  
+ 3rd Qu.: 0.257165  
+ Max.   : 0.667147  
+\end{CodeOutput}
+\begin{CodeInput}
+R> #Set prediction matrix and methods
+R> ini <- mice(hivdata, maxit = 0)
+R> meth<-ini$method
+R> meth["hiv"]<-"2l.binary"
+R> pred <- ini$pred
+R> pred[,"region"] <- 0
+R> pred["region",] <- 0
+R> pred["hiv","region"]<- -2
+R> pred["hiv","IDreffect"]<- 0
+R> 
+R> # MAR imputation model, we used the 2l.binary from the miceadds package
+R> data_imp_mar <- mice( data= hivdata, # dataset with missing values
++                       m = 10,   # number of imputations
++                       meth = meth, #imputation method vector
++                       pred = pred, #imputation predictors matrix
++                       maxit=1)
+\end{CodeInput}
+\begin{CodeOutput}
+
+ iter imp variable
+  1   1  hiv
+  1   2  hiv
+  1   3  hiv
+  1   4  hiv
+  1   5  hiv
+  1   6  hiv
+  1   7  hiv
+  1   8  hiv
+  1   9  hiv
+  1   10  hiv
+\end{CodeOutput}
+\begin{CodeInput}
+R> # source("mice.impute.2l.heckman.R")
+R> # sum(as.numeric(data_imp_mar[["imp"]][["hiv"]][["1"]]))
+R> # sum(as.numeric(data_imp_heckp[["imp"]][["hiv"]][["1"]]))
+R> # sum(as.numeric(data_imp_mar[["imp"]][["hiv"]][["2"]]))
+R> # sum(as.numeric(data_imp_heckp[["imp"]][["hiv"]][["2"]]))
+R> 
+R> # Heckman model
+R> pred["hiv","IDreffect"] <- -3
+R> meth<-ini$method
+R> meth["hiv"]<-"2l.heckman"
+R> 
+R> data_imp_heckp <- mice( hivdata, # dataset with missing values
++                         m = 10,   # number of imputations
++                         seed = 1234, #seed attached to the dataID
++                         meth = meth, #imputation method vector
++                         pred = pred, #imputation predictors matrix
++                         print = T,
++                         meta_method="reml",
++                         pmm=FALSE)
+\end{CodeInput}
+\begin{CodeOutput}
+
+ iter imp variable
+  1   1  hiv
+  1   2  hiv
+  1   3  hiv
+  1   4  hiv
+  1   5  hiv
+  1   6  hiv
+  1   7  hiv
+  1   8  hiv
+  1   9  hiv
+  1   10  hiv
+  2   1  hiv
+  2   2  hiv
+  2   3  hiv
+  2   4  hiv
+  2   5  hiv
+  2   6  hiv
+  2   7  hiv
+  2   8  hiv
+  2   9  hiv
+  2   10  hiv
+  3   1  hiv
+  3   2  hiv
+  3   3  hiv
+  3   4  hiv
+  3   5  hiv
+  3   6  hiv
+  3   7  hiv
+  3   8  hiv
+  3   9  hiv
+  3   10  hiv
+  4   1  hiv
+  4   2  hiv
+  4   3  hiv
+  4   4  hiv
+  4   5  hiv
+  4   6  hiv
+  4   7  hiv
+  4   8  hiv
+  4   9  hiv
+  4   10  hiv
+  5   1  hiv
+  5   2  hiv
+  5   3  hiv
+  5   4  hiv
+  5   5  hiv
+  5   6  hiv
+  5   7  hiv
+  5   8  hiv
+  5   9  hiv
+  5   10  hiv
+\end{CodeOutput}
+\end{CodeChunk}
 
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
