@@ -74,6 +74,8 @@ library(ggplot2)
 
 # Introduction
 
+TODO: send complete manuscript by september 30th!
+
 Many datasets include individuals from multiple settings, geographic regions, or even different studies. In the simplest case, individuals (e.g., students) are nested within so-called clusters (e.g., school classes). More complex clustered structures may occur when there are multiple hierarchical levels (e.g., patients within hospitals within regions or countries), or when the clustering is non-nested (e.g., electronic health record data from diverse settings and populations within large databases). In general, individuals from the same cluster tend to be more similar than individuals from other clusters. In statistical terms, this implies that observations from the same cluster are correlated. If this correlation is left unaddressed, estimates of *p* values, confidence intervals even model parameters are prone to bias  [@loca01]. [TODO: make a link to imputation methods, which require adequate handling and propagation of variance; we are not recommending the adoption of multilevel models for data analysis here, but rather for imputation.] Statistical methods for clustered data typically adopt hierarchical models that explicitly describe the grouping of observations. These models are also know as 'multilevel models', 'hierarchical models', 'mixed effect models' and 'random effect models'. Table \ref{tab:clus} provides an overview of some key concepts in multilevel modeling.
 
 \begin{table}[tb]
@@ -186,6 +188,8 @@ This tutorial is dedicated to readers who are unfamiliar with multiple imptuatio
 
 <!-- With the `popmis` data, we show how (and how not) to develop an imputation model. With the `hiv` data we focus on extending the imputation model to include Heckman-type selection-inclusion methods. With the `impact` data we provide an example of multivariate missingness in real-world data. Together, this should give enough scaffolding for applied researchers who are faced with incomplete multilevel data. -->
 
+TODO: explicit statement about not going into workings of the methods. Galimer 2l methods.
+
 
 ## Setup
 
@@ -193,6 +197,7 @@ This tutorial is dedicated to readers who are unfamiliar with multiple imptuatio
 ```{r env, message=FALSE, warning=FALSE}
 set.seed(2022)
 library(mice)         # for imputation
+library(miceadds)     # for imputation
 library(ggmice)       # for visualization
 library(ggplot2)      # for visualization
 library(dplyr)        # for data wrangling
@@ -203,6 +208,8 @@ library(mitml)        # for multilevel pooling
 
 
 # Case study I: popularity data
+
+[TODO: explain case study]
 
 In this section we'll go over the different steps involved with imputing incomplete multilevel data with the R package mice. We consider the simulated `popmis` dataset, which included pupils ($n = 2000$) clustered within schools ($N = 100$). The following variables are of primary interest: 
 
@@ -217,7 +224,7 @@ The research objective of the popmis dataset is to predict the pupils' popularit
 <!-- \texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)} -->
 <!-- $$ -->
 ```{r}
-mod <- popular ~ 1 + sex + texp + sex:texp + (1 + sex | school)
+mod <- popular ~ 1 + sex + (1 | school)
 ```
 
 
@@ -227,19 +234,48 @@ popcomp <- foreign::read.spss("../Data/popular.sav", to.data.frame = TRUE, use.v
   mutate(school = SCHOOL,
          popular = POPULAR,
          sex = SEX,
-         texp = TEXP,
          .keep = "none")
 
 est_true <- lme4::lmer(mod, popcomp) %>% broom.mixed::tidy()
 # testEstimates(as.mitml.result(fit_ignored), var.comp = TRUE)
-
-popmis <- mice::popmis[, c("school", "popular", "sex", "texp")] 
 ```
+
+The true effect is:
+
+```{r echo=FALSE}
+fits <-
+  purrr::map_dfr(
+    unique(popcomp$school),
+    ~ {
+      lm(
+        mod,
+        data = filter(popcomp, school == .x)
+      )
+    } %>%
+      broom::tidy(conf.int = TRUE, exponentiate = TRUE) %>%
+      .[, c("term", "estimate", "conf.low", "conf.high")] %>%
+      cbind(school = as.character(.x), .)
+  ) %>% filter(term %in% "sex")
+
+n <- popcomp %>% group_by(school) %>% 
+  tally() %>% 
+  mutate(school = as.character(school))
+
+fits %>% left_join(n, by = "school") %>% 
+  ggplot(aes(y = school, x = estimate, size = n)) +
+  geom_vline(xintercept = 1, size = 1.5, color = "grey95") +
+  geom_linerange(aes(y = school, xmin = conf.low, xmax = conf.high, size = 0.5), position = position_dodge(width = 0.5)) +
+  geom_point(shape = 20, position = position_dodge(width = 0.5)) +
+  labs(y = "Study", x = "", color = NULL) +
+  theme_classic() +
+  scale_size(guide = 'none')
+```
+
 
 Load the data into the environment and select the relevant variables:
 
 ```{r}
-popmis <- popmis[, c("school", "popular", "sex", "texp")] 
+popmis <- popmis[, c("school", "popular", "sex")] 
 ```
 
 Plot the missing data pattern:
@@ -258,18 +294,24 @@ To develop the best imputation model for the incomplete variable `popular`, we n
 plot_corr(popmis)
 ```
 
-This shows us that both `sex` and `texp` may be useful imputation model predictors. Moreover, the missingness in `popular` may depend on the observed values of other variables. We'll highlight one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`texp`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `texp` separately for the pupils with known popularity and missing popularity.
+This shows us that  `sex`  may be a useful imputation model predictor. Moreover, the missingness in `popular` may depend on the observed values of other variables. 
 
-Plot the histogram for teacher experience conditional on the missingness indicator of `popular`:
+<!-- We'll highlight one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`texp`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `texp` separately for the pupils with known popularity and missing popularity. -->
+
+<!-- Plot the histogram for teacher experience conditional on the missingness indicator of `popular`: -->
 
 ```{r pop-hist}
-ggmice(popmis, aes(texp)) +
-  geom_histogram(fill = "white") +
-  facet_grid(. ~ is.na(popular), scales = "free", labeller = label_both)
+# ggmice(popmis, aes(sex)) +
+#   geom_histogram(fill = "white") +
+#   facet_grid(. ~ is.na(popular), scales = "free", labeller = label_both)
+
+ggplot(popmis, aes(y = popular, group = sex)) +
+  geom_boxplot() + 
+  theme_classic()
 ```
 
-This shows us that there are no apparent differences in the distribution of `texp` depending on the missingness indicator of `popular` (t = `r t.test(popmis$texp ~ is.na(popmis$popular)) %>% broom::tidy(.) %>% .[, c("statistic", "p.value")] %>% round(., 3) %>% unlist() %>% paste(collapse = ",  p = ")`).
- [TODO: think about what is a meaningful rule of thumb to signal that the user should be worried?]
+<!-- This shows us that there are no apparent differences in the distribution of `texp` depending on the missingness indicator of `popular` (t = r t.test(popmis$texp ~ is.na(popmis$popular)) %>% broom::tidy(.) %>% .[, c("statistic", "p.value")] %>% round(., 3) %>% unlist() %>% paste(collapse = ",  p = ")). -->
+<!--  [TODO: think about what is a meaningful rule of thumb to signal that the user should be worried?] -->
  
  
 <!-- ### Complete case analysis (not recommended) -->
@@ -306,7 +348,7 @@ imp <- mice(popmis, pred = pred, print = FALSE)
 Analyze the imputations:
 ```{r pop-ignored-fit, echo=TRUE, message=FALSE, warning=FALSE}
 fit <- with(imp, 
-            lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+            lmer(popular ~ 1 + sex  + (1 | school))) 
 ```
 
 Print the estimates:
@@ -334,7 +376,7 @@ imp <- mice(popmis, pred = pred, print = FALSE)
 Analyze the imputations:
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 fit <- with(imp, 
-            lmer(popular ~ 1 + sex + texp + sex:texp + (1 + sex | school))) 
+            lmer(popular ~ 1 + sex + (1 | school))) 
 ```
 
 Print the estimates:
@@ -342,33 +384,33 @@ Print the estimates:
 testEstimates(as.mitml.result(fit), extra.pars = TRUE)
 ```
 
-# Case study II: HIV data
+### Imputation with multilevel model
 
-Data are simulated and included in the `GJRM` package. We will use the following variables:
-  
-  - `region` Cluster variable,
-- `hiv` HIV diagnosis (0=no, 1=yes),
-- `age` Age of the patient,
-- `marital` Marital status,
-- `condom` Condom use during last intercourse,
-- `smoke` Smoker (levels; inclusion restriction variable).
+```{r pop_multilevel, message=FALSE, warning=FALSE}
+# adjust the predictor matrix
+pred["popular", "school"] <- -2 
+plot_pred(pred)
 
-The imputation of these date is based on the toy example from [IPDMA Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R). 
-
-
-```{r hiv, echo=FALSE}
-# data
-data("hiv", package = "GJRM")
-hiv <- hiv %>% 
-  select(c("region","hiv", "age", "marital", "condom", "smoke")) %>% 
-  mutate(region = as.integer(region))
-# md pattern
-plot_pattern(hiv)
+# impute the data, cluster as predictor
+imp <- mice(popmis, pred = pred, print = FALSE)
 ```
 
-[TODO: think about introducing systematically missing hiv.]
+Analyze the imputations:
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+fit <- with(imp, 
+            lmer(popular ~ 1 + sex + (1 | school))) 
+```
 
-# Case study III: IMPACT data
+Print the estimates:
+```{r}
+testEstimates(as.mitml.result(fit), extra.pars = TRUE)
+```
+
+
+
+# Case study II: IMPACT data (syst missingness, pred matrix)
+
+[TODO: check if there is systematic missingness in this dataset, if not make Marshall Computerized Tomography classification (ct) systematically missing.]
 
 We illustrate how to impute incomplete multilevel data by means of a case study: `impact` from the \pkg{metamisc} package [empirical data on traumatic brain injuries, $n = 11,022$ units across $N = 15$ clusters, @metamisc]. [TODO: add more info about the complete data.] The `impact` data set contains traumatic brain injury data on $n = 11022$ patients clustered in $N = 15$ studies with the following 11 variables:
 
@@ -377,7 +419,7 @@ We illustrate how to impute incomplete multilevel data by means of a case study:
   - `age` Age of the patient,
   - `motor_score` Glasgow Coma Scale motor score,
   - `pupil` Pupillary reactivity,
-  - `ct` Marshall Computerized Tomography classification,
+  - `ct` Marshall Computerized Tomography classification, [TODO: make this one var? also shows that you don't always need random effects everywhere?]
   - `hypox` Hypoxia (0=no, 1=yes),
   - `hypots` Hypotension (0=no, 1=yes),
   - `tsah` Traumatic subarachnoid hemorrhage (0=no, 1=yes),
@@ -420,14 +462,19 @@ fits <-
       broom::tidy(conf.int = TRUE, exponentiate = TRUE) %>%
       .[, c("term", "estimate", "conf.low", "conf.high")] %>%
       cbind(name = as.character(.x), .)
-  )
-filter(fits, term %in% c("ctIII")) %>% #, "ctIV/V"
-  ggplot(aes(y = name, x = estimate)) +
+  ) %>% filter(term %in% c("ctIII", "ctIV/V"))
+
+n <- impact %>% group_by(name) %>% 
+  tally()
+
+fits %>% left_join(n, by = "name") %>% 
+  ggplot(aes(y = name, x = estimate, color = term, size = n)) +
   geom_vline(xintercept = 1, size = 1.5, color = "grey95") +
-  geom_point() +
-  geom_linerange(aes(y = name, xmin = conf.low, xmax = conf.high)) +
+  geom_linerange(aes(y = name, xmin = conf.low, xmax = conf.high, size = 0.5), position = position_dodge(width = 0.5)) +
+  geom_point(shape = 20, position = position_dodge(width = 0.5)) +
   labs(y = "Study", x = "Adjusted odds ratio for ct", color = NULL) +
-  theme_classic()
+  theme_classic() +
+  scale_size(guide = 'none')
 # TODO: add heterogeneity in distribution of ct -> prevalence in ct across clusters with CI
 # TODO: missingness prop inside clusters
 # TODO: make row height proportional to pattern frequency
@@ -437,6 +484,8 @@ filter(fits, term %in% c("ctIII")) %>% #, "ctIV/V"
 # fit <- glmer(mod, family = "binomial", data = impact) # fit the model
 # tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
 ```
+
+[TODO: show how much variance there is after different methods]
 
 [TODO: add ICC before/after imputation and interpret: This tells us that the multilevel structure of the data should probably be taken into account. If we don't, we'll may end up with incorrect imputations, biasing the effect of the clusters towards zero.]
 
@@ -465,7 +514,7 @@ dat <- select(dat, !hypox)  # remove variable
 
 <!-- We'll highlight one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`texp`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `texp` separately for the pupils with known popularity and missing popularity. -->
 
-## Complete case analysis
+## Complete case analysis [TODO: remove this?]
 
 As previously stated, complete case analysis lowers statistical power and may bias results. The complete case analysis estimates are:
 ```{r cca}
@@ -501,7 +550,7 @@ As we can see... [TODO: fill in.]
 
 <!-- --- -->
 
-Create a methods vector and predictor matrix, and make sure `name` is not included as predictor:
+Create a methods vector and predictor matrix, and make sure `name` is not included as predictor, but as clustering variable:
 ```{r ignore}
 meth <- make.method(dat) # methods vector
 pred <- quickpred(dat)   # predictor matrix
@@ -533,19 +582,171 @@ meth[meth != ""] <- "2l.pmm"
 [TODO: mutate data to get the right data types for imputation (e.g. integer for clustering variable).]
 
 ```{r imp_impact, eval = FALSE, include=FALSE}
+dat <- dat %>% mutate(across(everything(), as.integer))
 imp <- mice(dat, method = meth, predictorMatrix = pred, m = 2, maxit = 1)
 ```
 
 ```{r impact-fit, eval = FALSE, include=FALSE}
-fit <- imp_impact_pmm %>% 
+fit <- imp %>% 
   with(glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial")) 
 tidy(pool(fit))
 as.mitml.result(fit)
 # testEstimates(as.mitml.result(fit))
 ```
 
+# Case study III: HIV data
 
 
+Data are simulated and included in the `GJRM` package. We will use the following variables:
+  
+- `region` Cluster variable,
+- `hiv` HIV diagnosis (0=no, 1=yes),
+- `age` Age of the patient,
+- `marital` Marital status,
+- `condom` Condom use during last intercourse,
+- `smoke` Smoker (levels; inclusion restriction variable).
+
+The imputation of these date is based on the toy example from [IPDMA Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R). 
+
+
+```{r hiv, echo=FALSE}
+# data
+data("hiv", package = "GJRM")
+hiv <- hiv %>% 
+  select(c("region","hiv", "age", "marital", "condom", "smoke", "interviewerID")) %>% 
+  mutate(region = as.integer(region))
+# md pattern
+plot_pattern(hiv)
+```
+
+R=region+language+(1|InterviewID) model with with interviewer as random effects, because the observations are not independent. Interviews are not allocated randomly. In theory we expect the inclusion-restriction variable to be randomly assigned, that's why we're adding region and language to compensate for non-random allocation.
+
+```{r eval=FALSE, include=FALSE}
+meth <- make.method(hiv)
+meth["hiv"] <- "2l.heckman"
+imp <- mice(hiv, method = meth)
+pred <- make.predictorMatrix(hiv)
+pred[, "region"] <- -2
+pred[, "smoke"] <- -3
+imp2 <- mice(hiv, method = meth, predictorMatrix = pred)
+```
+
+```{r}
+data("hiv",  package = "GJRM")
+# We select  5 predictor variables over 9 regions
+colnames(hiv)
+hivdata <- hiv[,c("hiv","hivconsent","age","marital","condom","highhiv","interviewerID","region","language")]
+# Study/group variable has to be recoded as integer
+hivdata$region<-as.integer(hivdata$region)
+
+# Categorical variables have to be recoded as factor
+# to use the 2l.binary imputation method, it is required that the level names should not have any space between words
+
+hivdata$hiv <- as.factor(hivdata$hiv) #to use the 2l.heckman method, it is required that
+#the missing variable is stored as a factor in the dataset, otherwise the method will 
+#apply the imputation correction for a  missing continuous variable instead for 
+#a missing binary variable,which is in this case the binary response of the hiv test.
+
+hivdata$marital <- as.factor(hivdata$marital)
+levels(hivdata$marital)<-c("never_married","currently_married","formerly_married")
+hivdata$condom <- as.factor(hivdata$condom)
+levels(hivdata$condom)<-c("No_Condom_Last_Intercourse","Condom_Last_Intercourse")
+hivdata$highhiv <- as.factor(hivdata$highhiv)
+levels(hivdata$highhiv)<-c("Not_High_Risk_of_HIV","High_Risk_of_HIV")
+hivdata$interviewerID <- as.factor(hivdata$interviewerID)
+
+hivdata$interviewerID <-  as.factor(as.character(hivdata$interviewerID))
+interv<-as.data.frame(table(hivdata$interviewerID,hivdata$region))
+
+summary(hivdata)
+#  We obtain here the random effects for each interviewer, this is an approximation 
+#of the interviewer's skill which will be used as an exclusion constraint. 
+#Here, since the location of the interviewer was not randomly assigned to the 
+#subjects, the assignment was corrected for region and language. 
+
+hivdata$hivconsent <- as.factor(hivdata$hivconsent)
+ID_mixed <- lme4::glmer(hivconsent ~ region + language+(1 | interviewerID), data = hivdata, family = binomial)
+reffect  <- ranef(ID_mixed)$interviewerID
+reffect$interviewerID <- levels(hivdata$interviewerID)
+colnames(reffect)     <- c("IDreffect","interviewerID")
+hivdata  <-  merge(hivdata, reffect, by="interviewerID", all.x=TRUE)
+
+hivdata$interviewerID<-NULL
+hivdata$hivconsent<-NULL
+hivdata$language<-NULL
+summary(hivdata)
+ 
+# #Set prediction matrix and methods
+# ini <- mice(hivdata, maxit = 0)
+# meth<-ini$method
+# meth["hiv"]<-"2l.binary"
+# pred <- ini$pred
+# pred[,"region"] <- 0
+# pred["region",] <- 0
+# pred["hiv","region"]<- -2
+# pred["hiv","IDreffect"]<- 0
+# 
+# # MAR imputation model, we used the 2l.binary from the miceadds package
+# data_imp_mar <- mice( data= hivdata, # dataset with missing values
+#                       m = 10,   # number of imputations
+#                       meth = meth, #imputation method vector
+#                       pred = pred, #imputation predictors matrix
+#                       maxit=1)
+# 
+# # source("mice.impute.2l.heckman.R")
+# # sum(as.numeric(data_imp_mar[["imp"]][["hiv"]][["1"]]))
+# # sum(as.numeric(data_imp_heckp[["imp"]][["hiv"]][["1"]]))
+# # sum(as.numeric(data_imp_mar[["imp"]][["hiv"]][["2"]]))
+# # sum(as.numeric(data_imp_heckp[["imp"]][["hiv"]][["2"]]))
+# 
+# # Heckman model
+# pred["hiv","IDreffect"] <- -3
+# meth<-ini$method
+# meth["hiv"]<-"2l.heckman"
+# 
+# data_imp_heckp <- mice( hivdata, # dataset with missing values
+#                         m = 10,   # number of imputations
+#                         seed = 1234, #seed attached to the dataID
+#                         meth = meth, #imputation method vector
+#                         pred = pred, #imputation predictors matrix
+#                         print = T,
+#                         meta_method="reml",
+#                         pmm=FALSE)
+
+#Set prediction matrix and methods
+ini <- mice(hivdata, maxit = 0)
+meth<-ini$method
+meth["hiv"]<-"2l.binary"
+pred <- ini$pred
+pred[,"region"] <- 0
+pred["region",] <- 0
+pred["hiv","region"]<- -2
+pred["hiv","IDreffect"]<- 0
+
+# MAR imputation model, we used the 2l.binary from the miceadds package
+data_imp_mar <- mice( data= hivdata, # dataset with missing values
+                      m = 20,   # number of imputations
+                      meth = meth, #imputation method vector
+                      pred = pred, #imputation predictors matrix
+                      maxit=1)
+
+source("mice.impute.2l.heckman.R")
+
+# Heckman model
+pred["hiv","IDreffect"] <- -3
+meth<-ini$method
+meth["hiv"]<-"2l.heckman"
+
+data_imp_heckp <- mice( hivdata, # dataset with missing values
+                        m = 20,   # number of imputations
+                        seed = 1234, #seed attached to the dataID
+                        meth = meth, #imputation method vector
+                        pred = pred, #imputation predictors matrix
+                        print = T,
+                        maxit=1,
+                        meta_method="reml",
+                        pmm=FALSE)
+```
 
 # Discussion
 
