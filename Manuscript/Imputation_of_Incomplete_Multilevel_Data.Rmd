@@ -21,7 +21,7 @@ title:
   plain:     "Imputation of Incomplete Multilevel Data with mice"
   short:     "Multilevel \\pkg{mice}"
 abstract: >
-  This tutorial illustrates the imputation of incomplete multilevel data with the \proglang{R} packackage \pkg{mice}. Footnotes in the current version show work in progress/under construction. The last section is not part of the manuscript, but purely for reminders. We aim to submit at JSS, so there is no word count limit ("There is no page limit, nor a limit on the number of figures or tables"). [Just adding some text to get a better guess of what the actura abstract will look like: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.]
+  This tutorial illustrates the imputation of incomplete multilevel data with the \proglang{R} packackage \pkg{mice}. Footnotes in the current version show work in progress/under construction. The last section is not part of the manuscript, but purely for reminders. See also all of the TODOs that need to be worked out. We aim to submit at JSS, so there is no word count limit ("There is no page limit, nor a limit on the number of figures or tables"). [Just adding some text to get a better guess of what the actura abstract will look like: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.]
 keywords:
   # at least one keyword must be supplied
   formatted: [missing data, multilevel, clustering, "\\pkg{mice}", "\\proglang{R}"]
@@ -71,10 +71,7 @@ library(ggplot2)
 <!-- TODO: make it average of cluster dens, not marginal, alternatively add a quartile line around the density with geom_ribbon -->
 <!-- TODO: add fill and/or some way of expressing how much the densities overlap (overlap coefficient in %?) -->
 
-
 # Introduction
-
-TODO: send complete manuscript by september 30th!
 
 Many datasets include individuals from multiple settings, geographic regions, or even different studies. In the simplest case, individuals (e.g., students) are nested within so-called clusters (e.g., school classes). More complex clustered structures may occur when there are multiple hierarchical levels (e.g., patients within hospitals within regions or countries), or when the clustering is non-nested (e.g., electronic health record data from diverse settings and populations within large databases). In general, individuals from the same cluster tend to be more similar than individuals from other clusters. In statistical terms, this implies that observations from the same cluster are correlated. If this correlation is left unaddressed, estimates of *p* values, confidence intervals even model parameters are prone to bias  [@loca01]. [TODO: make a link to imputation methods, which require adequate handling and propagation of variance; we are not recommending the adoption of multilevel models for data analysis here, but rather for imputation.] Statistical methods for clustered data typically adopt hierarchical models that explicitly describe the grouping of observations. These models are also know as 'multilevel models', 'hierarchical models', 'mixed effect models' and 'random effect models'. Table \ref{tab:clus} provides an overview of some key concepts in multilevel modeling.
 
@@ -218,7 +215,7 @@ In this section we'll go over the different steps involved with imputing incompl
   - `sex`,	      pupil sex (0=boy, 1=girl; unit-level);
   - `texp`,	      teacher experience (in years; cluster-level).
 
-The research objective of the popmis dataset is to predict the pupils' popularity based on their gender and the experience of the teacher.  The analysis model corresponding to this dataset is multilevel regression with random intercepts, random slopes and a cross-level interaction. The outcome variable is `popular`, which is predicted from the unit-level variable `sex` and the cluster-level variable `texp`:
+The research objective of the `popmis` dataset is to predict the pupils' popularity based on their gender and the experience of the teacher.  The analysis model corresponding to this dataset is multilevel regression with random intercepts, random slopes and a cross-level interaction. The outcome variable is `popular`, which is predicted from the unit-level variable `sex` and the cluster-level variable `texp`:
 
 <!-- $$ -->
 <!-- \texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)} -->
@@ -549,22 +546,17 @@ As we can see... [TODO: fill in.]
 <!-- \end{center} -->
 
 <!-- --- -->
+Mutate data to get the right data types for imputation (e.g. integer for clustering variable).
 
-Create a methods vector and predictor matrix, and make sure `name` is not included as predictor, but as clustering variable:
-```{r ignore}
-meth <- make.method(dat) # methods vector
-pred <- quickpred(dat)   # predictor matrix
-plot_pred(pred)
+```{r}
+dat <- dat %>% mutate(across(everything(), as.integer))
 ```
 
-<!-- We'll now use `school` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased [@drec15; @ende16]. But at least, it includes some multilevel aspect. This method is also called 'fixed cluster imputation', and uses N-1 indicator variables representing allocation of N clusters as a fixed factor in the model [@reit06; @ende16]. Colloquially, this is 'multilevel imputation for dummies'.  -->
 
-<!-- Add: doesn't work with syst missing (only sporadically). There's some pro's and con's. May not differ much if the number of clusters is low. -->
-
-<!-- The more the random effects are of interest, the more you need ml models. -->
-
-```{r impact-pred, include=FALSE, eval=FALSE}
-pred <- quickpred(dat)
+Create a methods vector and predictor matrix, and make sure `name` is not included as predictor, but as clustering variable:
+```{r impact}
+meth <- make.method(dat) # methods vector
+pred <- quickpred(dat)   # predictor matrix
 plot_pred(pred)
 
 pred[pred == 1] <- 2
@@ -576,17 +568,21 @@ diag(pred) <- 0
 plot_pred(pred)
 
 meth <- make.method(dat)
-meth[meth != ""] <- "2l.pmm"
+meth
 ```
 
-[TODO: mutate data to get the right data types for imputation (e.g. integer for clustering variable).]
+<!-- We'll now use `school` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased [@drec15; @ende16]. But at least, it includes some multilevel aspect. This method is also called 'fixed cluster imputation', and uses N-1 indicator variables representing allocation of N clusters as a fixed factor in the model [@reit06; @ende16]. Colloquially, this is 'multilevel imputation for dummies'.  -->
 
-```{r imp_impact, eval = FALSE, include=FALSE}
-dat <- dat %>% mutate(across(everything(), as.integer))
-imp <- mice(dat, method = meth, predictorMatrix = pred, m = 2, maxit = 1)
+<!-- Add: doesn't work with syst missing (only sporadically). There's some pro's and con's. May not differ much if the number of clusters is low. -->
+
+<!-- The more the random effects are of interest, the more you need ml models. -->
+
+Impute the incomplete data
+```{r imp_impact}
+imp <- mice(dat, method = meth, predictorMatrix = pred, printFlag = FALSE)
 ```
 
-```{r impact-fit, eval = FALSE, include=FALSE}
+```{r impact-fit}
 fit <- imp %>% 
   with(glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial")) 
 tidy(pool(fit))
@@ -621,21 +617,16 @@ plot_pattern(hiv)
 
 R=region+language+(1|InterviewID) model with with interviewer as random effects, because the observations are not independent. Interviews are not allocated randomly. In theory we expect the inclusion-restriction variable to be randomly assigned, that's why we're adding region and language to compensate for non-random allocation.
 
-```{r eval=FALSE, include=FALSE}
-meth <- make.method(hiv)
-meth["hiv"] <- "2l.heckman"
-imp <- mice(hiv, method = meth)
-pred <- make.predictorMatrix(hiv)
-pred[, "region"] <- -2
-pred[, "smoke"] <- -3
-imp2 <- mice(hiv, method = meth, predictorMatrix = pred)
-```
-
+Load the data:
 ```{r}
 data("hiv",  package = "GJRM")
 # We select  5 predictor variables over 9 regions
 colnames(hiv)
 hivdata <- hiv[,c("hiv","hivconsent","age","marital","condom","highhiv","interviewerID","region","language")]
+```
+
+Recode variables:
+```{r}
 # Study/group variable has to be recoded as integer
 hivdata$region<-as.integer(hivdata$region)
 
@@ -657,13 +648,10 @@ hivdata$interviewerID <- as.factor(hivdata$interviewerID)
 
 hivdata$interviewerID <-  as.factor(as.character(hivdata$interviewerID))
 interv<-as.data.frame(table(hivdata$interviewerID,hivdata$region))
+```
 
-summary(hivdata)
-#  We obtain here the random effects for each interviewer, this is an approximation 
-#of the interviewer's skill which will be used as an exclusion constraint. 
-#Here, since the location of the interviewer was not randomly assigned to the 
-#subjects, the assignment was corrected for region and language. 
-
+We obtain here the random effects for each interviewer, this is an approximation of the interviewer's skill which will be used as an exclusion constraint. Here, since the location of the interviewer was not randomly assigned to the subjects, the assignment was corrected for region and language.
+```{r}
 hivdata$hivconsent <- as.factor(hivdata$hivconsent)
 ID_mixed <- lme4::glmer(hivconsent ~ region + language+(1 | interviewerID), data = hivdata, family = binomial)
 reffect  <- ranef(ID_mixed)$interviewerID
@@ -674,45 +662,10 @@ hivdata  <-  merge(hivdata, reffect, by="interviewerID", all.x=TRUE)
 hivdata$interviewerID<-NULL
 hivdata$hivconsent<-NULL
 hivdata$language<-NULL
-summary(hivdata)
- 
-# #Set prediction matrix and methods
-# ini <- mice(hivdata, maxit = 0)
-# meth<-ini$method
-# meth["hiv"]<-"2l.binary"
-# pred <- ini$pred
-# pred[,"region"] <- 0
-# pred["region",] <- 0
-# pred["hiv","region"]<- -2
-# pred["hiv","IDreffect"]<- 0
-# 
-# # MAR imputation model, we used the 2l.binary from the miceadds package
-# data_imp_mar <- mice( data= hivdata, # dataset with missing values
-#                       m = 10,   # number of imputations
-#                       meth = meth, #imputation method vector
-#                       pred = pred, #imputation predictors matrix
-#                       maxit=1)
-# 
-# # source("mice.impute.2l.heckman.R")
-# # sum(as.numeric(data_imp_mar[["imp"]][["hiv"]][["1"]]))
-# # sum(as.numeric(data_imp_heckp[["imp"]][["hiv"]][["1"]]))
-# # sum(as.numeric(data_imp_mar[["imp"]][["hiv"]][["2"]]))
-# # sum(as.numeric(data_imp_heckp[["imp"]][["hiv"]][["2"]]))
-# 
-# # Heckman model
-# pred["hiv","IDreffect"] <- -3
-# meth<-ini$method
-# meth["hiv"]<-"2l.heckman"
-# 
-# data_imp_heckp <- mice( hivdata, # dataset with missing values
-#                         m = 10,   # number of imputations
-#                         seed = 1234, #seed attached to the dataID
-#                         meth = meth, #imputation method vector
-#                         pred = pred, #imputation predictors matrix
-#                         print = T,
-#                         meta_method="reml",
-#                         pmm=FALSE)
+```
 
+Set the Heckman model as imputation method
+```{r}
 #Set prediction matrix and methods
 ini <- mice(hivdata, maxit = 0)
 meth<-ini$method
@@ -723,27 +676,21 @@ pred["region",] <- 0
 pred["hiv","region"]<- -2
 pred["hiv","IDreffect"]<- 0
 
-# MAR imputation model, we used the 2l.binary from the miceadds package
-data_imp_mar <- mice( data= hivdata, # dataset with missing values
-                      m = 20,   # number of imputations
-                      meth = meth, #imputation method vector
-                      pred = pred, #imputation predictors matrix
-                      maxit=1)
-
-source("mice.impute.2l.heckman.R")
-
 # Heckman model
 pred["hiv","IDreffect"] <- -3
 meth<-ini$method
 meth["hiv"]<-"2l.heckman"
+```
 
-data_imp_heckp <- mice( hivdata, # dataset with missing values
-                        m = 20,   # number of imputations
+Impute the data:
+```{r}
+imp <- mice( hivdata, # dataset with missing values
+                        m = 10,   # number of imputations
+                        maxit = 1,
                         seed = 1234, #seed attached to the dataID
                         meth = meth, #imputation method vector
                         pred = pred, #imputation predictors matrix
                         print = T,
-                        maxit=1,
                         meta_method="reml",
                         pmm=FALSE)
 ```
@@ -762,6 +709,8 @@ data_imp_heckp <- mice( hivdata, # dataset with missing values
 
 
 # Think about
+
+- Adding evaluations of the imputations such as convergence checks
 
 - Adding some kind of help function to mice that suggests a suitable predictor matrix to the user, given a certain analysis model.
 
