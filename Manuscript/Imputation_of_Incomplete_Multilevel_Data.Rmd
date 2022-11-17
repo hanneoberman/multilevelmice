@@ -99,6 +99,7 @@ Random effect       & Multilevel models typically accommodate for variability by
 
 ## Missingness in multilevel data
 
+<!-- Maybe besides CC and imputation name also likelihood based methods -->
 Like any other dataset, clustered datasets are prone to missing data. Several strategies can be used to handle missing data, including complete case analysis and imputation. We focus on the latter approach and discuss statistical methods for replacing the missing data with one or more plausible values. Afterwards, the completed data can be analyzed as if they were completely observed. In contrast to single imputation (where missing data are only replaced once), multiple imputation allows to preserve uncertainty due to missingness and is therefore recommended (c.f. Rubin 1976). 
 
 When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption.]
@@ -286,6 +287,7 @@ The missingness is univariate and sporadic, which is illustrated in the missing 
  <!-- The ICC in the incomplete data is `round(icc(popular ~ as.factor(school), data = na.omit(popmis)), 2)`. This tells us that the multilevel structure of the data should probably be taken into account. If we don't, we'll may end up with incorrect imputations, biasing the effect of the clusters towards zero.-->
 
 To develop the best imputation model for the incomplete variable `popular`, we need to know whether the observed values of `popular` are related to observed values of other variables. Plot the pair-wise complete correlations in the incomplete data:
+<!-- Excelent, but i dont know if you can refer to the outflux criteria here or elsewhere, cuz in practice it is used to select the predictors in the imputation model from dataset with a lot of features-->
 
 ```{r pop-corr}
 plot_corr(popmis)
@@ -359,6 +361,8 @@ testEstimates(as.mitml.result(fit), extra.pars = TRUE)
 We'll now use `school` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased [@drec15; @ende16]. But at least, it includes some multilevel aspect. This method is also called 'fixed cluster imputation', and uses N-1 indicator variables representing allocation of N clusters as a fixed factor in the model [@reit06; @ende16]. Colloquially, this is 'multilevel imputation for dummies'. 
 
 [TODO: Add that it doesn't work with systematic missingness (only with sporadic). There's some pros and cons, and it may not even differ much if the number of clusters is low.]
+
+<!-- A fixed cluster model is better if we have data with all the clusters in the population and we are interested in knowing the effect of a treatment on the specific cluster eg. Cluster No.123. If the population is too large (10000 schools) and we have a sample (200 schools) then an random cluster is better and saves us degrees of freedom because some of the parameters are random variables. Here we have to say that the imputation model should be more in line with the analysis model (that defines in part how the cluster is included) and consider how the estimation of the imputation model could be affected when N is too large (as we add N dummies in the fixed cluster model) or if ni is too small in some clusters, so the model can not be estimated in them.. -->
 
 
 ```{r pop_predictor, message=FALSE, warning=FALSE}
