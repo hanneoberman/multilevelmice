@@ -728,5 +728,9 @@ imp <- mice( hivdata, # dataset with missing values
 
 - env dump in repo
 
+-  I don't know if in your article you cover something about model complexity, for example sometimes I have to switch from 2l. methods to 1l. methods just because the model didn't converge.. this is due to the considered imputation model is very complex regarding the amount of information counted... I know that a solution for an imputation model with many predictors is to check correlation plots as you did or use quickpred().. (maybe you can add this somewhere after the correlation plots).....But as for cluster specification, I don't know if besides plots of distribution per cluster there is something else can be done to see if i have to use 1l. or 2l. for a given variable, also I have no idea.. how to test which is better between 2l.norm or 2l.2stage.norm.
+
+Translated with www.DeepL.com/Translator (free version)
+
 # References
 
