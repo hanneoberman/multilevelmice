@@ -110,6 +110,7 @@ When clustered datasets are affected by missing values, we can distinguish betwe
 dat <- expand.grid(rows = 1:7, cols = 1:6) %>% 
   cbind(text = c("1", "1", "2", "2", "3", "", "N", rep("", 35)),
         miss = c(rep("", 16), "NA", "NA", "", "", "", "NA", "", "", "NA", rep("", 17)))
+
 ggplot(dat, aes(x = cols, y = rows)) +
   geom_tile(fill = "white", color = "black", size = 0.5) +
   geom_text(aes(label = text), color = "black", size = 3) +
@@ -121,7 +122,8 @@ ggplot(dat, aes(x = cols, y = rows)) +
     position = "top"
   ) +
   scale_y_continuous(breaks = 1:7, labels = c(1:5, "...", "n"), name = NULL, trans = "reverse") +
-  coord_cartesian(expand = c(0,0,0,0)) +
+  coord_cartesian(expand = c(0)) + #Changed to run GV
+  # coord_cartesian(expand = c(0,0,0,0)) +
   theme_minimal() +
   theme(panel.grid = element_blank(),
         plot.margin = unit(c(0,0,0,0), "pt"))
@@ -684,7 +686,7 @@ meth["hiv"]<-"2l.heckman"
 ```
 
 Impute the data:
-```{r}
+```{r eval = FALSE}
 imp <- mice( hivdata, # dataset with missing values
                         m = 10,   # number of imputations
                         maxit = 1,
