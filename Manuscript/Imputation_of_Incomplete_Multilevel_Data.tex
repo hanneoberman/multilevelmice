@@ -7,15 +7,21 @@
 \usepackage[utf8]{inputenc}
 
 \author{
-Hanne Oberman\\Utrecht University \And Johanna Munoz Avila\\University
-Medical Center Utrecht \AND Valentijn de Jong\\University Medical
-Center Utrecht \And Gerko Vink\\Utrecht University \AND Thomas
-Debray\\University Medical Center Utrecht
+Hanne I. Oberman\\Utrecht University \And Johanna Munoz Avila\\Julius
+Center for Health Sciences and Primary Care, University Medical Center
+Utrecht, Utrecht University, Utrecht, The Netherlands \And Thomas P. A.
+Debray\\Julius Center for Health Sciences and Primary Care, University
+Medical Center Utrecht, Utrecht University, Utrecht, The
+Netherlands \And Gerko Vink\\Utrecht University \And Valentijn M. T. de
+Jong\\Julius Center for Health Sciences and Primary Care, University
+Medical Center Utrecht, Utrecht University, Utrecht, The Netherlands
+\AND Data Analytics and Methods Task Force, European Medicines Agency,
+Amsterdam, The Netherlands
 }
 \title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
 
-\Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn de
-Jong, Gerko Vink, Thomas Debray}
+\Plainauthor{Hanne I. Oberman, Johanna Munoz Avila, Thomas P. A.
+Debray, Gerko Vink, Valentijn M. T. de Jong}
 \Plaintitle{Imputation of Incomplete Multilevel Data with mice}
 \Shorttitle{Multilevel \pkg{mice}}
 
@@ -51,7 +57,7 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 %% \Acceptdate{2012-06-04}
 
 \Address{
-    Hanne Oberman\\
+    Hanne I. Oberman\\
     Utrecht University\\
     Padualaan 14\\
 3584 CH Utrecht\\
@@ -94,12 +100,15 @@ are correlated. If this correlation is left unaddressed, estimates of
 bias \citep{loca01}. {[}TODO: make a link to imputation methods, which
 require adequate handling and propagation of variance; we are not
 recommending the adoption of multilevel models for data analysis here,
-but rather for imputation.{]} Statistical methods for clustered data
-typically adopt hierarchical models that explicitly describe the
-grouping of observations. These models are also know as `multilevel
-models', `hierarchical models', `mixed effect models' and `random effect
-models'. Table \ref{tab:clus} provides an overview of some key concepts
-in multilevel modeling.
+but rather for imputation. VMTdJ: ``I would only make that link after
+introducing missing data, and missing data is not mentioned yet, so I
+would do that in the next section''{]} Statistical methods for clustered
+data typically adopt hierarchical models that explicitly describe the
+grouping of observations. These models are also known as `multilevel
+models', `hierarchical models', `mixed effect models', `random effect
+models', and in the context of time-to-event data as `frailty models'.
+Table \ref{tab:clus} provides an overview of some key concepts in
+multilevel modeling.
 
 \begin{table}[tb]
 \caption{Concepts in multilevel methods}
@@ -159,14 +168,14 @@ interpretation in the figure caption.{]}
 \end{figure}
 \end{CodeChunk}
 
-Imputation of missing data requires to consider the mechanism behind the
-missingness. Rubin proposed to distinguish between data that are missing
-completely at random (MCAR), data that are missing at random (MAR) and
-data that are missing not at random (MNAR; see Table \ref{tab:miss}).
-For each of these three missingness generating mechanisms, different
-imputation strategies are warranted \citet{yuce08} and \citet{hox15}. We
-here consider the general case that data are MAR, and expand on special
-MNAR situations.
+Imputation of missing data requires consideration of the mechanism
+behind the missingness. Rubin proposed to distinguish between data that
+are missing completely at random (MCAR), data that are missing at random
+(MAR) and data that are missing not at random (MNAR; see Table
+\ref{tab:miss}). For each of these three missingness generating
+mechanisms, different imputation strategies are warranted \citet{yuce08}
+and \citet{hox15}. We here consider the general case that data are MAR,
+and expand on certain MNAR situations.
 
 \begin{table}[tb]
 \caption{Concepts in missing data methods}
@@ -194,8 +203,9 @@ missingness on a variable-by-variable basis. \pkg{mice} is known to
 yield valid inferences under many different missing data circumstances
 \citep{buur18}. However, commonly used imputation methods were not
 designed for use in clustered data and usually generate observations
-that are independent. For this reason, we discuss how the \proglang{R}
-package \pkg{mice} can be used to impute multilevel data.
+that are independent whereas multilevel data are dependent. For this
+reason, we discuss how the \proglang{R} package \pkg{mice} can be used
+to impute multilevel data.
 
 {[}TODO: clarify why clustering is relevant during imputation, and why
 this exposes the need for specialized imputation methods and more
@@ -214,10 +224,11 @@ code snippets for different missing data situations, including
 non-ignorable mechanisms. For reasons of brevity, we focus on multilevel
 imputation by chained equations with \pkg{mice} exclusively; other
 imputation methods and packages (e.g., \pkg{jomo} and \pkg{mdmb}) are
-outside the scope of this tutorial. Assumed knowledge includes basic
+outside the scope of this tutorial. {[}TODO: change this sentence
+because we do not assume familiarity: ``Assumed knowledge includes basic
 familiarity with multilevel imputation \citep[see e.g.][ and
 \citet{grun18}]{audi18} and the \pkg{lme4} notation for multilevel
-models (see Table \ref{tab:mod}).
+models (see Table \ref{tab:mod})''{]}.
 
 \begin{table}[tb]
 \caption{Notation}
@@ -256,7 +267,7 @@ choose one or more imputation models and evaluate the imputed data, but
 we will also highlight one specific aspect of the imputation workflow.
 
 This tutorial is dedicated to readers who are unfamiliar with multiple
-imptuation. More experienced readers can skip the introduction (case
+imputation. More experienced readers can skip the introduction (case
 study 1) and directly head to practical applications of multilevel
 imputation under MAR conditions (case study IMPACT) or under MNAR
 conditions (case study HIV).
@@ -451,13 +462,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     4.932     0.274    18.012     4.420     0.000    19.514     0.964 
-sex             0.859     0.284     3.026     4.216     0.036    37.601     0.981 
+(Intercept)     4.986     0.194    25.704     4.917     0.000     9.201     0.927 
+sex             0.818     0.357     2.290     4.130     0.082    62.169     0.989 
 
                             Estimate 
-Intercept~~Intercept|school    0.265 
-Residual~~Residual             1.007 
-ICC|school                     0.213 
+Intercept~~Intercept|school    0.272 
+Residual~~Residual             0.975 
+ICC|school                     0.227 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -520,13 +531,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     5.054     0.266    19.029     4.554     0.000    14.936     0.954 
-sex             0.732     0.306     2.393     4.233     0.071    34.886     0.980 
+(Intercept)     5.186     0.254    20.457     4.706     0.000    11.816     0.942 
+sex             0.760     0.219     3.479     4.609     0.020    13.627     0.950 
 
                             Estimate 
-Intercept~~Intercept|school    0.318 
-Residual~~Residual             1.257 
-ICC|school                     0.208 
+Intercept~~Intercept|school    0.345 
+Residual~~Residual             1.578 
+ICC|school                     0.182 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -576,13 +587,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-(Intercept)     4.714     0.193    24.432     5.032     0.000     8.224     0.919 
-sex             1.286     0.288     4.460     4.218     0.010    37.215     0.981 
+(Intercept)     5.000     0.356    14.027     4.283     0.000    28.723     0.976 
+sex             1.056     0.465     2.270     4.105     0.084    76.708     0.991 
 
                             Estimate 
-Intercept~~Intercept|school    0.299 
-Residual~~Residual             1.050 
-ICC|school                     0.228 
+Intercept~~Intercept|school    0.294 
+Residual~~Residual             1.347 
+ICC|school                     0.187 
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -769,7 +780,7 @@ R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 # A tibble: 11 x 9
    effect   group term        estim~1 std.er~2 stati~3   p.value conf.~4 conf.~5
    <chr>    <chr> <chr>         <dbl>    <dbl>   <dbl>     <dbl>   <dbl>   <dbl>
- 1 fixed    <NA>  (Intercept)  0.0863  0.0182   -11.6   2.99e-31  0.0571   0.130
+ 1 fixed    <NA>  (Intercept)  0.0863  0.0182   -11.6   3.00e-31  0.0571   0.130
  2 fixed    <NA>  typeRCT      0.757   0.137     -1.54  1.22e- 1  0.531    1.08 
  3 fixed    <NA>  age          1.03    0.00265   12.9   7.40e-38  1.03     1.04 
  4 fixed    <NA>  motor_scor~  0.651   0.0732    -3.82  1.34e- 4  0.522    0.811
@@ -778,7 +789,7 @@ R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
  7 fixed    <NA>  pupilNone    3.20    0.317     11.7   8.18e-32  2.63     3.88 
  8 fixed    <NA>  pupilOne     1.75    0.195      5.06  4.27e- 7  1.41     2.18 
  9 fixed    <NA>  ctIII        2.41    0.268      7.89  3.05e-15  1.94     2.99 
-10 fixed    <NA>  ctIV/V       2.30    0.214      8.95  3.55e-19  1.92     2.76 
+10 fixed    <NA>  ctIV/V       2.30    0.214      8.95  3.56e-19  1.92     2.76 
 11 ran_pars name  sd__(Inter~  0.230  NA         NA    NA        NA       NA    
 # ... with abbreviated variable names 1: estimate, 2: std.error, 3: statistic,
 #   4: conf.low, 5: conf.high
@@ -853,32 +864,32 @@ R> tidy(pool(fit))
 \end{CodeInput}
 \begin{CodeOutput}
                      term    estimate   std.error  statistic      p.value
-1             (Intercept) -2.33813790 0.340459131  -6.867602 6.978862e-12
-2                    type -0.41509929 0.179936773  -2.306918 2.107792e-02
-3                     age  0.03034813 0.001561834  19.431086 0.000000e+00
-4 as.factor(motor_score)2 -0.66052409 0.068846376  -9.594174 0.000000e+00
-5 as.factor(motor_score)3 -1.05030912 0.070059114 -14.991756 0.000000e+00
-6 as.factor(motor_score)4 -1.49637069 0.071492961 -20.930322 0.000000e+00
-7                   pupil  0.48922641 0.038536483  12.695149 0.000000e+00
-8                      ct  0.42634415 0.028388807  15.018037 0.000000e+00
-             b          df dfcom          fmi       lambda m          riv
-1 9.395965e-04  8668.10341 11013 0.0099557149 0.0097273074 5 0.0098228573
-2 1.729929e-05 10991.51028 11013 0.0008229571 0.0006411648 5 0.0006415761
-3 8.332782e-09 10482.95010 11013 0.0042891736 0.0040992241 5 0.0041160969
-4 5.649577e-05  6979.24803 11013 0.0145856016 0.0143032580 5 0.0145108098
-5 3.003051e-05  9526.87220 11013 0.0075503299 0.0073420043 5 0.0073963080
-6 3.329522e-05  9362.42789 11013 0.0080288174 0.0078169354 5 0.0078785213
-7 3.337070e-04    54.63795 11013 0.2949938851 0.2696512493 5 0.3692088868
-8 1.180517e-05  5893.23780 11013 0.0179108151 0.0175775781 5 0.0178920775
+1             (Intercept) -2.33931814 0.337744863  -6.926288 4.565459e-12
+2                    type -0.41950933 0.179122441  -2.342026 1.919717e-02
+3                     age  0.03042682 0.001565356  19.437637 0.000000e+00
+4 as.factor(motor_score)2 -0.66613691 0.069302767  -9.611981 0.000000e+00
+5 as.factor(motor_score)3 -1.04915293 0.070119780 -14.962297 0.000000e+00
+6 as.factor(motor_score)4 -1.50206863 0.071907169 -20.888997 0.000000e+00
+7                   pupil  0.49317740 0.035150534  14.030438 0.000000e+00
+8                      ct  0.42802910 0.029616105  14.452579 0.000000e+00
+             b         df dfcom          fmi       lambda m          riv
+1 2.240527e-04 10819.9749 11013 0.0025413258 0.0023569693 5 0.0023625377
+2 2.066282e-05 10984.4464 11013 0.0009546917 0.0007728065 5 0.0007734042
+3 1.927783e-08  8774.5121 11013 0.0096665946 0.0094408908 5 0.0095308707
+4 1.096200e-04  3559.8620 11013 0.0279345878 0.0273886158 5 0.0281598759
+5 3.652274e-05  8968.6823 11013 0.0091347491 0.0089138126 5 0.0089939832
+6 9.004098e-05  4952.3514 11013 0.0212918407 0.0208966706 5 0.0213426612
+7 1.183186e-04   293.7825 11013 0.1208778877 0.1149133407 5 0.1298328695
+8 6.936809e-05   425.1630 11013 0.0991319347 0.0949041246 5 0.1048553276
           ubar
-1 1.147849e-01
-2 3.235648e-02
-3 2.429325e-06
-4 4.672029e-03
-5 4.872243e-03
-6 5.071289e-03
-7 1.084612e-03
-8 7.917581e-04
+1 1.138027e-01
+2 3.206005e-02
+3 2.427206e-06
+4 4.671329e-03
+5 4.872956e-03
+6 5.062592e-03
+7 1.093578e-03
+8 7.938720e-04
 \end{CodeOutput}
 \begin{CodeInput}
 R> as.mitml.result(fit)
@@ -891,18 +902,18 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
       AIC       BIC    logLik  deviance  df.resid 
-10522.944 10588.713 -5252.472 10504.944     11013 
+10509.778 10575.547 -5245.889 10491.778     11013 
 Random effects:
  Groups Name        Std.Dev.
- name   (Intercept) 0.2913  
+ name   (Intercept) 0.2939  
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-               -2.32713                 -0.41953                  0.03031  
+                -2.3395                  -0.4185                   0.0304  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.65651                 -1.04719                 -1.49327  
+                -0.6597                  -1.0504                  -1.5006  
                   pupil                       ct  
-                0.48990                  0.42335  
+                 0.4893                   0.4302  
 optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
 
 [[2]]
@@ -912,18 +923,18 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
       AIC       BIC    logLik  deviance  df.resid 
-10525.723 10591.492 -5253.861 10507.723     11013 
+10501.337 10567.106 -5241.668 10483.337     11013 
 Random effects:
  Groups Name        Std.Dev.
- name   (Intercept) 0.2937  
+ name   (Intercept) 0.2896  
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-               -2.30150                 -0.41940                  0.03024  
+               -2.35407                 -0.42416                  0.03023  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.65497                 -1.04451                 -1.49454  
+               -0.66302                 -1.03875                 -1.50219  
                   pupil                       ct  
-                0.47281                  0.42888  
+                0.50367                  0.43246  
 optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
 
 [[3]]
@@ -932,19 +943,19 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
  Family: binomial  ( logit )
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
-     AIC      BIC   logLik deviance df.resid 
-10512.28 10578.05 -5247.14 10494.28    11013 
+      AIC       BIC    logLik  deviance  df.resid 
+10500.594 10566.363 -5241.297 10482.594     11013 
 Random effects:
  Groups Name        Std.Dev.
- name   (Intercept) 0.2852  
+ name   (Intercept) 0.2902  
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-               -2.35320                 -0.41028                  0.03034  
+               -2.35434                 -0.41988                  0.03042  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.66933                 -1.05474                 -1.50379  
+               -0.65515                 -1.04987                 -1.49095  
                   pupil                       ct  
-                0.49491                  0.42442  
+                0.49221                  0.43460  
 optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
 
 [[4]]
@@ -953,20 +964,20 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
  Family: binomial  ( logit )
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
-     AIC      BIC   logLik deviance df.resid 
-10530.02 10595.79 -5256.01 10512.02    11013 
+      AIC       BIC    logLik  deviance  df.resid 
+10520.673 10586.442 -5251.336 10502.673     11013 
 Random effects:
  Groups Name        Std.Dev.
- name   (Intercept) 0.2923  
+ name   (Intercept) 0.2891  
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-               -2.32670                 -0.41286                  0.03037  
+               -2.32285                 -0.42261                  0.03062  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.66801                 -1.04770                 -1.50070  
+               -0.67111                 -1.05287                 -1.49941  
                   pupil                       ct  
-                0.47210                  0.43109  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+                0.50321                  0.41360  
+optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 2 lme4 warnings 
 
 [[5]]
 Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -975,18 +986,18 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
       AIC       BIC    logLik  deviance  df.resid 
-10488.615 10554.383 -5235.307 10470.615     11013 
+10532.391 10598.160 -5257.196 10514.391     11013 
 Random effects:
  Groups Name        Std.Dev.
- name   (Intercept) 0.2939  
+ name   (Intercept) 0.2866  
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-               -2.38215                 -0.41343                  0.03049  
+               -2.32583                 -0.41243                  0.03045  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.65379                 -1.05740                 -1.48956  
+               -0.68169                 -1.05384                 -1.51715  
                   pupil                       ct  
-                0.51641                  0.42397  
+                0.47746                  0.42928  
 optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
 
 attr(,"class")
@@ -1141,20 +1152,6 @@ R> imp <- mice( hivdata, # dataset with missing values
 +                         meta_method="reml",
 +                         pmm=FALSE)
 \end{CodeInput}
-\begin{CodeOutput}
-
- iter imp variable
-  1   1  hiv
-  1   2  hiv
-  1   3  hiv
-  1   4  hiv
-  1   5  hiv
-  1   6  hiv
-  1   7  hiv
-  1   8  hiv
-  1   9  hiv
-  1   10  hiv
-\end{CodeOutput}
 \end{CodeChunk}
 
 \hypertarget{discussion}{%
@@ -1174,6 +1171,8 @@ R> imp <- mice( hivdata, # dataset with missing values
 \section{Think about}\label{think-about}}
 
 \begin{itemize}
+\item
+  Adding evaluations of the imputations such as convergence checks
 \item
   Adding some kind of help function to mice that suggests a suitable
   predictor matrix to the user, given a certain analysis model.
