@@ -89,5 +89,7 @@ imp_pmm <- mice(data = data, meth = meth, pred = pred, maxit = 1, m = 5, seed = 
 
 densityplot(imp_pmm)
 
-obesity <- data
+obesity <- data %>% janitor::clean_names() %>% mutate(weight = round(weight, 2), rt = round(time, 2), .keep = "unused")
+obesity$bmi = round(b$weight / (b$height)^2, 2)
+obesity = obesity[, c("cluster", "gender", "age", "height", "weight", "bmi", "rt")]
 save(obesity, file = "./Data/obesity.Rdata")
