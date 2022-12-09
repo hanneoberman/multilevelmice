@@ -9,13 +9,25 @@ author:
     email: \email{h.i.oberman@uu.nl}
     url: https://hanneoberman.github.io/
   - name: "Johanna Munoz Avila"
-    affiliation: Julius Center for Health Sciences and Primary Care, University Medical Center Utrecht, Utrecht University, Utrecht, The Netherlands 
+    affiliation: |
+      | Julius Center for Health Sciences and Primary Care, 
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands \AND
   - name: Thomas P. A. Debray
-    affiliation: Julius Center for Health Sciences and Primary Care, University Medical Center Utrecht, Utrecht University, Utrecht, The Netherlands 
+    affiliation: Julius Center for Health Sciences and Primary Care
+    address: |
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands   
   - name: Gerko Vink
-    affiliation: Utrecht University 
+    affiliation: Utrecht University \AND
   - name: Valentijn M. T. de Jong
-    affiliation: Julius Center for Health Sciences and Primary Care, University Medical Center Utrecht, Utrecht University, Utrecht, The Netherlands \AND Data Analytics and Methods Task Force, European Medicines Agency, Amsterdam, The Netherlands
+    affiliation: |
+      | Julius Center for Health Sciences and Primary Care, 
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands 
+    affiliation2: |
+      | Data Analytics and Methods Task Force, 
+      | European Medicines Agency, Amsterdam, The Netherlands
 
 title:
   formatted: "Imputation of Incomplete Multilevel Data with \\pkg{mice}"
@@ -43,7 +55,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-```{r, setup, include=FALSE}
+```{r, setup, include=FALSE, eval=TRUE}
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 options(prompt = 'R> ', continue = '+ ')
 
@@ -102,7 +114,7 @@ Random effect       & Multilevel models typically accommodate for variability by
 
 Like any other dataset, clustered datasets are prone to missing data. Several strategies can be used to handle missing data, including complete case analysis and imputation. We focus on the latter approach and discuss statistical methods for replacing the missing data with one or more plausible values. Afterwards, the completed data can be analyzed as if they were completely observed. In contrast to single imputation (where missing data are only replaced once), multiple imputation allows to preserve uncertainty due to missingness and is therefore recommended (c.f. Rubin 1976). 
 
-When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption.]
+When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption. VMTdJ: "Mention in text that this is sporadic missingness?"]
 
 <!-- Systematic missingness implies that one or more variables are never observed in a certain cluster. With sporadic missingness there may be observed data for some but not all units in a cluster [@buur18; @jola18]. We have visualized this difference in Figure 1, which shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n$ units distributed over $N$ clusters and $p$ variables.  -->
 
@@ -121,7 +133,7 @@ ggplot(dat, aes(x = cols, y = rows)) +
     position = "top"
   ) +
   scale_y_continuous(breaks = 1:7, labels = c(1:5, "...", "n"), name = NULL, trans = "reverse") +
-  coord_cartesian(expand = c(0,0,0,0)) +
+  # coord_cartesian(expand = c(0,0)) +
   theme_minimal() +
   theme(panel.grid = element_blank(),
         plot.margin = unit(c(0,0,0,0), "pt"))
@@ -424,7 +436,7 @@ We illustrate how to impute incomplete multilevel data by means of a case study:
   - `edh` Epidural hematoma (0=no, 1=yes),
   - `mort` 6-month mortality (0=alive, 1=dead).
 
-The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on unfortunate outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
+The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on mortality outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
 ```{r mod}
 mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) 
 ```
@@ -520,7 +532,7 @@ fit <- glmer(mod, family = "binomial", data = na.omit(dat)) # fit the model
 tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 ```
 
-As we can see... [TODO: fill in.] 
+As we can see... [TODO: fill in: This means that a higher ct (Marshall Computerized Tomography classification) is associated with a lower odds of 6-month mortality, given by the odds ratio exp(0.42), CI ... to ..., when controlling for ...] 
 
 <!-- If we run the multilevel model on the incomplete date, we get a warning about unindentifyability. This means that with CCA as missing data method, we cannot trust the estimates. To still obtain some estimates to compare later, we fit a simplified analysis model: using the cluster variable as indicator in the model. -->
 
@@ -616,7 +628,7 @@ hiv <- hiv %>%
 plot_pattern(hiv)
 ```
 
-R=region+language+(1|InterviewID) model with with interviewer as random effects, because the observations are not independent. Interviews are not allocated randomly. In theory we expect the inclusion-restriction variable to be randomly assigned, that's why we're adding region and language to compensate for non-random allocation.
+R=region+language+(1|InterviewID) model with interviewer as random effects, because the observations are not independent. Interviews are not allocated randomly. In theory we expect the inclusion-restriction variable to be randomly assigned, that's why we're adding region and language to compensate for non-random allocation. [TODO: Explain exclusion-restriction, refer to paper Johanna].
 
 Load the data:
 ```{r}
@@ -632,7 +644,8 @@ Recode variables:
 hivdata$region<-as.integer(hivdata$region)
 
 # Categorical variables have to be recoded as factor
-# to use the 2l.binary imputation method, it is required that the level names should not have any space between words
+# to use the 2l.binary imputation method, it is required 
+# that the level names should not have any space between words
 
 hivdata$hiv <- as.factor(hivdata$hiv) #to use the 2l.heckman method, it is required that
 #the missing variable is stored as a factor in the dataset, otherwise the method will 
@@ -684,7 +697,7 @@ meth["hiv"]<-"2l.heckman"
 ```
 
 Impute the data:
-```{r}
+```{r eval=FALSE}
 imp <- mice( hivdata, # dataset with missing values
                         m = 10,   # number of imputations
                         maxit = 1,
@@ -724,6 +737,12 @@ imp <- mice( hivdata, # dataset with missing values
 - Show use case for deductive imputation for cluster level variables?
 
 - env dump in repo
+
+# Funding
+
+This project has received funding from the European Union's Horizon 2020 research and innovation programme under ReCoDID grant agreement No 825746.
+
+The views expressed in this paper are the personal views of the authors and may not be understood or quoted as being made on behalf of or reflecting the position of the regulatory agency/agencies or organizations with which the authors are employed/affiliated.
 
 # References
 
