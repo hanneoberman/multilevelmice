@@ -2,7 +2,9 @@
 documentclass: jss
 author:
   - name: Hanne I. Oberman
-    affiliation: Utrecht University
+    affiliation: |
+      | Methodology and Statistics
+      | Utrecht University
     address: |
       | Padualaan 14
       | 3584 CH Utrecht
@@ -19,7 +21,9 @@ author:
       | University Medical Center Utrecht, Utrecht University, 
       | Utrecht, The Netherlands   
   - name: Gerko Vink
-    affiliation: Utrecht University \AND
+    affiliation: |
+      | Methodology and Statistics
+      | Utrecht University \AND
   - name: Valentijn M. T. de Jong
     affiliation: |
       | Julius Center for Health Sciences and Primary Care, 
@@ -88,36 +92,29 @@ library(ggplot2)
 
 Many datasets include individuals from multiple settings, geographic regions, or even different studies. In the simplest case, individuals (e.g., students) are nested within so-called clusters (e.g., school classes). More complex clustered structures may occur when there are multiple hierarchical levels (e.g., patients within hospitals within regions or countries), or when the clustering is non-nested (e.g., electronic health record data from diverse settings and populations within large databases). In general, individuals from the same cluster tend to be more similar than individuals from other clusters. In statistical terms, this implies that observations from the same cluster are correlated. If this correlation is left unaddressed, estimates of *p* values, confidence intervals even model parameters are prone to bias  [@loca01]. [TODO: make a link to imputation methods, which require adequate handling and propagation of variance; we are not recommending the adoption of multilevel models for data analysis here, but rather for imputation. VMTdJ: "I would only make that link after introducing missing data, and missing data is not mentioned yet, so I would do that in the next section"] Statistical methods for clustered data typically adopt hierarchical models that explicitly describe the grouping of observations. These models are also known as 'multilevel models', 'hierarchical models', 'mixed effect models', 'random effect models', and in the context of time-to-event data as 'frailty models'. Table \ref{tab:clus} provides an overview of some key concepts in multilevel modeling.
 
-\begin{table}[tb]
-\caption{Concepts in multilevel methods}
-\label{tab:clus}
-\centering
-\begin{tabular}{ll}
-\hline
-\textbf{Concept} & \textbf{Details}   \\
-\hline
-Sample unit         & Units of the population from which measurements are taken in a sample.\\                           & These should be distinct and not overlapping, e.g., patients, students.\\ 
-Hierarchical levels & Data are grouped into clusters at different levels. A three-level \\                               & hierarchical model could occur by collecting observations of math scores\\                         & (lower level) which can be measured over the whole school year for each\\                          & student, and then grouped by student (middle level) and these in turn can\\                        & be aggregated into classrooms (high level).\\
-Fixed effect        & Here we assume that the values of an independent variable are fixed, i.e., \\ 
-  & the values observed in the study are representative of all values in the \\                        & population we are interested in. In the case of a fixed factor variable, for \\                     & example treatment type, we are only concerned with assessing the difference \\ 
-                & in the dependent variable y e.g., blood pressure between treatments A and B.\\                     & There may be additional treatments, but based on the objective of the study,\\                     & which in this case is the equivalence effect of A and B, the other treatment\\                     & types are irrelevant and therefore the treatment type is included as a fixed \\                     & effect with only the A and B levels in the hierarchical model. \\
-Random effect       & The values of an independent variable are assumed to be randomly drawn from \\                     & a population with more values. In a random factor, the levels observed in the\\                     & study represent a sample of all possible levels, e.g., hospitals, classrooms.\\                     & For example, in a study to predict the blood pressure of patients on \\  
-& admission we might select only certain hospitals that are representative of \\                     & the entire population of hospitals. Here we are not interested in measuring \\ 
-& the difference of y between individual hospitals, but rather the variation of\\                     & y between hospitals, to create a model that can be generalized to the entire\\                     & population of hospitals. \\                    
+Table 1: Concepts in multilevel methods
+| **Concept**         | **Details**                                                                   |
+|---------------------|-------------------------------------------------------------------------------|
+| Sample unit         | Units of the population from which measurements are taken in a sample.        |
+| Hierarchical levels | Data are grouped into clusters at different levels. A three-level             |
+| Fixed effect        | Here we assume that the values of an independent variable are fixed, i.e.,    |
+|                     | the values observed in the study are representative of all values in the      |
+|                     | in the dependent variable y e.g., blood pressure between treatments A and B.  |
+| Random effect       | The values of an independent variable are assumed to be randomly drawn from   |
+|                     | admission we might select only certain hospitals that are representative of   |
+|                     | the difference of y between individual hospitals, but rather the variation of |
+| ICC                 | The variability due to clustering is often measured by means of the           |
+|                     | intraclass coefficient (ICC). The ICC can be seen as the percentage           |
+|                     | of variance that can be attributed to the cluster-level, where a high         |
+|                     | ICC would indicate that a lot of variability is due to the cluster            |
+|                     | structure.                                                                    |
+| Random effect       | Multilevel models typically accommodate for variability by including          |
+|                     | a separate group mean for each cluster. In addition to random                 |
+|                     | intercepts, multilevel models can also include random coefficients            |
+|                     | and heterogeneous residual error variances across clusters [see e.g.          |
+|                     | @gelm06, @hox17 and @jong21]. [TODO: add stratification.]                     |
 
-ICC                 & The variability due to clustering is often measured by means of the \\
-                    & intraclass coefficient (ICC). The ICC can be seen as the percentage \\
-                    & of variance that can be attributed to the cluster-level, where a high \\
-                    & ICC would indicate that a lot of variability is due to the cluster \\
-                    & structure. \\
-Random effect       & Multilevel models typically accommodate for variability by including \\
-                    & a separate group mean for each cluster. In addition to random \\
-                    & intercepts, multilevel models can also include random coefficients \\
-                    & and heterogeneous residual error variances across clusters [see e.g. \\
-                    & @gelm06, @hox17 and @jong21]. [TODO: add stratification.] \\
-\hline
-\end{tabular}
-\end{table}
+
 
 ## Missingness in multilevel data
 
@@ -153,25 +150,17 @@ ggplot(dat, aes(x = cols, y = rows)) +
 
 Imputation of missing data requires consideration of the mechanism behind the missingness. Rubin proposed to distinguish between data that are missing completely at random (MCAR), data that are missing at random (MAR) and data that are missing not at random (MNAR; see Table \ref{tab:miss}). For each of these three missingness generating mechanisms, different imputation strategies are warranted @yuce08 and @hox15. We here consider the general case that data are MAR, and expand on certain MNAR situations.
 
-\begin{table}[tb]
-\caption{Concepts in missing data methods}
-\label{tab:miss}
-\centering
-\begin{tabular}{ll}
-\hline
-\textbf{Concept} & \textbf{Details}   \\
-\hline
-MCAR    & Missing Completely At Random, where the probability to be missing is equal \\
-& across all data entries \\
-MAR     & Missing At Random, where the probability to be missing depends on observed \\
-& information \\
-MNAR    & Missing Not At Random (MNAR), where the probability to be missing \\
-& depends on unrecorded information, making the missingness non-ignorable \\
-& [@rubi76; @meng94]. \\
-& [TODO: add congeniality, but maybe in-text?] \\
-\hline
-\end{tabular}
-\end{table}
+Table 2: Concepts in missing data methods
+| **Concept**    | **Details**                                                                |
+|----------------|----------------------------------------------------------------------------|
+| MCAR           | Missing Completely At Random, where the probability to be missing is equal |
+|                | across all data entries                                                    |
+| MAR            | Missing At Random, where the probability to be missing depends on observed |
+|                | information                                                                |
+| MNAR           | Missing Not At Random (MNAR), where the probability to be missing          |
+|                | depends on unrecorded information, making the missingness non-ignorable    |
+|                | [@rubi76; @meng94].                                                        |
+|                | [TODO: add congeniality, but maybe in-text?]                               |
 
 <!-- Since excluding observations is not a desirable workflow, the missingness in multilevel data should be accommodated \emph{before} or _within_ the analysis of scientific interest. In this paper, we focus on the former approach: imputing (i.e., filling in) the missing data with plausible values, whereafter the completed data may be analyzed as if it were completely observed. Imputation separates the missing data problem from the scientific problem, which makes the missing data strategy very generic and popular. If each missing value is replaced multiple times, the resulting inferences may validly convey the uncertainty due to missingness [c.f. @rubi76].  -->
 
@@ -184,43 +173,31 @@ The \proglang{R} package \pkg{mice} has become the de-facto standard for imputat
 This papers serves as a tutorial for imputing incomplete multilevel data with \pkg{mice} in \proglang{R}. We provide practical guidelines and code snippets for different missing data situations, including non-ignorable mechanisms. For reasons of brevity, we focus on multilevel imputation by chained equations with \pkg{mice} exclusively; other imputation methods and packages (e.g., \pkg{jomo} and \pkg{mdmb}) are outside the scope of this tutorial. [TODO: change this sentence because we do not assume familiarity: "Assumed knowledge includes basic familiarity with multilevel imputation [see e.g. @audi18 and @grun18] and the \pkg{lme4} notation for multilevel models (see Table \ref{tab:mod})"].
 
 
-```{=tex}
-\begin{table}[tb]
-\caption{Notation}
-\label{tab:mod}
-\centering
-\begin{tabular}{lll}
-\hline
-\textbf{Formula lme4} & \textbf{Details}   \\
-\hline
-y$\sim$ x1 + (1 | g1)                                       & Fixed x1 predictor with random intercept  \\
-                                                         & varying among g\\
-y$\sim$x1*x2+ (1| g1)                                      & Interactions of x1 and x2 only in fixed effect\\
-y$\sim$x1*x2+ (x2| g1)                                     & Interactions of x1 and x2 only in fixed effect\\
-                                                         & with slope of x2 randomly varying among g1\\
-y$\sim$x1*x2+ (x1*x2| g1)                                  & variance-covariance matrix estimated only with \\
-                                                         & the variance terms of intercept, slope of x1, \\
-                                                         & slope of x2 and interaction x1*x2\\
-y$\sim$x1*x2+ (x1| g1)+ (x2| g1)                           & variance-covariance matrix estimated separately,\\
-                                                         & i.e, one for intercept and x1 and another for \\
-                                                         & intercept and x2\\
-y$\sim$x1 + (x1 | g1) or 1 + x1 + (1 + x1 | g1)            & Fixed x1 with correlated random intercept and \\
-                                                         & random slope of x\\
-y$\sim$x1 + (x1 || g1) or 1 + x1 + (1 | g1) + (0 + x1 | g1) & Fixed x1 with uncorrelated random intercept\\
-                                                         & and random slope of x1\\  
-y$\sim$(1 | g1) + (1 | g2)                                 & Random intercept varying among g1 and among g2\\
-y$\sim$(1 | g1/g2) or ~(1|g1)+(1|g1:g2)                    & Random intercept varying among g1 and g2 
-                                                         & withing g1\\
+Table 3: Notation
+
+| **Formula \pkg{lme4}**         | **Details**                                 |
+|-------------------------------------------------------------|--------------------------------------------------|
+| `y ~ x1 + (1 | g1)`                                      | Fixed `x1` predictor with random intercept         |
+|                                                             | varying among `g1`                                  |
+| `y~x1*x2+ (1| g1)`                                       | Interactions of `x1` and `x2` only in fixed effect   |
+| `y ~ x1*x2+ (x2| g1)`                                      | Interactions of `x1` and `x2` only in fixed effect   |
+|                                                             | with slope of `x2` randomly varying among `g1`       |
+| `y ~ x1*x2+ (x1*x2| g1)`                                   | variance-covariance matrix estimated only with   |
+|                                                             | the variance terms of intercept, slope of `x1`,    |
+|                                                             | slope of `x2` and interaction `x1*x2`                |
+| `y ~ x1*x2+ (x1 | g1)+ (x2| g1)`                            | variance-covariance matrix estimated separately, |
+|                                                             | i.e, one for intercept and `x1` and another for    |
+|                                                             | intercept and `x2`                                 |
+| `y ~ x1 + (x1 | g1) or 1 + x1 + (1 + x1 | g1)`             | Fixed `x1` with correlated random intercept and    |
+|                                                             | random slope of `x`                                |
+| `y ~ x1 + (x1 || g1) or 1 + x1 + (1 | g1) + (0 + x1 | g1)` | Fixed `x1` with uncorrelated random intercept      |
+|                                                             | and random slope of `x1`                           |
+| `y ~ (1 | g1) + (1 | g2)`                                  | Random intercept varying among `g1` and among `g2   |
+| `y ~ (1 | g1/g2) or ~ (1 | g1) + (1 | g1:g2)`                     | Random intercept varying among `g1` and `g2`         |
+|                                                             | withing `g1`                                       |
+|                                                             | [TODO: explain \pkg{lme4} notation here          |
 
 
-& [TODO: explain \pkg{lme4} notation here
-https://datalorax.github.io/equatiomatic/articles/lmer4-lmer.html
-https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf
-] \\
-\hline
-\end{tabular}
-\end{table}
-```
 
 We illustrate imputation of incomplete multilevel data using three case studies:
 
@@ -309,9 +286,9 @@ n <- popcomp %>% group_by(school) %>%
   mutate(school = as.character(school))
 
 fits %>% left_join(n, by = "school") %>% 
-  ggplot(aes(y = school, x = estimate, size = n)) +
-  geom_vline(xintercept = 1, size = 1.5, color = "grey95") +
-  geom_linerange(aes(y = school, xmin = conf.low, xmax = conf.high, size = 0.5), position = position_dodge(width = 0.5)) +
+  ggplot(aes(y = school, x = estimate, linewidth = n)) +
+  geom_vline(xintercept = 1, linewidth = 1.5, color = "grey95") +
+  geom_linerange(aes(y = school, xmin = conf.low, xmax = conf.high, linewidth = 0.5), position = position_dodge(width = 0.5)) +
   geom_point(shape = 20, position = position_dodge(width = 0.5)) +
   labs(y = "Study", x = "", color = NULL) +
   theme_classic() +
@@ -518,9 +495,9 @@ n <- impact %>% group_by(name) %>%
   tally()
 
 fits %>% left_join(n, by = "name") %>% 
-  ggplot(aes(y = name, x = estimate, color = term, size = n)) +
-  geom_vline(xintercept = 1, size = 1.5, color = "grey95") +
-  geom_linerange(aes(y = name, xmin = conf.low, xmax = conf.high, size = 0.5), position = position_dodge(width = 0.5)) +
+  ggplot(aes(y = name, x = estimate, color = term, linewidth = n)) +
+  geom_vline(xintercept = 1, linewidth = 1.5, color = "grey95") +
+  geom_linerange(aes(y = name, xmin = conf.low, xmax = conf.high, linewidth = 0.5), position = position_dodge(width = 0.5)) +
   geom_point(shape = 20, position = position_dodge(width = 0.5)) +
   labs(y = "Study", x = "Adjusted odds ratio for ct", color = NULL) +
   theme_classic() +
