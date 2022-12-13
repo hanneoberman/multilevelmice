@@ -9,13 +9,25 @@ author:
     email: \email{h.i.oberman@uu.nl}
     url: https://hanneoberman.github.io/
   - name: "Johanna Munoz Avila"
-    affiliation: Julius Center for Health Sciences and Primary Care, University Medical Center Utrecht, Utrecht University, Utrecht, The Netherlands 
+    affiliation: |
+      | Julius Center for Health Sciences and Primary Care, 
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands \AND
   - name: Thomas P. A. Debray
-    affiliation: Julius Center for Health Sciences and Primary Care, University Medical Center Utrecht, Utrecht University, Utrecht, The Netherlands 
+    affiliation: Julius Center for Health Sciences and Primary Care
+    address: |
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands   
   - name: Gerko Vink
-    affiliation: Utrecht University 
+    affiliation: Utrecht University \AND
   - name: Valentijn M. T. de Jong
-    affiliation: Julius Center for Health Sciences and Primary Care, University Medical Center Utrecht, Utrecht University, Utrecht, The Netherlands \AND Data Analytics and Methods Task Force, European Medicines Agency, Amsterdam, The Netherlands
+    affiliation: |
+      | Julius Center for Health Sciences and Primary Care, 
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands 
+    affiliation2: |
+      | Data Analytics and Methods Task Force, 
+      | European Medicines Agency, Amsterdam, The Netherlands
 
 title:
   formatted: "Imputation of Incomplete Multilevel Data with \\pkg{mice}"
@@ -43,7 +55,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-```{r, setup, include=FALSE}
+```{r, setup, include=FALSE, eval=TRUE}
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 options(prompt = 'R> ', continue = '+ ')
 
@@ -102,7 +114,7 @@ Random effect       & Multilevel models typically accommodate for variability by
 
 Like any other dataset, clustered datasets are prone to missing data. Several strategies can be used to handle missing data, including complete case analysis and imputation. We focus on the latter approach and discuss statistical methods for replacing the missing data with one or more plausible values. Afterwards, the completed data can be analyzed as if they were completely observed. In contrast to single imputation (where missing data are only replaced once), multiple imputation allows to preserve uncertainty due to missingness and is therefore recommended (c.f. Rubin 1976). 
 
-When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption.]
+When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption. VMTdJ: "Mention in text that this is sporadic missingness?"]
 
 <!-- Systematic missingness implies that one or more variables are never observed in a certain cluster. With sporadic missingness there may be observed data for some but not all units in a cluster [@buur18; @jola18]. We have visualized this difference in Figure 1, which shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n$ units distributed over $N$ clusters and $p$ variables.  -->
 
@@ -110,7 +122,6 @@ When clustered datasets are affected by missing values, we can distinguish betwe
 dat <- expand.grid(rows = 1:7, cols = 1:6) %>% 
   cbind(text = c("1", "1", "2", "2", "3", "", "N", rep("", 35)),
         miss = c(rep("", 16), "NA", "NA", "", "", "", "NA", "", "", "NA", rep("", 17)))
-
 ggplot(dat, aes(x = cols, y = rows)) +
   geom_tile(fill = "white", color = "black", size = 0.5) +
   geom_text(aes(label = text), color = "black", size = 3) +
@@ -122,8 +133,7 @@ ggplot(dat, aes(x = cols, y = rows)) +
     position = "top"
   ) +
   scale_y_continuous(breaks = 1:7, labels = c(1:5, "...", "n"), name = NULL, trans = "reverse") +
-  coord_cartesian(expand = c(0)) + #Changed to run GV
-  # coord_cartesian(expand = c(0,0,0,0)) +
+  # coord_cartesian(expand = c(0,0)) +
   theme_minimal() +
   theme(panel.grid = element_blank(),
         plot.margin = unit(c(0,0,0,0), "pt"))
@@ -203,6 +213,7 @@ library(ggplot2)      # for visualization
 library(dplyr)        # for data wrangling
 library(lme4)         # for multilevel modeling
 library(mitml)        # for multilevel pooling
+library(miceheckman)  # for imputation
 ```
 <!-- library(broom.mixed)  # for multilevel estimates -->
 
@@ -426,7 +437,7 @@ We illustrate how to impute incomplete multilevel data by means of a case study:
   - `edh` Epidural hematoma (0=no, 1=yes),
   - `mort` 6-month mortality (0=alive, 1=dead).
 
-The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on unfortunate outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
+The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on mortality outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
 ```{r mod}
 mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) 
 ```
@@ -495,7 +506,7 @@ fits %>% left_join(n, by = "name") %>%
 
 To explore the missingness, it is wise to look at the missing data pattern:
 ```{r pattern, fig.height=7.1}
-plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
+plot_pattern(dat, rotate = TRUE, npat = 10L)  # plot missingness pattern
 ```
 
 This shows... [TODO: fill in that we need to impute `ct` and `pupil`.] 
@@ -522,7 +533,7 @@ fit <- glmer(mod, family = "binomial", data = na.omit(dat)) # fit the model
 tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 ```
 
-As we can see... [TODO: fill in.] 
+As we can see... [TODO: fill in: This means that a higher ct (Marshall Computerized Tomography classification) is associated with a lower odds of 6-month mortality, given by the odds ratio exp(0.42), CI ... to ..., when controlling for ...] 
 
 <!-- If we run the multilevel model on the incomplete date, we get a warning about unindentifyability. This means that with CCA as missing data method, we cannot trust the estimates. To still obtain some estimates to compare later, we fit a simplified analysis model: using the cluster variable as indicator in the model. -->
 
@@ -618,76 +629,30 @@ hiv <- hiv %>%
 plot_pattern(hiv)
 ```
 
-R=region+language+(1|InterviewID) model with with interviewer as random effects, because the observations are not independent. Interviews are not allocated randomly. In theory we expect the inclusion-restriction variable to be randomly assigned, that's why we're adding region and language to compensate for non-random allocation.
+R=region+language+(1|InterviewID) model with interviewer as random effects, because the observations are not independent. Interviews are not allocated randomly. In theory we expect the inclusion-restriction variable to be randomly assigned, that's why we're adding region and language to compensate for non-random allocation. [TODO: Explain exclusion-restriction, refer to paper Johanna].
 
 Load the data:
 ```{r}
-data("hiv",  package = "GJRM")
-# We select  5 predictor variables over 9 regions
-colnames(hiv)
-hivdata <- hiv[,c("hiv","hivconsent","age","marital","condom","highhiv","interviewerID","region","language")]
+data("obesity",  package = "miceheckman")
 ```
 
-Recode variables:
-```{r}
-# Study/group variable has to be recoded as integer
-hivdata$region<-as.integer(hivdata$region)
-
-# Categorical variables have to be recoded as factor
-# to use the 2l.binary imputation method, it is required that the level names should not have any space between words
-
-hivdata$hiv <- as.factor(hivdata$hiv) #to use the 2l.heckman method, it is required that
-#the missing variable is stored as a factor in the dataset, otherwise the method will 
-#apply the imputation correction for a  missing continuous variable instead for 
-#a missing binary variable,which is in this case the binary response of the hiv test.
-
-hivdata$marital <- as.factor(hivdata$marital)
-levels(hivdata$marital)<-c("never_married","currently_married","formerly_married")
-hivdata$condom <- as.factor(hivdata$condom)
-levels(hivdata$condom)<-c("No_Condom_Last_Intercourse","Condom_Last_Intercourse")
-hivdata$highhiv <- as.factor(hivdata$highhiv)
-levels(hivdata$highhiv)<-c("Not_High_Risk_of_HIV","High_Risk_of_HIV")
-hivdata$interviewerID <- as.factor(hivdata$interviewerID)
-
-hivdata$interviewerID <-  as.factor(as.character(hivdata$interviewerID))
-interv<-as.data.frame(table(hivdata$interviewerID,hivdata$region))
-```
 
 We obtain here the random effects for each interviewer, this is an approximation of the interviewer's skill which will be used as an exclusion constraint. Here, since the location of the interviewer was not randomly assigned to the subjects, the assignment was corrected for region and language.
-```{r}
-hivdata$hivconsent <- as.factor(hivdata$hivconsent)
-ID_mixed <- lme4::glmer(hivconsent ~ region + language+(1 | interviewerID), data = hivdata, family = binomial)
-reffect  <- ranef(ID_mixed)$interviewerID
-reffect$interviewerID <- levels(hivdata$interviewerID)
-colnames(reffect)     <- c("IDreffect","interviewerID")
-hivdata  <-  merge(hivdata, reffect, by="interviewerID", all.x=TRUE)
-
-hivdata$interviewerID<-NULL
-hivdata$hivconsent<-NULL
-hivdata$language<-NULL
-```
 
 Set the Heckman model as imputation method
 ```{r}
 #Set prediction matrix and methods
-ini <- mice(hivdata, maxit = 0)
+ini <- mice(obesity, maxit = 0)
 meth<-ini$method
-meth["hiv"]<-"2l.binary"
+meth["weight"]<-"2l.heckman"
 pred <- ini$pred
-pred[,"region"] <- 0
-pred["region",] <- 0
-pred["hiv","region"]<- -2
-pred["hiv","IDreffect"]<- 0
-
-# Heckman model
-pred["hiv","IDreffect"] <- -3
-meth<-ini$method
-meth["hiv"]<-"2l.heckman"
+pred["weight","cluster"]<- -2
+pred["weight","rt"] <- -3
 ```
 
 Impute the data:
-```{r eval = FALSE}
-imp <- mice( hivdata, # dataset with missing values
+```{r eval=FALSE}
+imp <- mice(obesity, # dataset with missing values
                         m = 10,   # number of imputations
                         maxit = 1,
                         seed = 1234, #seed attached to the dataID
@@ -726,6 +691,12 @@ imp <- mice( hivdata, # dataset with missing values
 - Show use case for deductive imputation for cluster level variables?
 
 - env dump in repo
+
+# Funding
+
+This project has received funding from the European Union's Horizon 2020 research and innovation programme under ReCoDID grant agreement No 825746.
+
+The views expressed in this paper are the personal views of the authors and may not be understood or quoted as being made on behalf of or reflecting the position of the regulatory agency/agencies or organizations with which the authors are employed/affiliated.
 
 # References
 
