@@ -8,7 +8,7 @@ author:
       | 3584 CH Utrecht
     email: \email{h.i.oberman@uu.nl}
     url: https://hanneoberman.github.io/
-  - name: "Johanna Munoz"
+  - name: "Johanna Muñoz"
     affiliation: |
       | Julius Center for Health Sciences and Primary Care, 
       | University Medical Center Utrecht, Utrecht University, 
