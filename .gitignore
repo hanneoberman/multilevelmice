@@ -41,3 +41,10 @@ vignettes/*.pdf
 # datasets that should not be online
 Data/leiden.RData
 .DS_Store
+
+# TeX 
+Manuscript/Imputation_of_Incomplete_Multilevel_Data_files/*.pdf
+*.aux
+*.log
+*.out
+*.tex
