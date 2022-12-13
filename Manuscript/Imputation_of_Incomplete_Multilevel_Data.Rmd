@@ -93,6 +93,7 @@ library(ggplot2)
 Many datasets include individuals from multiple settings, geographic regions, or even different studies. In the simplest case, individuals (e.g., students) are nested within so-called clusters (e.g., school classes). More complex clustered structures may occur when there are multiple hierarchical levels (e.g., patients within hospitals within regions or countries), or when the clustering is non-nested (e.g., electronic health record data from diverse settings and populations within large databases). In general, individuals from the same cluster tend to be more similar than individuals from other clusters. In statistical terms, this implies that observations from the same cluster are correlated. If this correlation is left unaddressed, estimates of *p* values, confidence intervals even model parameters are prone to bias  [@loca01]. [TODO: make a link to imputation methods, which require adequate handling and propagation of variance; we are not recommending the adoption of multilevel models for data analysis here, but rather for imputation. VMTdJ: "I would only make that link after introducing missing data, and missing data is not mentioned yet, so I would do that in the next section"] Statistical methods for clustered data typically adopt hierarchical models that explicitly describe the grouping of observations. These models are also known as 'multilevel models', 'hierarchical models', 'mixed effect models', 'random effect models', and in the context of time-to-event data as 'frailty models'. Table \ref{tab:clus} provides an overview of some key concepts in multilevel modeling.
 
 Table 1: Concepts in multilevel methods
+
 | **Concept**         | **Details**                                                                   |
 |---------------------|-------------------------------------------------------------------------------|
 | Sample unit         | Units of the population from which measurements are taken in a sample.        |
@@ -151,6 +152,7 @@ ggplot(dat, aes(x = cols, y = rows)) +
 Imputation of missing data requires consideration of the mechanism behind the missingness. Rubin proposed to distinguish between data that are missing completely at random (MCAR), data that are missing at random (MAR) and data that are missing not at random (MNAR; see Table \ref{tab:miss}). For each of these three missingness generating mechanisms, different imputation strategies are warranted @yuce08 and @hox15. We here consider the general case that data are MAR, and expand on certain MNAR situations.
 
 Table 2: Concepts in missing data methods
+
 | **Concept**    | **Details**                                                                |
 |----------------|----------------------------------------------------------------------------|
 | MCAR           | Missing Completely At Random, where the probability to be missing is equal |
