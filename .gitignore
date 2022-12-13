@@ -44,7 +44,7 @@ Data/leiden.RData
 
 # TeX 
 Manuscript/Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/*.pdf
-*.aux
-*.log
-*.out
-*.tex
+/*.aux
+/*.log
+/*.out
+/*.tex
