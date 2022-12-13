@@ -1,7 +1,7 @@
 ---
 documentclass: jss
 author:
-  - name: Hanne Oberman
+  - name: Hanne I. Oberman
     affiliation: Utrecht University
     address: |
       | Padualaan 14
@@ -9,13 +9,26 @@ author:
     email: \email{h.i.oberman@uu.nl}
     url: https://hanneoberman.github.io/
   - name: "Johanna Munoz"
-    affiliation: University Medical Center Utrecht \AND
-  - name: Valentijn de Jong
-    affiliation: University Medical Center Utrecht 
+    affiliation: |
+      | Julius Center for Health Sciences and Primary Care, 
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands \AND
+  - name: Thomas P. A. Debray
+    affiliation: Julius Center for Health Sciences and Primary Care
+    address: |
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands   
   - name: Gerko Vink
     affiliation: Utrecht University \AND
-  - name: Thomas Debray
-    affiliation: University Medical Center Utrecht 
+  - name: Valentijn M. T. de Jong
+    affiliation: |
+      | Julius Center for Health Sciences and Primary Care, 
+      | University Medical Center Utrecht, Utrecht University, 
+      | Utrecht, The Netherlands 
+    affiliation2: |
+      | Data Analytics and Methods Task Force, 
+      | European Medicines Agency, Amsterdam, The Netherlands
+
 title:
   formatted: "Imputation of Incomplete Multilevel Data with \\pkg{mice}"
   plain:     "Imputation of Incomplete Multilevel Data with mice"
@@ -42,7 +55,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-```{r, setup, include=FALSE}
+```{r, setup, include=FALSE, eval=TRUE}
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 options(prompt = 'R> ', continue = '+ ')
 
@@ -73,7 +86,7 @@ library(ggplot2)
 
 # Introduction
 
-Many datasets include individuals from multiple settings, geographic regions, or even different studies. In the simplest case, individuals (e.g., students) are nested within so-called clusters (e.g., school classes). More complex clustered structures may occur when there are multiple hierarchical levels (e.g., patients within hospitals within regions or countries), or when the clustering is non-nested (e.g., electronic health record data from diverse settings and populations within large databases). In general, individuals from the same cluster tend to be more similar than individuals from other clusters. In statistical terms, this implies that observations from the same cluster are correlated. If this correlation is left unaddressed, estimates of *p* values, confidence intervals even model parameters are prone to bias  [@loca01]. [TODO: make a link to imputation methods, which require adequate handling and propagation of variance; we are not recommending the adoption of multilevel models for data analysis here, but rather for imputation.] Statistical methods for clustered data typically adopt hierarchical models that explicitly describe the grouping of observations. These models are also know as 'multilevel models', 'hierarchical models', 'mixed effect models' and 'random effect models'. Table \ref{tab:clus} provides an overview of some key concepts in multilevel modeling.
+Many datasets include individuals from multiple settings, geographic regions, or even different studies. In the simplest case, individuals (e.g., students) are nested within so-called clusters (e.g., school classes). More complex clustered structures may occur when there are multiple hierarchical levels (e.g., patients within hospitals within regions or countries), or when the clustering is non-nested (e.g., electronic health record data from diverse settings and populations within large databases). In general, individuals from the same cluster tend to be more similar than individuals from other clusters. In statistical terms, this implies that observations from the same cluster are correlated. If this correlation is left unaddressed, estimates of *p* values, confidence intervals even model parameters are prone to bias  [@loca01]. [TODO: make a link to imputation methods, which require adequate handling and propagation of variance; we are not recommending the adoption of multilevel models for data analysis here, but rather for imputation. VMTdJ: "I would only make that link after introducing missing data, and missing data is not mentioned yet, so I would do that in the next section"] Statistical methods for clustered data typically adopt hierarchical models that explicitly describe the grouping of observations. These models are also known as 'multilevel models', 'hierarchical models', 'mixed effect models', 'random effect models', and in the context of time-to-event data as 'frailty models'. Table \ref{tab:clus} provides an overview of some key concepts in multilevel modeling.
 
 \begin{table}[tb]
 \caption{Concepts in multilevel methods}
@@ -105,14 +118,13 @@ Random effect       & Multilevel models typically accommodate for variability by
 \hline
 \end{tabular}
 \end{table}
-```
 
 ## Missingness in multilevel data
 
 <!-- Maybe besides CC and imputation name also likelihood based methods -->
 Like any other dataset, clustered datasets are prone to missing data. Several strategies can be used to handle missing data, including complete case analysis and imputation. We focus on the latter approach and discuss statistical methods for replacing the missing data with one or more plausible values. Afterwards, the completed data can be analyzed as if they were completely observed. In contrast to single imputation (where missing data are only replaced once), multiple imputation allows to preserve uncertainty due to missingness and is therefore recommended (c.f. Rubin 1976). 
 
-When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption.]
+When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption. VMTdJ: "Mention in text that this is sporadic missingness?"]
 
 <!-- Systematic missingness implies that one or more variables are never observed in a certain cluster. With sporadic missingness there may be observed data for some but not all units in a cluster [@buur18; @jola18]. We have visualized this difference in Figure 1, which shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n$ units distributed over $N$ clusters and $p$ variables.  -->
 
@@ -131,7 +143,7 @@ ggplot(dat, aes(x = cols, y = rows)) +
     position = "top"
   ) +
   scale_y_continuous(breaks = 1:7, labels = c(1:5, "...", "n"), name = NULL, trans = "reverse") +
-  coord_cartesian(expand = c(0,0,0,0)) +
+  # coord_cartesian(expand = c(0,0)) +
   theme_minimal() +
   theme(panel.grid = element_blank(),
         plot.margin = unit(c(0,0,0,0), "pt"))
@@ -139,7 +151,7 @@ ggplot(dat, aes(x = cols, y = rows)) +
 ```
 <!-- Column $X_1$ in Figure 1 is completely observed, column $X_2$ is systematically missing in cluster 2, and column $X_3$ is sporadically missing. To analyze these incomplete data, we have to take the nature of the missingness and the cluster structure into account. For example, the sporadic missingness in $X_3$ could be easily amended if this would be a cluster-level variable (and thus constant within clusters). We could then just extrapolate the true (but missing) value of $X_3$ for unit 1 from unit 2, and the value for unit 4 from unit 3. If $X_3$ would instead be a unit-level variable (which may vary within clusters), we could not just recover the unobserved 'truth', but would need to use some kind of missing data method, or discard the incomplete units altogether (i.e., complete case analysis). Complete case analysis can however introduce bias in statistical inferences and lowers statistical power. Further, with the systematic missingness in $X_2$, it would be impossible to fit a multilevel model without accommodating the missingness in some way. Complete case analysis in that case would mean excluding the entire cluster from the analyses. The wrong choice of missing data handling method can thus be extremely harmful to the inferences.  -->
 
-Imputation of missing data requires to consider the mechanism behind the missingness. Rubin proposed to distinguish between data that are missing completely at random (MCAR), data that are missing at random (MAR) and data that are missing not at random (MNAR; see Table \ref{tab:miss}). For each of these three missingness generating mechanisms, different imputation strategies are warranted @yuce08 and @hox15. We here consider the general case that data are MAR, and expand on special MNAR situations.
+Imputation of missing data requires consideration of the mechanism behind the missingness. Rubin proposed to distinguish between data that are missing completely at random (MCAR), data that are missing at random (MAR) and data that are missing not at random (MNAR; see Table \ref{tab:miss}). For each of these three missingness generating mechanisms, different imputation strategies are warranted @yuce08 and @hox15. We here consider the general case that data are MAR, and expand on certain MNAR situations.
 
 \begin{table}[tb]
 \caption{Concepts in missing data methods}
@@ -163,13 +175,13 @@ MNAR    & Missing Not At Random (MNAR), where the probability to be missing \\
 
 <!-- Since excluding observations is not a desirable workflow, the missingness in multilevel data should be accommodated \emph{before} or _within_ the analysis of scientific interest. In this paper, we focus on the former approach: imputing (i.e., filling in) the missing data with plausible values, whereafter the completed data may be analyzed as if it were completely observed. Imputation separates the missing data problem from the scientific problem, which makes the missing data strategy very generic and popular. If each missing value is replaced multiple times, the resulting inferences may validly convey the uncertainty due to missingness [c.f. @rubi76].  -->
 
-The \proglang{R} package \pkg{mice} has become the de-facto standard for imputation by chained equations, which iteratively solves the missingness on a variable-by-variable basis. \pkg{mice} is known to yield valid inferences under many different missing data circumstances [@buur18]. However, commonly used imputation methods were not designed for use in clustered data and usually generate observations that are independent. For this reason, we discuss how the \proglang{R} package \pkg{mice} can be used to impute multilevel data.
+The \proglang{R} package \pkg{mice} has become the de-facto standard for imputation by chained equations, which iteratively solves the missingness on a variable-by-variable basis. \pkg{mice} is known to yield valid inferences under many different missing data circumstances [@buur18]. However, commonly used imputation methods were not designed for use in clustered data and usually generate observations that are independent whereas multilevel data are dependent.  For this reason, we discuss how the \proglang{R} package \pkg{mice} can be used to impute multilevel data.
 
 [TODO: clarify why clustering is relevant during imputation, and why this exposes the need for specialized imputation methods and more attention during their implementation ("thou shall not simply run `mice()` on any incomplete dataset").] [TODO: Add that the more the random effects are of interest, the more you need multilevel imputation models.] [TODO: Add an overview of all possible predictor matrix values in manuscript or `ggmice` legend.]
 
 ## Aim of this paper
 
-This papers serves as a tutorial for imputing incomplete multilevel data with \pkg{mice} in \proglang{R}. We provide practical guidelines and code snippets for different missing data situations, including non-ignorable mechanisms. For reasons of brevity, we focus on multilevel imputation by chained equations with \pkg{mice} exclusively; other imputation methods and packages (e.g., \pkg{jomo} and \pkg{mdmb}) are outside the scope of this tutorial. Assumed knowledge includes basic familiarity with multilevel imputation [see e.g. @audi18 and @grun18] and the \pkg{lme4} notation for multilevel models (see Table \ref{tab:mod}).
+This papers serves as a tutorial for imputing incomplete multilevel data with \pkg{mice} in \proglang{R}. We provide practical guidelines and code snippets for different missing data situations, including non-ignorable mechanisms. For reasons of brevity, we focus on multilevel imputation by chained equations with \pkg{mice} exclusively; other imputation methods and packages (e.g., \pkg{jomo} and \pkg{mdmb}) are outside the scope of this tutorial. [TODO: change this sentence because we do not assume familiarity: "Assumed knowledge includes basic familiarity with multilevel imputation [see e.g. @audi18 and @grun18] and the \pkg{lme4} notation for multilevel models (see Table \ref{tab:mod})"].
 
 
 ```{=tex}
@@ -218,7 +230,7 @@ We illustrate imputation of incomplete multilevel data using three case studies:
 
 For each of these datasets, we discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. 
 
-This tutorial is dedicated to readers who are unfamiliar with multiple imptuation. More experienced readers can skip the introduction (case study 1) and directly head to practical applications of multilevel imputation under MAR conditions (case study IMPACT) or  under MNAR conditions (case study HIV). 
+This tutorial is dedicated to readers who are unfamiliar with multiple imputation. More experienced readers can skip the introduction (case study 1) and directly head to practical applications of multilevel imputation under MAR conditions (case study IMPACT) or  under MNAR conditions (case study HIV). 
 
 <!-- With the `popmis` data, we show how (and how not) to develop an imputation model. With the `hiv` data we focus on extending the imputation model to include Heckman-type selection-inclusion methods. With the `impact` data we provide an example of multivariate missingness in real-world data. Together, this should give enough scaffolding for applied researchers who are faced with incomplete multilevel data. -->
 
@@ -237,6 +249,7 @@ library(ggplot2)      # for visualization
 library(dplyr)        # for data wrangling
 library(lme4)         # for multilevel modeling
 library(mitml)        # for multilevel pooling
+library(miceheckman)  # for imputation
 ```
 <!-- library(broom.mixed)  # for multilevel estimates -->
 
@@ -463,7 +476,7 @@ We illustrate how to impute incomplete multilevel data by means of a case study:
   - `edh` Epidural hematoma (0=no, 1=yes),
   - `mort` 6-month mortality (0=alive, 1=dead).
 
-The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on unfortunate outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
+The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on mortality outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
 ```{r mod}
 mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) 
 ```
@@ -532,7 +545,7 @@ fits %>% left_join(n, by = "name") %>%
 
 To explore the missingness, it is wise to look at the missing data pattern:
 ```{r pattern, fig.height=7.1}
-plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
+plot_pattern(dat, rotate = TRUE, npat = 10L)  # plot missingness pattern
 ```
 
 This shows... [TODO: fill in that we need to impute `ct` and `pupil`.] 
@@ -559,7 +572,7 @@ fit <- glmer(mod, family = "binomial", data = na.omit(dat)) # fit the model
 tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 ```
 
-As we can see... [TODO: fill in.] 
+As we can see... [TODO: fill in: This means that a higher ct (Marshall Computerized Tomography classification) is associated with a lower odds of 6-month mortality, given by the odds ratio exp(0.42), CI ... to ..., when controlling for ...] 
 
 <!-- If we run the multilevel model on the incomplete date, we get a warning about unindentifyability. This means that with CCA as missing data method, we cannot trust the estimates. To still obtain some estimates to compare later, we fit a simplified analysis model: using the cluster variable as indicator in the model. -->
 
@@ -655,85 +668,39 @@ hiv <- hiv %>%
 plot_pattern(hiv)
 ```
 
-R=region+language+(1|InterviewID) model with with interviewer as random effects, because the observations are not independent. Interviews are not allocated randomly. In theory we expect the inclusion-restriction variable to be randomly assigned, that's why we're adding region and language to compensate for non-random allocation.
+R=region+language+(1|InterviewID) model with interviewer as random effects, because the observations are not independent. Interviews are not allocated randomly. In theory we expect the inclusion-restriction variable to be randomly assigned, that's why we're adding region and language to compensate for non-random allocation. [TODO: Explain exclusion-restriction, refer to paper Johanna].
 
 Load the data:
 ```{r}
-data("hiv",  package = "GJRM")
-# We select  5 predictor variables over 9 regions
-colnames(hiv)
-hivdata <- hiv[,c("hiv","hivconsent","age","marital","condom","highhiv","interviewerID","region","language")]
+data("obesity",  package = "miceheckman")
 ```
 
-Recode variables:
-```{r}
-# Study/group variable has to be recoded as integer
-hivdata$region<-as.integer(hivdata$region)
-
-# Categorical variables have to be recoded as factor
-# to use the 2l.binary imputation method, it is required that the level names should not have any space between words
-
-hivdata$hiv <- as.factor(hivdata$hiv) #to use the 2l.heckman method, it is required that
-#the missing variable is stored as a factor in the dataset, otherwise the method will 
-#apply the imputation correction for a  missing continuous variable instead for 
-#a missing binary variable,which is in this case the binary response of the hiv test.
-
-hivdata$marital <- as.factor(hivdata$marital)
-levels(hivdata$marital)<-c("never_married","currently_married","formerly_married")
-hivdata$condom <- as.factor(hivdata$condom)
-levels(hivdata$condom)<-c("No_Condom_Last_Intercourse","Condom_Last_Intercourse")
-hivdata$highhiv <- as.factor(hivdata$highhiv)
-levels(hivdata$highhiv)<-c("Not_High_Risk_of_HIV","High_Risk_of_HIV")
-hivdata$interviewerID <- as.factor(hivdata$interviewerID)
-
-hivdata$interviewerID <-  as.factor(as.character(hivdata$interviewerID))
-interv<-as.data.frame(table(hivdata$interviewerID,hivdata$region))
-```
 
 We obtain here the random effects for each interviewer, this is an approximation of the interviewer's skill which will be used as an exclusion constraint. Here, since the location of the interviewer was not randomly assigned to the subjects, the assignment was corrected for region and language.
-```{r}
-hivdata$hivconsent <- as.factor(hivdata$hivconsent)
-ID_mixed <- lme4::glmer(hivconsent ~ region + language+(1 | interviewerID), data = hivdata, family = binomial)
-reffect  <- ranef(ID_mixed)$interviewerID
-reffect$interviewerID <- levels(hivdata$interviewerID)
-colnames(reffect)     <- c("IDreffect","interviewerID")
-hivdata  <-  merge(hivdata, reffect, by="interviewerID", all.x=TRUE)
-
-hivdata$interviewerID<-NULL
-hivdata$hivconsent<-NULL
-hivdata$language<-NULL
-```
 
 Set the Heckman model as imputation method
 ```{r}
 #Set prediction matrix and methods
-ini <- mice(hivdata, maxit = 0)
+ini <- mice(obesity, maxit = 0)
 meth<-ini$method
-meth["hiv"]<-"2l.binary"
+meth["weight"]<-"2l.heckman"
 pred <- ini$pred
-pred[,"region"] <- 0
-pred["region",] <- 0
-pred["hiv","region"]<- -2
-pred["hiv","IDreffect"]<- 0
-
-# Heckman model
-pred["hiv","IDreffect"] <- -3
-meth<-ini$method
-meth["hiv"]<-"2l.heckman"
+pred["weight","cluster"]<- -2
+pred["weight","rt"] <- -3
 ```
 
-<!-- Impute the data: -->
-<!-- ```{r} -->
-<!-- imp <- mice( hivdata, # dataset with missing values -->
-<!--                         m = 10,   # number of imputations -->
-<!--                         maxit = 1, -->
-<!--                         seed = 1234, #seed attached to the dataID -->
-<!--                         meth = meth, #imputation method vector -->
-<!--                         pred = pred, #imputation predictors matrix -->
-<!--                         print = T, -->
-<!--                         meta_method="reml", -->
-<!--                         pmm=FALSE) -->
-<!-- ``` -->
+
+```{r eval=FALSE}
+imp <- mice(obesity, # dataset with missing values
+                        m = 10,   # number of imputations
+                        maxit = 1,
+                        seed = 1234, #seed attached to the dataID
+                        meth = meth, #imputation method vector
+                        pred = pred, #imputation predictors matrix
+                        print = T,
+                        meta_method="reml",
+                        pmm=FALSE)
+```
 
 # Discussion
 
@@ -766,7 +733,11 @@ meth["hiv"]<-"2l.heckman"
 
 -  I don't know if in your article you cover something about model complexity, for example sometimes I have to switch from 2l. methods to 1l. methods just because the model didn't converge.. this is due to the considered imputation model is very complex regarding the amount of information counted... I know that a solution for an imputation model with many predictors is to check correlation plots as you did or use quickpred().. (maybe you can add this somewhere after the correlation plots).....But as for cluster specification, I don't know if besides plots of distribution per cluster there is something else can be done to see if i have to use 1l. or 2l. for a given variable, also I have no idea.. how to test which is better between 2l.norm or 2l.2stage.norm.
 
-Translated with www.DeepL.com/Translator (free version)
+# Funding
+
+This project has received funding from the European Union's Horizon 2020 research and innovation programme under ReCoDID grant agreement No 825746.
+
+The views expressed in this paper are the personal views of the authors and may not be understood or quoted as being made on behalf of or reflecting the position of the regulatory agency/agencies or organizations with which the authors are employed/affiliated.
 
 # References
 
