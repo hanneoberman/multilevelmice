@@ -129,37 +129,52 @@ models', and in the context of time-to-event data as `frailty models'.
 Table \ref{tab:clus} provides an overview of some key concepts in
 multilevel modeling.
 
-Table 1: Concepts in multilevel methods \textbar{} \textbf{Concept}
-\textbar{} \textbf{Details} \textbar{}
-\textbar---------------------\textbar-------------------------------------------------------------------------------\textbar{}
-\textbar{} Sample unit \textbar{} Units of the population from which
-measurements are taken in a sample. \textbar{} \textbar{} Hierarchical
-levels \textbar{} Data are grouped into clusters at different levels. A
-three-level \textbar{} \textbar{} Fixed effect \textbar{} Here we assume
-that the values of an independent variable are fixed, i.e., \textbar{}
-\textbar{} \textbar{} the values observed in the study are
-representative of all values in the \textbar{} \textbar{} \textbar{} in
-the dependent variable y e.g., blood pressure between treatments A and
-B. \textbar{} \textbar{} Random effect \textbar{} The values of an
-independent variable are assumed to be randomly drawn from \textbar{}
-\textbar{} \textbar{} admission we might select only certain hospitals
-that are representative of \textbar{} \textbar{} \textbar{} the
-difference of y between individual hospitals, but rather the variation
-of \textbar{} \textbar{} ICC \textbar{} The variability due to
-clustering is often measured by means of the \textbar{} \textbar{}
-\textbar{} intraclass coefficient (ICC). The ICC can be seen as the
-percentage \textbar{} \textbar{} \textbar{} of variance that can be
-attributed to the cluster-level, where a high \textbar{} \textbar{}
-\textbar{} ICC would indicate that a lot of variability is due to the
-cluster \textbar{} \textbar{} \textbar{} structure. \textbar{}
-\textbar{} Random effect \textbar{} Multilevel models typically
-accommodate for variability by including \textbar{} \textbar{}
-\textbar{} a separate group mean for each cluster. In addition to random
-\textbar{} \textbar{} \textbar{} intercepts, multilevel models can also
-include random coefficients \textbar{} \textbar{} \textbar{} and
-heterogeneous residual error variances across clusters \citep[see
-e.g.~\textbar{} \textbar{} \textbar{}][\citet{hox17} and
-\citet{jong21}]{gelm06}. {[}TODO: add stratification.{]} \textbar{}
+Table 1: Concepts in multilevel methods
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.2100}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.7900}}@{}}
+\toprule()
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Concept}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Details}
+\end{minipage} \\
+\midrule()
+\endhead
+Sample unit & Units of the population from which measurements are taken
+in a sample. \\
+Hierarchical levels & Data are grouped into clusters at different
+levels. A three-level \\
+Fixed effect & Here we assume that the values of an independent variable
+are fixed, i.e., \\
+& the values observed in the study are representative of all values in
+the \\
+& in the dependent variable y e.g., blood pressure between treatments A
+and B. \\
+Random effect & The values of an independent variable are assumed to be
+randomly drawn from \\
+& admission we might select only certain hospitals that are
+representative of \\
+& the difference of y between individual hospitals, but rather the
+variation of \\
+ICC & The variability due to clustering is often measured by means of
+the \\
+& intraclass coefficient (ICC). The ICC can be seen as the percentage \\
+& of variance that can be attributed to the cluster-level, where a
+high \\
+& ICC would indicate that a lot of variability is due to the cluster \\
+& structure. \\
+Random effect & Multilevel models typically accommodate for variability
+by including \\
+& a separate group mean for each cluster. In addition to random \\
+& intercepts, multilevel models can also include random coefficients \\
+& and heterogeneous residual error variances across clusters {[}see
+e.g. \\
+& \citet{gelm06}, \citet{hox17} and \citet{jong21}{]}. {[}TODO: add
+stratification.{]} \\
+\bottomrule()
+\end{longtable}
 
 \hypertarget{missingness-in-multilevel-data}{%
 \subsection{Missingness in multilevel
@@ -207,19 +222,33 @@ mechanisms, different imputation strategies are warranted \citet{yuce08}
 and \citet{hox15}. We here consider the general case that data are MAR,
 and expand on certain MNAR situations.
 
-Table 2: Concepts in missing data methods \textbar{} \textbf{Concept}
-\textbar{} \textbf{Details} \textbar{}
-\textbar----------------\textbar----------------------------------------------------------------------------\textbar{}
-\textbar{} MCAR \textbar{} Missing Completely At Random, where the
-probability to be missing is equal \textbar{} \textbar{} \textbar{}
-across all data entries \textbar{} \textbar{} MAR \textbar{} Missing At
-Random, where the probability to be missing depends on observed
-\textbar{} \textbar{} \textbar{} information \textbar{} \textbar{} MNAR
-\textbar{} Missing Not At Random (MNAR), where the probability to be
-missing \textbar{} \textbar{} \textbar{} depends on unrecorded
-information, making the missingness non-ignorable \textbar{} \textbar{}
-\textbar{} \citep{rubi76, meng94}. \textbar{} \textbar{} \textbar{}
-{[}TODO: add congeniality, but maybe in-text?{]} \textbar{}
+Table 2: Concepts in missing data methods
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.1739}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.8261}}@{}}
+\toprule()
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Concept}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Details}
+\end{minipage} \\
+\midrule()
+\endhead
+MCAR & Missing Completely At Random, where the probability to be missing
+is equal \\
+& across all data entries \\
+MAR & Missing At Random, where the probability to be missing depends on
+observed \\
+& information \\
+MNAR & Missing Not At Random (MNAR), where the probability to be
+missing \\
+& depends on unrecorded information, making the missingness
+non-ignorable \\
+& \citep{rubi76, meng94}. \\
+& {[}TODO: add congeniality, but maybe in-text?{]} \\
+\bottomrule()
+\end{longtable}
 
 The \proglang{R} package \pkg{mice} has become the de-facto standard for
 imputation by chained equations, which iteratively solves the
