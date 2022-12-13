@@ -8,7 +8,7 @@ author:
       | 3584 CH Utrecht
     email: \email{h.i.oberman@uu.nl}
     url: https://hanneoberman.github.io/
-  - name: "Johanna Munoz Avila"
+  - name: "Johanna Munoz"
     affiliation: |
       | Julius Center for Health Sciences and Primary Care, 
       | University Medical Center Utrecht, Utrecht University, 
@@ -96,6 +96,15 @@ Many datasets include individuals from multiple settings, geographic regions, or
 \hline
 \textbf{Concept} & \textbf{Details}   \\
 \hline
+Sample unit         & Units of the population from which measurements are taken in a sample.\\                           & These should be distinct and not overlapping, e.g., patients, students.\\ 
+Hierarchical levels & Data are grouped into clusters at different levels. A three-level \\                               & hierarchical model could occur by collecting observations of math scores\\                         & (lower level) which can be measured over the whole school year for each\\                          & student, and then grouped by student (middle level) and these in turn can\\                        & be aggregated into classrooms (high level).\\
+Fixed effect        & Here we assume that the values of an independent variable are fixed, i.e., \\ 
+  & the values observed in the study are representative of all values in the \\                        & population we are interested in. In the case of a fixed factor variable, for \\                     & example treatment type, we are only concerned with assessing the difference \\ 
+                & in the dependent variable y e.g., blood pressure between treatments A and B.\\                     & There may be additional treatments, but based on the objective of the study,\\                     & which in this case is the equivalence effect of A and B, the other treatment\\                     & types are irrelevant and therefore the treatment type is included as a fixed \\                     & effect with only the A and B levels in the hierarchical model. \\
+Random effect       & The values of an independent variable are assumed to be randomly drawn from \\                     & a population with more values. In a random factor, the levels observed in the\\                     & study represent a sample of all possible levels, e.g., hospitals, classrooms.\\                     & For example, in a study to predict the blood pressure of patients on \\  
+& admission we might select only certain hospitals that are representative of \\                     & the entire population of hospitals. Here we are not interested in measuring \\ 
+& the difference of y between individual hospitals, but rather the variation of\\                     & y between hospitals, to create a model that can be generalized to the entire\\                     & population of hospitals. \\                    
+
 ICC                 & The variability due to clustering is often measured by means of the \\
                     & intraclass coefficient (ICC). The ICC can be seen as the percentage \\
                     & of variance that can be attributed to the cluster-level, where a high \\
@@ -112,6 +121,7 @@ Random effect       & Multilevel models typically accommodate for variability by
 
 ## Missingness in multilevel data
 
+<!-- Maybe besides CC and imputation name also likelihood based methods -->
 Like any other dataset, clustered datasets are prone to missing data. Several strategies can be used to handle missing data, including complete case analysis and imputation. We focus on the latter approach and discuss statistical methods for replacing the missing data with one or more plausible values. Afterwards, the completed data can be analyzed as if they were completely observed. In contrast to single imputation (where missing data are only replaced once), multiple imputation allows to preserve uncertainty due to missingness and is therefore recommended (c.f. Rubin 1976). 
 
 When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption. VMTdJ: "Mention in text that this is sporadic missingness?"]
@@ -173,18 +183,44 @@ The \proglang{R} package \pkg{mice} has become the de-facto standard for imputat
 
 This papers serves as a tutorial for imputing incomplete multilevel data with \pkg{mice} in \proglang{R}. We provide practical guidelines and code snippets for different missing data situations, including non-ignorable mechanisms. For reasons of brevity, we focus on multilevel imputation by chained equations with \pkg{mice} exclusively; other imputation methods and packages (e.g., \pkg{jomo} and \pkg{mdmb}) are outside the scope of this tutorial. [TODO: change this sentence because we do not assume familiarity: "Assumed knowledge includes basic familiarity with multilevel imputation [see e.g. @audi18 and @grun18] and the \pkg{lme4} notation for multilevel models (see Table \ref{tab:mod})"].
 
+
+```{=tex}
 \begin{table}[tb]
 \caption{Notation}
 \label{tab:mod}
 \centering
-\begin{tabular}{ll}
+\begin{tabular}{lll}
 \hline
-\textbf{Concept} & \textbf{Details}   \\
+\textbf{Formula lme4} & \textbf{Details}   \\
 \hline
-& [TODO: explain \pkg{lme4} notation here] \\
+y$\sim$ x1 + (1 | g1)                                       & Fixed x1 predictor with random intercept  \\
+                                                         & varying among g\\
+y$\sim$x1*x2+ (1| g1)                                      & Interactions of x1 and x2 only in fixed effect\\
+y$\sim$x1*x2+ (x2| g1)                                     & Interactions of x1 and x2 only in fixed effect\\
+                                                         & with slope of x2 randomly varying among g1\\
+y$\sim$x1*x2+ (x1*x2| g1)                                  & variance-covariance matrix estimated only with \\
+                                                         & the variance terms of intercept, slope of x1, \\
+                                                         & slope of x2 and interaction x1*x2\\
+y$\sim$x1*x2+ (x1| g1)+ (x2| g1)                           & variance-covariance matrix estimated separately,\\
+                                                         & i.e, one for intercept and x1 and another for \\
+                                                         & intercept and x2\\
+y$\sim$x1 + (x1 | g1) or 1 + x1 + (1 + x1 | g1)            & Fixed x1 with correlated random intercept and \\
+                                                         & random slope of x\\
+y$\sim$x1 + (x1 || g1) or 1 + x1 + (1 | g1) + (0 + x1 | g1) & Fixed x1 with uncorrelated random intercept\\
+                                                         & and random slope of x1\\  
+y$\sim$(1 | g1) + (1 | g2)                                 & Random intercept varying among g1 and among g2\\
+y$\sim$(1 | g1/g2) or ~(1|g1)+(1|g1:g2)                    & Random intercept varying among g1 and g2 
+                                                         & withing g1\\
+
+
+& [TODO: explain \pkg{lme4} notation here
+https://datalorax.github.io/equatiomatic/articles/lmer4-lmer.html
+https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf
+] \\
 \hline
 \end{tabular}
 \end{table}
+```
 
 We illustrate imputation of incomplete multilevel data using three case studies:
 
@@ -300,6 +336,7 @@ The missingness is univariate and sporadic, which is illustrated in the missing 
  <!-- The ICC in the incomplete data is `round(icc(popular ~ as.factor(school), data = na.omit(popmis)), 2)`. This tells us that the multilevel structure of the data should probably be taken into account. If we don't, we'll may end up with incorrect imputations, biasing the effect of the clusters towards zero.-->
 
 To develop the best imputation model for the incomplete variable `popular`, we need to know whether the observed values of `popular` are related to observed values of other variables. Plot the pair-wise complete correlations in the incomplete data:
+<!-- Excelent, but i dont know if you can refer to the outflux criteria here or elsewhere, cuz in practice it is used to select the predictors in the imputation model from dataset with a lot of features-->
 
 ```{r pop-corr}
 plot_corr(popmis)
@@ -373,6 +410,8 @@ testEstimates(as.mitml.result(fit), extra.pars = TRUE)
 We'll now use `school` as a predictor to impute all other variables. This is still not recommended practice, since it only works under certain circumstances and results may be biased [@drec15; @ende16]. But at least, it includes some multilevel aspect. This method is also called 'fixed cluster imputation', and uses N-1 indicator variables representing allocation of N clusters as a fixed factor in the model [@reit06; @ende16]. Colloquially, this is 'multilevel imputation for dummies'. 
 
 [TODO: Add that it doesn't work with systematic missingness (only with sporadic). There's some pros and cons, and it may not even differ much if the number of clusters is low.]
+
+<!-- A fixed cluster model is better if we have data with all the clusters in the population and we are interested in knowing the effect of a treatment on the specific cluster eg. Cluster No.123. If the population is too large (10000 schools) and we have a sample (200 schools) then an random cluster is better and saves us degrees of freedom because some of the parameters are random variables. Here we have to say that the imputation model should be more in line with the analysis model (that defines in part how the cluster is included) and consider how the estimation of the imputation model could be affected when N is too large (as we add N dummies in the fixed cluster model) or if ni is too small in some clusters, so the model can not be estimated in them.. -->
 
 
 ```{r pop_predictor, message=FALSE, warning=FALSE}
@@ -650,7 +689,7 @@ pred["weight","cluster"]<- -2
 pred["weight","rt"] <- -3
 ```
 
-Impute the data:
+
 ```{r eval=FALSE}
 imp <- mice(obesity, # dataset with missing values
                         m = 10,   # number of imputations
@@ -691,6 +730,8 @@ imp <- mice(obesity, # dataset with missing values
 - Show use case for deductive imputation for cluster level variables?
 
 - env dump in repo
+
+-  I don't know if in your article you cover something about model complexity, for example sometimes I have to switch from 2l. methods to 1l. methods just because the model didn't converge.. this is due to the considered imputation model is very complex regarding the amount of information counted... I know that a solution for an imputation model with many predictors is to check correlation plots as you did or use quickpred().. (maybe you can add this somewhere after the correlation plots).....But as for cluster specification, I don't know if besides plots of distribution per cluster there is something else can be done to see if i have to use 1l. or 2l. for a given variable, also I have no idea.. how to test which is better between 2l.norm or 2l.2stage.norm.
 
 # Funding
 
