@@ -104,19 +104,21 @@ Utrecht, The Netherlands\\
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-Many datasets include individuals from multiple settings, geographic
-regions, or even different studies. In the simplest case, individuals
-(e.g., students) are nested within so-called clusters (e.g., school
-classes). More complex clustered structures may occur when there are
-multiple hierarchical levels (e.g., patients within hospitals within
-regions or countries), or when the clustering is non-nested (e.g.,
-electronic health record data from diverse settings and populations
-within large databases). In general, individuals from the same cluster
-tend to be more similar than individuals from other clusters. In
-statistical terms, this implies that observations from the same cluster
-are correlated. If this correlation is left unaddressed, estimates of
-\emph{p} values, confidence intervals even model parameters are prone to
-bias \citep{loca01}. {[}TODO: make a link to imputation methods, which
+Many datasets include individuals that are clustered together, for
+example in geographic regions, or even different studies. In the
+simplest case, individuals (e.g., students) are nested within a single
+cluster (e.g., school classes). More complex clustered structures may
+occur when there are multiple hierarchical levels (e.g., students in
+different schools or patients within hospitals within regions across
+countries), or when the clustering is non-nested (e.g., electronic
+health record data from diverse settings and populations within large
+databases). With clustered data we generally assume that individuals
+from the same cluster tend to be more similar than individuals from
+other clusters. In statistical terms, this implies that observations
+from the same cluster are not independent and may in fact be correlated.
+If this correlation is left unaddressed, estimates of \emph{p} values,
+confidence intervals even model parameters are prone to bias
+\citep{loca01}. {[}TODO: make a link to imputation methods, which
 require adequate handling and propagation of variance; we are not
 recommending the adoption of multilevel models for data analysis here,
 but rather for imputation. VMTdJ: ``I would only make that link after
@@ -180,27 +182,27 @@ stratification.{]} \\
 \subsection{Missingness in multilevel
 data}\label{missingness-in-multilevel-data}}
 
-Like any other dataset, clustered datasets are prone to missing data.
-Several strategies can be used to handle missing data, including
-complete case analysis and imputation. We focus on the latter approach
-and discuss statistical methods for replacing the missing data with one
-or more plausible values. Afterwards, the completed data can be analyzed
-as if they were completely observed. In contrast to single imputation
-(where missing data are only replaced once), multiple imputation allows
-to preserve uncertainty due to missingness and is therefore recommended
-(c.f. Rubin 1976).
+As with any other dataset, clustered datasets may be impacted by
+missingness in much the same way. Several strategies can be used to
+handle missing data, including complete case analysis and imputation. We
+focus on the latter approach and discuss statistical methods for
+replacing the missing data with one or more plausible values. Imputation
+seperates the missing data problem from the analysis and the completed
+data can be analyzed as if it were completely observed. It is generally
+recommended to impute the missing values more than once to preserve
+uncertainty due to missingness and to allow for valid inferences (c.f.
+Rubin 1976).
 
-When clustered datasets are affected by missing values, we can
-distinguish between two types of missing data: sporadic missingness and
-systematic missingness \citep{resc13}. Sporadic missingness arises when
-variables are missing for some but not all of the units in a cluster
-\citep{buur18, jola18}. For example, it is possible that test results
-are missing for several students in one or more classes. {[}TODO:
-Provide an example for one of the case studies below.{]} When all
-observations are missing within one or more clusters, data are
-systematically missing. {[}TODO: Refer to Figure 1 and put
-interpretation in the figure caption. VMTdJ: ``Mention in text that this
-is sporadic missingness?''{]}
+With incomplete clustered datasets we can distinguish between two types
+of missing data: sporadic missingness and systematic missingness
+\citep{resc13}. Sporadic missingness arises when variables are missing
+for some but not all of the units in a cluster \citep{buur18, jola18}.
+For example, it is possible that test results are missing for several
+students in one or more classes. {[}TODO: Provide an example for one of
+the case studies below.{]} When all observations are missing within one
+or more clusters, data are said to be systematically missing. {[}TODO:
+Refer to Figure 1 and put interpretation in the figure caption. VMTdJ:
+``Mention in text that this is sporadic missingness?''{]}
 
 \begin{CodeChunk}
 \begin{figure}
@@ -218,9 +220,9 @@ behind the missingness. Rubin proposed to distinguish between data that
 are missing completely at random (MCAR), data that are missing at random
 (MAR) and data that are missing not at random (MNAR; see Table
 \ref{tab:miss}). For each of these three missingness generating
-mechanisms, different imputation strategies are warranted \citet{yuce08}
-and \citet{hox15}. We here consider the general case that data are MAR,
-and expand on certain MNAR situations.
+mechanisms, different imputation strategies are warranted
+(\citet{yuce08} and \citet{hox15}). We here consider the general case
+that data are MAR, and expand on certain MNAR situations.
 
 Table 2: Concepts in missing data methods
 
@@ -250,15 +252,11 @@ non-ignorable \\
 \bottomrule()
 \end{longtable}
 
-The \proglang{R} package \pkg{mice} has become the de-facto standard for
-imputation by chained equations, which iteratively solves the
-missingness on a variable-by-variable basis. \pkg{mice} is known to
-yield valid inferences under many different missing data circumstances
-\citep{buur18}. However, commonly used imputation methods were not
-designed for use in clustered data and usually generate observations
-that are independent whereas multilevel data are dependent. For this
-reason, we discuss how the \proglang{R} package \pkg{mice} can be used
-to impute multilevel data.
+{[}GV: DELETE THIS SECTION?{]}However, commonly used imputation methods
+were not designed for use in clustered data and usually generate
+observations that are independent whereas multilevel data are dependent.
+For this reason, we discuss how the \proglang{R} package \pkg{mice} can
+be used to impute multilevel data.
 
 {[}TODO: clarify why clustering is relevant during imputation, and why
 this exposes the need for specialized imputation methods and more
@@ -272,16 +270,22 @@ matrix values in manuscript or \texttt{ggmice} legend.{]}
 \subsection{Aim of this paper}\label{aim-of-this-paper}}
 
 This papers serves as a tutorial for imputing incomplete multilevel data
-with \pkg{mice} in \proglang{R}. We provide practical guidelines and
-code snippets for different missing data situations, including
-non-ignorable mechanisms. For reasons of brevity, we focus on multilevel
-imputation by chained equations with \pkg{mice} exclusively; other
-imputation methods and packages (e.g., \pkg{jomo} and \pkg{mdmb}) are
-outside the scope of this tutorial. {[}TODO: change this sentence
-because we do not assume familiarity: ``Assumed knowledge includes basic
-familiarity with multilevel imputation \citep[see e.g.][ and
-\citet{grun18}]{audi18} and the \pkg{lme4} notation for multilevel
-models (see Table \ref{tab:mod})''{]}.
+with \pkg{mice} in \proglang{R}. \pkg{mice} has become the de-facto
+standard for imputation by chained equations, which iteratively solves
+the missingness on a variable-by-variable basis. \pkg{mice} is known to
+yield valid inferences under many different missing data circumstances
+\citep{buur18}.
+
+We provide practical guidelines and code snippets for different missing
+data situations, including non-ignorable mechanisms. For reasons of
+brevity, we focus on multilevel imputation by chained equations with
+\pkg{mice} exclusively; other imputation methods and packages (e.g.,
+\pkg{jomo} and \pkg{mdmb}) are outside the scope of this tutorial.
+{[}TODO: change this sentence because we do not assume familiarity:
+``Assumed knowledge includes basic familiarity with multilevel
+imputation \citep[see e.g.][ and \citet{grun18}]{audi18} and the
+\pkg{lme4} notation for multilevel models (see Table
+\ref{tab:mod})''{]}.
 
 Table 3: Notation
 
@@ -360,20 +364,26 @@ Galimer 2l methods.
 \hypertarget{setup}{%
 \subsection{Setup}\label{setup}}
 
+\begin{itemize}
+\tightlist
+\item
+  GV: CREATE A SINGLE ONLINE DEPARTURE POINT ON GITHUB?
+\end{itemize}
+
 {[}TODO: Add environment info, seed and version number(s) somewhere.{]}
 Set up the R environment and load the necessary packages:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> set.seed(2022)
+R> set.seed(2022)        # for reproducibility
 R> library(mice)         # for imputation
-R> library(miceadds)     # for imputation
-R> library(ggmice)       # for visualization
+R> library(miceadds)     # for additional imputation routines
+R> library(ggmice)       # for incomplete/imputed data visualization
 R> library(ggplot2)      # for visualization
 R> library(dplyr)        # for data wrangling
 R> library(lme4)         # for multilevel modeling
-R> library(mitml)        # for multilevel pooling
-R> library(miceheckman)  # for imputation
+R> library(mitml)        # for multilevel parameter pooling
+R> library(miceheckman)  # for imputation cf heckman models
 \end{CodeInput}
 \end{CodeChunk}
 
