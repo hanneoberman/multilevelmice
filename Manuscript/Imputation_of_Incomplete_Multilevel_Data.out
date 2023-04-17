@@ -8,9 +8,9 @@
 \BOOKMARK [3][-]{Subsubsection.2.0.2.Imputation with multilevel model.3}{\376\377\000I\000m\000p\000u\000t\000a\000t\000i\000o\000n\000\040\000w\000i\000t\000h\000\040\000m\000u\000l\000t\000i\000l\000e\000v\000e\000l\000\040\000m\000o\000d\000e\000l}{Subsubsection.2.0.0.Imputation ignoring the cluster variable (not recommended).3}% 8
 \BOOKMARK [1][-]{Section.2.Case study II: IMPACT data (syst missingness, pred matrix).1}{\376\377\000C\000a\000s\000e\000\040\000s\000t\000u\000d\000y\000\040\000I\000I\000:\000\040\000I\000M\000P\000A\000C\000T\000\040\000d\000a\000t\000a\000\040\000\050\000s\000y\000s\000t\000\040\000m\000i\000s\000s\000i\000n\000g\000n\000e\000s\000s\000,\000\040\000p\000r\000e\000d\000\040\000m\000a\000t\000r\000i\000x\000\051}{}% 9
 \BOOKMARK [2][-]{Subsection.3.0.Missingness.2}{\376\377\000M\000i\000s\000s\000i\000n\000g\000n\000e\000s\000s}{Section.2.Case study II: IMPACT data (syst missingness, pred matrix).1}% 10
-\BOOKMARK [2][-]{Subsection.3.1.Complete case analysis {[}TODO: remove this?{]}.2}{\376\377\000C\000o\000m\000p\000l\000e\000t\000e\000\040\000c\000a\000s\000e\000\040\000a\000n\000a\000l\000y\000s\000i\000s\000\040\000[\000T\000O\000D\000O\000:\000\040\000r\000e\000m\000o\000v\000e\000\040\000t\000h\000i\000s\000?\000]}{Section.2.Case study II: IMPACT data (syst missingness, pred matrix).1}% 11
+\BOOKMARK [2][-]{Subsection.3.1.Complete case analysis.2}{\376\377\000C\000o\000m\000p\000l\000e\000t\000e\000\040\000c\000a\000s\000e\000\040\000a\000n\000a\000l\000y\000s\000i\000s}{Section.2.Case study II: IMPACT data (syst missingness, pred matrix).1}% 11
 \BOOKMARK [2][-]{Subsection.3.2.Imputation model.2}{\376\377\000I\000m\000p\000u\000t\000a\000t\000i\000o\000n\000\040\000m\000o\000d\000e\000l}{Section.2.Case study II: IMPACT data (syst missingness, pred matrix).1}% 12
-\BOOKMARK [1][-]{Section.3.Case study III: HIV data.1}{\376\377\000C\000a\000s\000e\000\040\000s\000t\000u\000d\000y\000\040\000I\000I\000I\000:\000\040\000H\000I\000V\000\040\000d\000a\000t\000a}{}% 13
+\BOOKMARK [1][-]{Section.3.Case study III: obesity data.1}{\376\377\000C\000a\000s\000e\000\040\000s\000t\000u\000d\000y\000\040\000I\000I\000I\000:\000\040\000o\000b\000e\000s\000i\000t\000y\000\040\000d\000a\000t\000a}{}% 13
 \BOOKMARK [1][-]{Section.4.Discussion.1}{\376\377\000D\000i\000s\000c\000u\000s\000s\000i\000o\000n}{}% 14
-\BOOKMARK [1][-]{Section.5.Think about.1}{\376\377\000T\000h\000i\000n\000k\000\040\000a\000b\000o\000u\000t}{}% 15
-\BOOKMARK [1][-]{Section.6.Funding.1}{\376\377\000F\000u\000n\000d\000i\000n\000g}{}% 16
+\BOOKMARK [1][-]{Section.5.Funding.1}{\376\377\000F\000u\000n\000d\000i\000n\000g}{}% 15
+\BOOKMARK [1][-]{Section.6.References.1}{\376\377\000R\000e\000f\000e\000r\000e\000n\000c\000e\000s}{}% 16

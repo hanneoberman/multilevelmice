@@ -38,7 +38,7 @@ title:
   plain:     "Imputation of Incomplete Multilevel Data with mice"
   short:     "Multilevel \\pkg{mice}"
 abstract: >
-  This tutorial illustrates the imputation of incomplete multilevel data with the \proglang{R} packackage \pkg{mice}. We aim to submit at JSS, so there is no word count limit ("There is no page limit, nor a limit on the number of figures or tables"). 
+  This tutorial illustrates the imputation of incomplete multilevel data with the \proglang{R} packackage \pkg{mice}. 
 keywords:
   # at least one keyword must be supplied
   formatted: [missing data, multilevel, clustering, "\\pkg{mice}", "\\proglang{R}"]
