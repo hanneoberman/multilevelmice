@@ -248,8 +248,13 @@ library(ggmice)       # for visualization
 library(ggplot2)      # for visualization
 library(dplyr)        # for data wrangling
 library(lme4)         # for multilevel modeling
+<<<<<<< Updated upstream
 library(mitml)        # for multilevel pooling
 library(miceheckman)  # for imputation
+=======
+library(mitml)        # for multilevel parameter pooling
+#library(miceheckman)  # for imputation cf heckman models
+>>>>>>> Stashed changes
 ```
 <!-- library(broom.mixed)  # for multilevel estimates -->
 
@@ -545,7 +550,7 @@ fits %>% left_join(n, by = "name") %>%
 
 To explore the missingness, it is wise to look at the missing data pattern:
 ```{r pattern, fig.height=7.1}
-plot_pattern(dat, rotate = TRUE, npat = 10L)  # plot missingness pattern
+plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
 ```
 
 This shows... [TODO: fill in that we need to impute `ct` and `pupil`.] 
@@ -658,6 +663,7 @@ Data are simulated and included in the `GJRM` package. We will use the following
 The imputation of these date is based on the toy example from [IPDMA Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R). 
 
 
+<<<<<<< Updated upstream
 ```{r hiv, echo=FALSE}
 # data
 data("hiv", package = "GJRM")
@@ -687,10 +693,42 @@ meth["weight"]<-"2l.heckman"
 pred <- ini$pred
 pred["weight","cluster"]<- -2
 pred["weight","rt"] <- -3
+=======
+Load the data:
+```{r obesity}
+#data("obesity", package = "miceheckman")
+```
+
+Select relevant variables:
+```{r bmi}
+#dat <- select(obesity, -"bmi")
+```
+
+Visualize missing data pattern:
+```{r obesity-md}
+#plot_pattern(dat)
+```
+
+
+Create predictor matrix:
+```{r obesity-pred}
+#pred <- quickpred(dat)   # predictor matrix
+#pred["weight","cluster"]<- -2 # clustering variable
+#pred["weight","rt"] <- -3 #inclusion-restriction variable
+#plot_pred(pred)
+```
+
+
+Set the Heckman model as imputation method:
+```{r meth}
+#meth <- make.method(dat) # methods vector
+#meth["weight"]<-"2l.heckman"
+>>>>>>> Stashed changes
 ```
 
 
 ```{r eval=FALSE}
+<<<<<<< Updated upstream
 imp <- mice(obesity, # dataset with missing values
                         m = 10,   # number of imputations
                         maxit = 1,
@@ -700,6 +738,17 @@ imp <- mice(obesity, # dataset with missing values
                         print = T,
                         meta_method="reml",
                         pmm=FALSE)
+=======
+#imp <- mice(
+#  dat, # dataset with missing values
+#  m = 5, # number of imputations
+#  maxit = 10,
+#  meth = meth, #imputation method vector
+#  pred = pred, #imputation predictors matrix
+#  meta_method = "reml",
+#  printFlag = FALSE
+#)
+>>>>>>> Stashed changes
 ```
 
 # Discussion
@@ -709,6 +758,20 @@ imp <- mice(obesity, # dataset with missing values
 <!-- # semi-cont with jomo is not ideal (schafer, '97) because you need 2-step approach -->
 <!-- # pmm is better (more efficient) because it will still look for donors (maybe outside of cluster) based on predictive distance, even for very small clusters -->
 <!-- # make assumptions of these methods explicit! -->
+
+In hierarchical datasets, clustering is a concern because the homoscedasticity in the error terms cannot be assumed across clusters and the relationship among variables may vary at different hierarchical levels. When multiple imputation is used to deal with missing data, as the imputation and analysis process is performed separately, it is necessary that imputation model being congenial with the main analysis model (Audigier, 2021), e.g. if the main model accounts for the hierarchical structure also imputation model should do it. Not including clustering into the imputation process may lead to effect estimates with smaller standard errors and inflated type I error.
+
+There are different strategies that can be adopted in the imputation process that account for clustering: inclusion of cluster indicator variable, performing a separate imputation process for each cluster, or performing a simultaneous imputation process by using an imputation method that accounts for clustering.(Stata: https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/)
+ 
+The selection of each strategy depends mainly on the assumptions in the main analysis and also on the restriction of the analyzed data. 
+
+Regarding the restrictions imposed by the data, for instance, the use of cluster indicator variables is restricted in datasets where there are not many clusters and many observations per cluster (Graham, 2009). The last restriction is also required when imputations are performed on each cluster separately.  When this restriction cannot be achieved, one can use an imputation model that simultaneously imputes all clusters using a hierarchical model (Allison 2002).
+
+Under this hierarchical imputation model, observations within clusters are correlated and this correlation is modelled by a random effect so the hierarchical model can be estimated even when there are few observations per cluster. However, this strategy is best suited for balanced data (Grund, 2017) and when random effects model is appropriated, i.e. the number of clusters is adequate. (Austin,2018).
+
+Here it is important to evaluate the assumptions imposed by the main model, for instance by using the cluster indicator strategy may lead to bias estimates when the model is based on a hierarchical model (Taaljard,2008). Even when an imputation strategy congenial with the main model is preferred, it is important to consider whether it is appropriate for the data as a less complex imputation strategies may also lead to unbiased estimates in certain scenarios(Bailey 2020). For instance, in causal effect analysis, separately imputation may lead to smaller bias when the size of the smaller exposure cluster is large, compared with an imputation model that includes exposure-confounder interactions. (Zhang,2023).
+
+
 
 - Additional levels of clustering
 
