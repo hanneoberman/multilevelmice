@@ -710,6 +710,18 @@ imp <- mice(
 
 <!-- -  I don't know if in your article you cover something about model complexity, for example sometimes I have to switch from 2l. methods to 1l. methods just because the model didn't converge.. this is due to the considered imputation model is very complex regarding the amount of information counted... I know that a solution for an imputation model with many predictors is to check correlation plots as you did or use quickpred().. (maybe you can add this somewhere after the correlation plots).....But as for cluster specification, I don't know if besides plots of distribution per cluster there is something else can be done to see if i have to use 1l. or 2l. for a given variable, also I have no idea.. how to test which is better between 2l.norm or 2l.2stage.norm. -->
 
+In hierarchical datasets, clustering is a concern because the homoscedasticity in the error terms cannot be assumed across clusters and the relationship among variables may vary at different hierarchical levels. When multiple imputation is used to deal with missing data, as the imputation and analysis process is performed separately, it is necessary that imputation model being congenial with the main analysis model (Audigier, 2021), e.g. if the main model accounts for the hierarchical structure also imputation model should do it. Not including clustering into the imputation process may lead to effect estimates with smaller standard errors and inflated type I error.
+
+There are different strategies that can be adopted in the imputation process that account for clustering: inclusion of cluster indicator variable, performing a separate imputation process for each cluster, or performing a simultaneous imputation process by using an imputation method that accounts for clustering.(Stata: https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/)
+
+The selection of each strategy depends mainly on the assumptions in the main analysis and also on the restriction of the analyzed data. 
+
+Regarding the restrictions imposed by the data, for instance, the use of cluster indicator variables is restricted in datasets where there are not many clusters and many observations per cluster (Graham, 2009). The last restriction is also required when imputations are performed on each cluster separately.  When this restriction cannot be achieved, one can use an imputation model that simultaneously imputes all clusters using a hierarchical model (Allison 2002).
+
+Under this hierarchical imputation model, observations within clusters are correlated and this correlation is modelled by a random effect so the hierarchical model can be estimated even when there are few observations per cluster. However, this strategy is best suited for balanced data (Grund, 2017) and when random effects model is appropriated, i.e. the number of clusters is adequate. (Austin,2018).
+
+Here it is important to evaluate the assumptions imposed by the main model, for instance by using the cluster indicator strategy may lead to bias estimates when the model is based on a hierarchical model (Taaljard,2008). Even when an imputation strategy congenial with the main model is preferred, it is important to consider whether it is appropriate for the data as a less complex imputation strategies may also lead to unbiased estimates in certain scenarios(Bailey 2020). For instance, in causal effect analysis, separately imputation may lead to smaller bias when the size of the smaller exposure cluster is large, compared with an imputation model that includes exposure-confounder interactions. (Zhang,2023).
+
 # Funding
 
 This project has received funding from the European Union's Horizon 2020 research and innovation programme under ReCoDID grant agreement No 825746.
