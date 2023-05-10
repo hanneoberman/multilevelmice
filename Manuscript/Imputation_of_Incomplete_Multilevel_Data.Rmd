@@ -234,7 +234,7 @@ library(miceheckman)  # for imputation cf heckman models
 
 <!-- [TODO: explain case study] -->
 
-In this section we'll go over the different steps involved with imputing incomplete multilevel data with the R package mice. We consider the simulated `popmis` dataset, which included pupils ($n = 2000$) clustered within schools ($N = 100$). The following variables are of primary interest: 
+In this section we will go over the different steps involved with imputing incomplete multilevel data with the R package mice. We consider the simulated `popmis` dataset, which included pupils ($n = 2000$) clustered within schools ($N = 100$). The following variables are of primary interest: 
 
   - `school`,     school identification number (clustering variable);
   - `popular`,    pupil popularity (self-rating between 0 and 10; unit-level);
@@ -242,6 +242,8 @@ In this section we'll go over the different steps involved with imputing incompl
   - `texp`,	      teacher experience (in years; cluster-level).
 
 The research objective of the `popmis` dataset is to predict the pupils' popularity based on their gender and the experience of the teacher.  The analysis model corresponding to this dataset is multilevel regression with random intercepts, random slopes and a cross-level interaction. The outcome variable is `popular`, which is predicted from the unit-level variable `sex` and the cluster-level variable `texp`:
+
+<!-- TODO: choose sex or gender -->
 
 <!-- $$ -->
 <!-- \texttt{popular} \sim  \texttt{1 + sex + texp + sex:texp + (1 + sex | school)} -->
@@ -265,7 +267,9 @@ est_true <- lme4::lmer(mod, popcomp) %>% broom.mixed::tidy()
 
 The true effect is:
 
-```{r echo=FALSE}
+<!-- TODO: True effect? We have not discussed any effects yet. Maybe say that "we consider the associations in the full data set to be the true associations''. And mention association instead of effect (effect has a causal interpretation, association can be either causal or predictive) -->
+
+```{r echo=FALSE, fig.cap = "True effect in the popularity data"}
 fits <-
   purrr::map_dfr(
     unique(popcomp$school),
@@ -301,7 +305,7 @@ Load the data into the environment and select the relevant variables:
 popmis <- popmis[, c("school", "popular", "sex")] 
 ```
 
-Plot the missing data pattern:
+First we plot the pattern of missing data within categories of the relevant variables. Plot the missing data pattern:
 
 ```{r pop_pat, fig.cap = "Missing data pattern in the popularity data"}
 plot_pattern(popmis, square = TRUE)
@@ -376,6 +380,9 @@ fit <- with(imp,
 ```
 
 Print the estimates:
+
+<!-- TODO: explain what this function does -->
+
 ```{r}
 testEstimates(as.mitml.result(fit), extra.pars = TRUE)
 ```
@@ -691,6 +698,15 @@ imp <- mice(
 
 - More complex data types: timeseries and polynomial relationship in the clustering.
 
+- FIML vs MI
+
+An alternative approach to missing data is to use Full Information Maximum Likelihood (FIML). This method does not require the imputation of any missing values. Whereas MI consists of  imputation, analyses and pooling steps, FIML analyses the data in a single step. When the assumptions are met the two approaches should produce equivalent results. [REF] As FIML requires specialised software, not all analyses can be performed with standard software. [REF]
+
+
+- Survival / TTE, this could be put in the paragraph on congeniality
+
+When the outcome is time-to-event, the Nelson-Aalen estimate of the time to event should be included as a covariate in the imputation model [REF]
+
 
 <!-- # Think about -->
 
@@ -710,7 +726,7 @@ imp <- mice(
 
 <!-- -  I don't know if in your article you cover something about model complexity, for example sometimes I have to switch from 2l. methods to 1l. methods just because the model didn't converge.. this is due to the considered imputation model is very complex regarding the amount of information counted... I know that a solution for an imputation model with many predictors is to check correlation plots as you did or use quickpred().. (maybe you can add this somewhere after the correlation plots).....But as for cluster specification, I don't know if besides plots of distribution per cluster there is something else can be done to see if i have to use 1l. or 2l. for a given variable, also I have no idea.. how to test which is better between 2l.norm or 2l.2stage.norm. -->
 
-In hierarchical datasets, clustering is a concern because the homoscedasticity in the error terms cannot be assumed across clusters and the relationship among variables may vary at different hierarchical levels. When multiple imputation is used to deal with missing data, as the imputation and analysis process is performed separately, it is necessary that imputation model being congenial with the main analysis model (Audigier, 2021), e.g. if the main model accounts for the hierarchical structure also imputation model should do it. Not including clustering into the imputation process may lead to effect estimates with smaller standard errors and inflated type I error.
+In hierarchical datasets, clustering is a concern because the homoscedasticity in the error terms cannot be assumed across clusters and the relationship among variables may vary at different hierarchical levels. When multiple imputation is used to deal with missing data, as the imputation and analysis process is performed separately, it is necessary that imputation model being congenial with the main analysis model (Meng, 1994), e.g. if the main model accounts for the hierarchical structure also imputation model should do it (Audigier, 2021). Not including clustering into the imputation process may lead to effect estimates with smaller standard errors and inflated type I error.
 
 There are different strategies that can be adopted in the imputation process that account for clustering: inclusion of cluster indicator variable, performing a separate imputation process for each cluster, or performing a simultaneous imputation process by using an imputation method that accounts for clustering.(Stata: https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/)
 
