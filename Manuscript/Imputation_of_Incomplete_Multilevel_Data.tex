@@ -18,7 +18,10 @@ Utrecht, The Netherlands \And Gerko Vink\\Methodology and Statistics\\
 Utrecht University \AND Valentijn M. T. de Jong\\Julius Center for
 Health Sciences and Primary Care,\\
 University Medical Center Utrecht, Utrecht University,\\
-Utrecht, The Netherlands
+Utrecht, The Netherlands\\
+Data Analytics and Methods Task Force,\\
+European Medicines Agency,\\
+Amsterdam, The Netherlands
 }
 \title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
 
@@ -244,48 +247,6 @@ e.g.][ and \citet{grun18}]{audi18} are outside the scope of this
 tutorial. Assumed knowledge includes basic familiarity with the
 \pkg{lme4} notation for multilevel models (see Table \ref{tab:mod}).
 
-Table 3: Notation
-
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5495}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.4505}}@{}}
-\toprule()
-\begin{minipage}[b]{\linewidth}\raggedright
-\textbf{Formula \pkg{lme4}}
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-\textbf{Details}
-\end{minipage} \\
-\midrule()
-\endhead
-\texttt{y\ \textasciitilde{}\ x1\ +\ (1\ \textbar{}\ g1)} & Fixed
-\texttt{x1} predictor with random intercept \\
-& varying among \texttt{g1} \\
-\texttt{y\textasciitilde{}x1*x2+\ (1\textbar{}\ g1)} & Interactions of
-\texttt{x1} and \texttt{x2} only in fixed effect \\
-\texttt{y\ \textasciitilde{}\ x1*x2+\ (x2\textbar{}\ g1)} & Interactions
-of \texttt{x1} and \texttt{x2} only in fixed effect \\
-& with slope of \texttt{x2} randomly varying among \texttt{g1} \\
-\texttt{y\ \textasciitilde{}\ x1*x2+\ (x1*x2\textbar{}\ g1)} &
-variance-covariance matrix estimated only with \\
-& the variance terms of intercept, slope of \texttt{x1}, \\
-& slope of \texttt{x2} and interaction \texttt{x1*x2} \\
-\texttt{y\ \textasciitilde{}\ x1*x2+\ (x1\ \textbar{}\ g1)+\ (x2\textbar{}\ g1)}
-& variance-covariance matrix estimated separately, \\
-& i.e, one for intercept and \texttt{x1} and another for \\
-& intercept and \texttt{x2} \\
-\texttt{y\ \textasciitilde{}\ x1\ +\ (x1\ \textbar{}\ g1)\ or\ 1\ +\ x1\ +\ (1\ +\ x1\ \textbar{}\ g1)}
-& Fixed \texttt{x1} with correlated random intercept and \\
-& random slope of \texttt{x} \\
-\texttt{y\ \textasciitilde{}\ x1\ +\ (x1\ \textbar{}\textbar{}\ g1)\ or\ 1\ +\ x1\ +\ (1\ \textbar{}\ g1)\ +\ (0\ +\ x1\ \textbar{}\ g1)}
-& Fixed \texttt{x1} with uncorrelated random intercept \\
-& and random slope of \texttt{x1} \\
-\texttt{y\ \textasciitilde{}\ (1\ \textbar{}\ g1)\ +\ (1\ \textbar{}\ g2)}
-& Random intercept varying among \texttt{g1} and among
-\texttt{g2\ \ \ \textbar{}\ \textbar{}}y \textasciitilde{} (1 \\
-& \\
-\bottomrule()
-\end{longtable}
-
 We illustrate imputation of incomplete multilevel data using three case
 studies:
 
@@ -339,8 +300,8 @@ R> library(ggplot2)      # for visualization
 R> library(dplyr)        # for data wrangling
 R> library(lme4)         # for multilevel modeling
 R> library(mitml)        # for multilevel parameter pooling
-R> library(miceheckman)  # for imputation cf heckman models
-R> library(metamisc)     # for ???
+R> library(miceheckman)  # for imputation cf. heckman models
+R> library(metamisc)     # for case study data
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -379,19 +340,6 @@ cluster-level variable \texttt{texp}:
 \begin{CodeInput}
 R> mod <- popular ~ 1 + sex + (1 | school)
 \end{CodeInput}
-\end{CodeChunk}
-
-The true effect is:
-
-\begin{CodeChunk}
-\begin{figure}
-
-{\centering \includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/unnamed-chunk-3-1} 
-
-}
-
-\caption[True effect in the popularity data]{True effect in the popularity data}\label{fig:unnamed-chunk-3}
-\end{figure}
 \end{CodeChunk}
 
 Load the data into the environment and select the relevant variables:
@@ -1227,6 +1175,51 @@ organizations with which the authors are employed/affiliated.
 
 \hypertarget{references}{%
 \section{References}\label{references}}
+
+\hypertarget{appendix}{%
+\section{Appendix}\label{appendix}}
+
+Table 3: Notation
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5495}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.4505}}@{}}
+\toprule()
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Formula \pkg{lme4}}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Details}
+\end{minipage} \\
+\midrule()
+\endhead
+\texttt{y\ \textasciitilde{}\ x1\ +\ (1\ \textbar{}\ g1)} & Fixed
+\texttt{x1} predictor with random intercept \\
+& varying among \texttt{g1} \\
+\texttt{y\textasciitilde{}x1*x2+\ (1\textbar{}\ g1)} & Interactions of
+\texttt{x1} and \texttt{x2} only in fixed effect \\
+\texttt{y\ \textasciitilde{}\ x1*x2+\ (x2\textbar{}\ g1)} & Interactions
+of \texttt{x1} and \texttt{x2} only in fixed effect \\
+& with slope of \texttt{x2} randomly varying among \texttt{g1} \\
+\texttt{y\ \textasciitilde{}\ x1*x2+\ (x1*x2\textbar{}\ g1)} &
+variance-covariance matrix estimated only with \\
+& the variance terms of intercept, slope of \texttt{x1}, \\
+& slope of \texttt{x2} and interaction \texttt{x1*x2} \\
+\texttt{y\ \textasciitilde{}\ x1*x2+\ (x1\ \textbar{}\ g1)+\ (x2\textbar{}\ g1)}
+& variance-covariance matrix estimated separately, \\
+& i.e, one for intercept and \texttt{x1} and another for \\
+& intercept and \texttt{x2} \\
+\texttt{y\ \textasciitilde{}\ x1\ +\ (x1\ \textbar{}\ g1)\ or\ 1\ +\ x1\ +\ (1\ +\ x1\ \textbar{}\ g1)}
+& Fixed \texttt{x1} with correlated random intercept and \\
+& random slope of \texttt{x} \\
+\texttt{y\ \textasciitilde{}\ x1\ +\ (x1\ \textbar{}\textbar{}\ g1)\ or\ 1\ +\ x1\ +\ (1\ \textbar{}\ g1)\ +\ (0\ +\ x1\ \textbar{}\ g1)}
+& Fixed \texttt{x1} with uncorrelated random intercept \\
+& and random slope of \texttt{x1} \\
+\texttt{y\ \textasciitilde{}\ (1\ \textbar{}\ g1)\ +\ (1\ \textbar{}\ g2)}
+& Random intercept varying among \texttt{g1} and among
+\texttt{g2\ \ \ \textbar{}\ \textbar{}}y \textasciitilde{} (1 \\
+& \\
+\bottomrule()
+\end{longtable}
 
 \bibliography{../References/multilevelmice.bib}
 

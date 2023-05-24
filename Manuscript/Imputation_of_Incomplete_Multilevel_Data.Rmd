@@ -29,9 +29,9 @@ author:
       | Julius Center for Health Sciences and Primary Care, 
       | University Medical Center Utrecht, Utrecht University, 
       | Utrecht, The Netherlands 
-    affiliation2: |
       | Data Analytics and Methods Task Force, 
-      | European Medicines Agency, Amsterdam, The Netherlands
+      | European Medicines Agency, 
+      | Amsterdam, The Netherlands
 
 title:
   formatted: "Imputation of Incomplete Multilevel Data with \\pkg{mice}"
@@ -98,7 +98,6 @@ Table 1: Concepts in multilevel methods
 |                     | @gelm06, @hox17 and @jong21]. [TODO: add stratified intercept as concept..]                     |
 
 
-
 ## Missingness in multilevel data
 
 As with any other dataset, clustered datasets may be impacted by missingness in much the same way. Several strategies can be used to handle missing data, including complete case analysis and imputation. We focus on the latter approach and discuss statistical methods for replacing the missing data with one or more plausible values. Imputation separates the missing data problem from the analysis and the completed data can be analyzed as if it were completely observed. It is generally recommended to impute the missing values more than once to preserve uncertainty due to missingness and to allow for valid inferences (c.f. Rubin 1976). 
@@ -110,7 +109,7 @@ With incomplete clustered datasets we can distinguish between two types of missi
 
 <!-- Systematic missingness implies that one or more variables are never observed in a certain cluster. With sporadic missingness there may be observed data for some but not all units in a cluster [@buur18; @jola18]. We have visualized this difference in Figure 1, which shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n$ units distributed over $N$ clusters and $p$ variables.  -->
 
-```{r patterns, fig.height=1.5, fig.width=4.1, fig.cap = "Sporadic missingness in multilevel data", echo=FALSE}
+```{r patterns, fig.height=1.5, fig.width=4.1, fig.cap = "Sporadic missingness in multilevel data", echo=FALSE, fig.margin=TRUE}
 dat <- expand.grid(rows = 1:7, cols = 1:6) %>% 
   cbind(text = c("1", "1", "2", "2", "3", "", "N", rep("", 35)),
         miss = c(rep("", 16), "NA", "NA", "", "", "", "NA", "", "", "NA", rep("", 17)))
@@ -163,30 +162,6 @@ We provide practical guidelines and code snippets for different missing data sit
 
 <!-- TODO: mention other packages? \pkg{jomo} and \pkg{mdmb} -->
 
-Table 3: Notation
-
-| **Formula \pkg{lme4}**         | **Details**                                 |
-|-------------------------------------------------------------|--------------------------------------------------|
-| `y ~ x1 + (1 | g1)`                                      | Fixed `x1` predictor with random intercept         |
-|                                                             | varying among `g1`                                  |
-| `y~x1*x2+ (1| g1)`                                       | Interactions of `x1` and `x2` only in fixed effect   |
-| `y ~ x1*x2+ (x2| g1)`                                      | Interactions of `x1` and `x2` only in fixed effect   |
-|                                                             | with slope of `x2` randomly varying among `g1`       |
-| `y ~ x1*x2+ (x1*x2| g1)`                                   | variance-covariance matrix estimated only with   |
-|                                                             | the variance terms of intercept, slope of `x1`,    |
-|                                                             | slope of `x2` and interaction `x1*x2`                |
-| `y ~ x1*x2+ (x1 | g1)+ (x2| g1)`                            | variance-covariance matrix estimated separately, |
-|                                                             | i.e, one for intercept and `x1` and another for    |
-|                                                             | intercept and `x2`                                 |
-| `y ~ x1 + (x1 | g1) or 1 + x1 + (1 + x1 | g1)`             | Fixed `x1` with correlated random intercept and    |
-|                                                             | random slope of `x`                                |
-| `y ~ x1 + (x1 || g1) or 1 + x1 + (1 | g1) + (0 + x1 | g1)` | Fixed `x1` with uncorrelated random intercept      |
-|                                                             | and random slope of `x1`                           |
-| `y ~ (1 | g1) + (1 | g2)`                                  | Random intercept varying among `g1` and among `g2   |
-| `y ~ (1 | g1/g2) or ~ (1 | g1) + (1 | g1:g2)`                     | Random intercept varying among `g1` and `g2`         |
-|                                                             | withing `g1`                                       |
-|                                                             |          |
-
 
 
 We illustrate imputation of incomplete multilevel data using three case studies:
@@ -225,8 +200,8 @@ library(ggplot2)      # for visualization
 library(dplyr)        # for data wrangling
 library(lme4)         # for multilevel modeling
 library(mitml)        # for multilevel parameter pooling
-library(miceheckman)  # for imputation cf heckman models
-library(metamisc)     # for ???
+library(miceheckman)  # for imputation cf. heckman models
+library(metamisc)     # for case study data
 ```
 <!-- library(broom.mixed)  # for multilevel estimates -->
 
@@ -266,39 +241,8 @@ est_true <- lme4::lmer(mod, popcomp) %>% broom.mixed::tidy()
 # testEstimates(as.mitml.result(fit_ignored), var.comp = TRUE)
 ```
 
-The true effect is:
 
 <!-- TODO: True effect? We have not discussed any effects yet. Maybe say that "we consider the associations in the full data set to be the true associations''. And mention association instead of effect (effect has a causal interpretation, association can be either causal or predictive) -->
-
-```{r echo=FALSE, fig.cap = "True effect in the popularity data"}
-fits <-
-  purrr::map_dfr(
-    unique(popcomp$school),
-    ~ {
-      lm(
-        mod,
-        data = filter(popcomp, school == .x)
-      )
-    } %>%
-      broom::tidy(conf.int = TRUE, exponentiate = TRUE) %>%
-      .[, c("term", "estimate", "conf.low", "conf.high")] %>%
-      cbind(school = as.character(.x), .)
-  ) %>% filter(term %in% "sex")
-
-n <- popcomp %>% group_by(school) %>% 
-  tally() %>% 
-  mutate(school = as.character(school))
-
-fits %>% left_join(n, by = "school") %>% 
-  ggplot(aes(y = school, x = estimate, linewidth = n)) +
-  geom_vline(xintercept = 1, linewidth = 1.5, color = "grey95") +
-  geom_linerange(aes(y = school, xmin = conf.low, xmax = conf.high, linewidth = 0.5), position = position_dodge(width = 0.5)) +
-  geom_point(shape = 20, position = position_dodge(width = 0.5)) +
-  labs(y = "Study", x = "", color = NULL) +
-  theme_classic() +
-  scale_size(guide = 'none')
-```
-
 
 Load the data into the environment and select the relevant variables:
 
@@ -308,8 +252,8 @@ popmis <- popmis[, c("school", "popular", "sex")]
 
 First we plot the pattern of missing data within categories of the relevant variables. Plot the missing data pattern:
 
-```{r pop_pat, fig.cap = "Missing data pattern in the popularity data"}
-plot_pattern(popmis, square = TRUE)
+```{r pop_pat, fig.cap = "Missing data pattern in the popularity data", fig.margin=TRUE}
+plot_pattern(popmis)
 ```
 
 The missingness is univariate and sporadic, which is illustrated in the missing data pattern in Figure \ref{fig:pop_pat}. 
@@ -766,3 +710,29 @@ The views expressed in this paper are the personal views of the authors and may 
 <!-- TODO: add facets for some clusters, or add propensity score distribution `is.na(popular) ~ .` -->
 <!-- TODO: make it average of cluster dens, not marginal, alternatively add a quartile line around the density with geom_ribbon -->
 <!-- TODO: add fill and/or some way of expressing how much the densities overlap (overlap coefficient in %?) -->
+
+# Appendix
+
+Table 3: Notation
+
+| **Formula \pkg{lme4}**         | **Details**                                 |
+|-------------------------------------------------------------|--------------------------------------------------|
+| `y ~ x1 + (1 | g1)`                                      | Fixed `x1` predictor with random intercept         |
+|                                                             | varying among `g1`                                  |
+| `y~x1*x2+ (1| g1)`                                       | Interactions of `x1` and `x2` only in fixed effect   |
+| `y ~ x1*x2+ (x2| g1)`                                      | Interactions of `x1` and `x2` only in fixed effect   |
+|                                                             | with slope of `x2` randomly varying among `g1`       |
+| `y ~ x1*x2+ (x1*x2| g1)`                                   | variance-covariance matrix estimated only with   |
+|                                                             | the variance terms of intercept, slope of `x1`,    |
+|                                                             | slope of `x2` and interaction `x1*x2`                |
+| `y ~ x1*x2+ (x1 | g1)+ (x2| g1)`                            | variance-covariance matrix estimated separately, |
+|                                                             | i.e, one for intercept and `x1` and another for    |
+|                                                             | intercept and `x2`                                 |
+| `y ~ x1 + (x1 | g1) or 1 + x1 + (1 + x1 | g1)`             | Fixed `x1` with correlated random intercept and    |
+|                                                             | random slope of `x`                                |
+| `y ~ x1 + (x1 || g1) or 1 + x1 + (1 | g1) + (0 + x1 | g1)` | Fixed `x1` with uncorrelated random intercept      |
+|                                                             | and random slope of `x1`                           |
+| `y ~ (1 | g1) + (1 | g2)`                                  | Random intercept varying among `g1` and among `g2   |
+| `y ~ (1 | g1/g2) or ~ (1 | g1) + (1 | g1:g2)`                     | Random intercept varying among `g1` and `g2`         |
+|                                                             | withing `g1`                                       |
+|                                                             |          |
