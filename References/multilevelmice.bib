@@ -71,7 +71,7 @@
   abstract = {Missing data are ubiquitous in medical research, yet there is still uncertainty over when restricting to the complete records is likely to be acceptable, when more complex methods (e.g. maximum likelihood, multiple imputation and Bayesian methods) should be used, how they relate to each other and the role of sensitivity analysis. This article seeks to address both applied practitioners and researchers interested in a more formal explanation of some of the results. For practitioners, the framework, illustrative examples and code should equip them with a practical approach to address the issues raised by missing data (particularly using multiple imputation), alongside an overview of how the various approaches in the literature relate. In particular, we describe how multiple imputation can be readily used for sensitivity analyses, which are still infrequently performed. For those interested in more formal derivations, we give outline arguments for key results, use simple examples to show how methods relate, and references for full details. The ideas are illustrated with a cohort study, a multi-centre case control study and a randomised clinical~trial.},
   langid = {english},
   pmid = {33624862},
-  keywords = {Bayes Theorem,Case-Control Studies,Cohort Studies,complete records,Data Interpretation; Statistical,Humans,missing data,multiple imputation,sensitivity analysis,Uncertainty},
+  keywords = {Bayes Theorem,Case-Control Studies,Cohort Studies,complete records,{Data Interpretation, Statistical},Humans,missing data,multiple imputation,sensitivity analysis,Uncertainty},
   file = {C\:\\Users\\4216318\\Zotero\\storage\\LAVQQI45\\Carpenter and Smuk - 2021 - Missing data A statistical framework for practice.pdf}
 }
 
@@ -144,7 +144,7 @@
   abstract = {Specialized imputation routines for multilevel data are widely available in software packages, but these methods are generally not equipped to handle a wide range of complexities that are typical of behavioral science data. In particular, existing imputation schemes differ in their ability to handle random slopes, categorical variables, differential relations at level-1 and level-2, and incomplete level-2 variables. Given the limitations of existing imputation tools, the purpose of this manuscript is to describe a flexible imputation approach that can accommodate a diverse set of two-level analysis problems that includes any of the aforementioned features. The procedure employs a fully conditional specification (also known as chained equations) approach with a latent variable formulation for handling incomplete categorical variables. Computer simulations suggest that the proposed procedure works quite well, with trivial biases in most cases. We provide a software program that implements the imputation strategy, and we use an artificial data set to illustrate its use.},
   langid = {english},
   pmid = {28557466},
-  keywords = {Behavioral Research,Data Interpretation; Statistical,Humans,Models; Statistical,Multilevel Analysis},
+  keywords = {Behavioral Research,{Data Interpretation, Statistical},Humans,{Models, Statistical},Multilevel Analysis},
   file = {C\:\\Users\\4216318\\Zotero\\storage\\J2H75436\\enders-keller--levy-2017--.pdf;C\:\\Users\\4216318\\Zotero\\storage\\UZF2RUXL\\Enders et al. - 2018 - A fully conditional specification approach to mult.pdf}
 }
 
@@ -190,7 +190,7 @@
   googlebooks = {c9xLKzZWoZ4C},
   isbn = {978-1-139-46093-4},
   langid = {english},
-  keywords = {Mathematics / Probability \& Statistics / General,Political Science / General,Psychology / Assessment; Testing \& Measurement,Social Science / Research}
+  keywords = {Mathematics / Probability \& Statistics / General,Political Science / General,{Psychology / Assessment, Testing \& Measurement},Social Science / Research}
 }
 
 @misc{GJRM,
@@ -202,6 +202,26 @@
   urldate = {2022-03-01},
   abstract = {Routines for fitting various joint (and univariate) regression models, with several types of covariate effects, in the presence of equations' errors association, endogeneity, non-random sample selection or partial observability.},
   copyright = {GPL-2 | GPL-3 [expanded from: GPL ({$\geq$} 2)]}
+}
+
+@article{grahamMissingDataAnalysis2009,
+  ids = {grahamMissingDataAnalysis2009a},
+  title = {Missing {{Data Analysis}}: {{Making It Work}} in the {{Real World}}},
+  shorttitle = {Missing {{Data Analysis}}},
+  author = {Graham, John W.},
+  year = {2009},
+  month = jan,
+  journal = {Annual Review of Psychology},
+  volume = {60},
+  number = {1},
+  pages = {549--576},
+  issn = {0066-4308, 1545-2085},
+  doi = {10.1146/annurev.psych.58.110405.085530},
+  urldate = {2023-05-03},
+  abstract = {This review presents a practical summary of the missing data literature, including a sketch of missing data theory and descriptions of normal-model multiple imputation (MI) and maximum likelihood methods. Practical missing data analysis issues are discussed, most notably the inclusion of auxiliary variables for improving power and reducing bias. Solutions are given for missing data challenges such as handling longitudinal, categorical, and clustered data with normal-model MI; including interactions in the missing data model; and handling large numbers of variables. The discussion of attrition and nonignorable missingness emphasizes the need for longitudinal diagnostics and for reducing the uncertainty about the missing data mechanism under attrition. Strategies suggested for reducing attrition bias include using auxiliary variables, collecting follow-up data on a sample of those initially missing, and collecting data on intent to drop out. Suggestions are given for moving forward with research on missing data and attrition.},
+  langid = {english},
+  pmid = {18652544},
+  keywords = {Cluster Analysis,Data Collection,{Data Interpretation, Statistical},Humans,Likelihood Functions,Longitudinal Studies,{Models, Statistical},Psychometrics,Research Design}
 }
 
 @article{grun18,
@@ -332,6 +352,23 @@
   file = {C\:\\Users\\4216318\\Zotero\\storage\\8DGQZVLI\\Hox - 2002 - Multilevel analysis techniques and applications.pdf}
 }
 
+@article{huqueMultipleImputationMethods2020,
+  title = {Multiple Imputation Methods for Handling Incomplete Longitudinal and Clustered Data Where the Target Analysis Is a Linear Mixed Effects Model},
+  author = {Huque, Md Hamidul and {Moreno-Betancur}, Margarita and Quartagno, Matteo and Simpson, Julie A. and Carlin, John B. and Lee, Katherine J.},
+  year = {2020},
+  journal = {Biometrical Journal},
+  volume = {62},
+  number = {2},
+  pages = {444--466},
+  issn = {1521-4036},
+  doi = {10.1002/bimj.201900051},
+  urldate = {2023-05-15},
+  abstract = {Multiple imputation (MI) is increasingly popular for handling multivariate missing data. Two general approaches are available in standard computer packages: MI based on the posterior distribution of incomplete variables under a multivariate (joint) model, and fully conditional specification (FCS), which imputes missing values using univariate conditional distributions for each incomplete variable given all the others, cycling iteratively through the univariate imputation models. In the context of longitudinal or clustered data, it is not clear whether these approaches result in consistent estimates of regression coefficient and variance component parameters when the analysis model of interest is a linear mixed effects model (LMM) that includes both random intercepts and slopes with either covariates or both covariates and outcome contain missing information. In the current paper, we compared the performance of seven different MI methods for handling missing values in longitudinal and clustered data in the context of fitting LMMs with both random intercepts and slopes. We study the theoretical compatibility between specific imputation models fitted under each of these approaches and the LMM, and also conduct simulation studies in both the longitudinal and clustered data settings. Simulations were motivated by analyses of the association between body mass index (BMI) and quality of life (QoL) in the Longitudinal Study of Australian Children (LSAC). Our findings showed that the relative performance of MI methods vary according to whether the incomplete covariate has fixed or random effects and whether there is missingnesss in the outcome variable. We showed that compatible imputation and analysis models resulted in consistent estimation of both regression parameters and variance components via simulation. We illustrate our findings with the analysis of LSAC data.},
+  langid = {english},
+  keywords = {clustered data,fully conditional specification,joint modeling,missing data,multiple imputation,repeated measurement},
+  file = {C\:\\Users\\4216318\\Zotero\\storage\\5IVQ2K4W\\Huque et al. - 2020 - Multiple imputation methods for handling incomplet.pdf;C\:\\Users\\4216318\\Zotero\\storage\\PFN7DWRE\\bimj.html}
+}
+
 @misc{IndividualParticipantData,
   title = {Individual {{Participant Data Meta-Analysis}}: {{A Handbook}} for {{Healthcare Research}} | {{Wiley}}},
   shorttitle = {Individual {{Participant Data Meta-Analysis}}},
@@ -449,7 +486,7 @@
   abstract = {Increasingly, investigators rely on multicenter or multigroup studies to demonstrate effectiveness and generalizability. Authors too often overlook the analytic challenges in these study designs: the correlation of outcomes and exposures among patients within centers, confounding of associations by center, and effect modification of treatment or exposure across center. Correlation or clustering, resulting from the similarity of outcomes among patients within a center, requires an adjustment to confidence intervals and P values, especially in observational studies and in randomized multicenter studies in which treatment is allocated by center rather than by individual patient. Multicenter designs also warrant testing and adjustment for the potential bias of confounding by center, and for the presence of effect modification or interaction by center. This paper uses examples from the recent biomedical literature to highlight the issues and analytic options.},
   langid = {english},
   pmid = {11453711},
-  keywords = {Bias,Confidence Intervals,Confounding Factors; Epidemiologic,Data Interpretation; Statistical,Humans,Multicenter Studies as Topic,Randomized Controlled Trials as Topic,Research Design}
+  keywords = {Bias,Confidence Intervals,{Confounding Factors, Epidemiologic},{Data Interpretation, Statistical},Humans,Multicenter Studies as Topic,Randomized Controlled Trials as Topic,Research Design}
 }
 
 @article{meng94,
