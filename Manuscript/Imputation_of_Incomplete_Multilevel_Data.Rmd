@@ -226,6 +226,7 @@ library(dplyr)        # for data wrangling
 library(lme4)         # for multilevel modeling
 library(mitml)        # for multilevel parameter pooling
 library(miceheckman)  # for imputation cf heckman models
+library(metamisc)     # for ???
 ```
 <!-- library(broom.mixed)  # for multilevel estimates -->
 
@@ -367,14 +368,14 @@ plot_pred(pred)
 ```
 
 Impute the data, ignoring the cluster structure:
-```{r pop-ignored-imp, echo=TRUE, message=FALSE, warning=FALSE}
+```{r pop-ignored-imp, echo=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 imp <- mice(popmis, pred = pred, print = FALSE)
 ```
 
 <!-- [TODO: remove the broom.mixed output, use mitml only] -->
 
 Analyze the imputations:
-```{r pop-ignored-fit, echo=TRUE, message=FALSE, warning=FALSE}
+```{r pop-ignored-fit, echo=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 fit <- with(imp, 
             lmer(popular ~ 1 + sex  + (1 | school))) 
 ```
@@ -397,7 +398,7 @@ We'll now use `school` as a predictor to impute all other variables. This is sti
 <!-- A fixed cluster model is better if we have data with all the clusters in the population and we are interested in knowing the effect of a treatment on the specific cluster eg. Cluster No.123. If the population is too large (10000 schools) and we have a sample (200 schools) then an random cluster is better and saves us degrees of freedom because some of the parameters are random variables. Here we have to say that the imputation model should be more in line with the analysis model (that defines in part how the cluster is included) and consider how the estimation of the imputation model could be affected when N is too large (as we add N dummies in the fixed cluster model) or if ni is too small in some clusters, so the model can not be estimated in them.. -->
 
 
-```{r pop_predictor, message=FALSE, warning=FALSE}
+```{r pop_predictor, message=FALSE, warning=FALSE, cache=TRUE}
 # adjust the predictor matrix
 pred["popular", "school"] <- 1 
 plot_pred(pred)
@@ -407,7 +408,7 @@ imp <- mice(popmis, pred = pred, print = FALSE)
 ```
 
 Analyze the imputations:
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 fit <- with(imp, 
             lmer(popular ~ 1 + sex + (1 | school))) 
 ```
@@ -419,7 +420,7 @@ testEstimates(as.mitml.result(fit), extra.pars = TRUE)
 
 ### Imputation with multilevel model
 
-```{r pop_multilevel, message=FALSE, warning=FALSE}
+```{r pop_multilevel, message=FALSE, warning=FALSE, cache=TRUE}
 # adjust the predictor matrix
 pred["popular", "school"] <- -2 
 plot_pred(pred)
@@ -429,7 +430,7 @@ imp <- mice(popmis, pred = pred, print = FALSE)
 ```
 
 Analyze the imputations:
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE, cache=TRUE}
 fit <- with(imp, 
             lmer(popular ~ 1 + sex + (1 | school))) 
 ```
@@ -614,11 +615,11 @@ meth
 ```
 
 Impute the incomplete data
-```{r imp_impact}
+```{r imp_impact, cache=TRUE}
 imp <- mice(dat, method = meth, predictorMatrix = pred, printFlag = FALSE)
 ```
 
-```{r impact-fit}
+```{r impact-fit, cache=TRUE}
 fit <- imp %>% 
   with(glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial")) 
 tidy(pool(fit))
@@ -649,7 +650,7 @@ data("obesity", package = "miceheckman")
 
 Select relevant variables:
 ```{r bmi}
-dat <- select(obesity, -"bmi")
+dat <- obesity
 ```
 
 Visualize missing data pattern:
@@ -661,8 +662,8 @@ plot_pattern(dat)
 Create predictor matrix:
 ```{r obesity-pred}
 pred <- quickpred(dat)   # predictor matrix
-pred["weight","cluster"]<- -2 # clustering variable
-pred["weight","rt"] <- -3 #inclusion-restriction variable
+pred["Weight","Cluster"]<- -2 # clustering variable
+pred["Weight", ] <- -3 #inclusion-restriction variable
 plot_pred(pred)
 ```
 
@@ -674,7 +675,7 @@ meth["weight"]<-"2l.heckman"
 ```
 
 Impute the missingness:
-```{r eval=FALSE}
+```{r eval=FALSE, cache=TRUE}
 imp <- mice(
   dat, # dataset with missing values
   m = 5, # number of imputations

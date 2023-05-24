@@ -340,6 +340,7 @@ R> library(dplyr)        # for data wrangling
 R> library(lme4)         # for multilevel modeling
 R> library(mitml)        # for multilevel parameter pooling
 R> library(miceheckman)  # for imputation cf heckman models
+R> library(metamisc)     # for ???
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -347,11 +348,11 @@ R> library(miceheckman)  # for imputation cf heckman models
 \section{Case study I: popularity
 data}\label{case-study-i-popularity-data}}
 
-In this section we'll go over the different steps involved with imputing
-incomplete multilevel data with the R package mice. We consider the
-simulated \texttt{popmis} dataset, which included pupils (\(n = 2000\))
-clustered within schools (\(N = 100\)). The following variables are of
-primary interest:
+In this section we will go over the different steps involved with
+imputing incomplete multilevel data with the R package mice. We consider
+the simulated \texttt{popmis} dataset, which included pupils
+(\(n = 2000\)) clustered within schools (\(N = 100\)). The following
+variables are of primary interest:
 
 \begin{itemize}
 \tightlist
@@ -383,10 +384,14 @@ R> mod <- popular ~ 1 + sex + (1 | school)
 The true effect is:
 
 \begin{CodeChunk}
+\begin{figure}
 
+{\centering \includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/unnamed-chunk-3-1} 
 
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/unnamed-chunk-3-1} \end{center}
+}
 
+\caption[True effect in the popularity data]{True effect in the popularity data}\label{fig:unnamed-chunk-3}
+\end{figure}
 \end{CodeChunk}
 
 Load the data into the environment and select the relevant variables:
@@ -397,7 +402,8 @@ R> popmis <- popmis[, c("school", "popular", "sex")]
 \end{CodeInput}
 \end{CodeChunk}
 
-Plot the missing data pattern:
+First we plot the pattern of missing data within categories of the
+relevant variables. Plot the missing data pattern:
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -802,21 +808,19 @@ R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 11 x 9
-   effect   group term        estim~1 std.er~2 stati~3   p.value conf.~4 conf.~5
-   <chr>    <chr> <chr>         <dbl>    <dbl>   <dbl>     <dbl>   <dbl>   <dbl>
- 1 fixed    <NA>  (Intercept)  0.0863  0.0182   -11.6   2.99e-31  0.0571   0.130
- 2 fixed    <NA>  typeRCT      0.757   0.137     -1.54  1.22e- 1  0.531    1.08 
- 3 fixed    <NA>  age          1.03    0.00265   12.9   7.40e-38  1.03     1.04 
- 4 fixed    <NA>  motor_scor~  0.651   0.0732    -3.82  1.34e- 4  0.522    0.811
- 5 fixed    <NA>  motor_scor~  0.489   0.0555    -6.30  2.97e-10  0.391    0.611
- 6 fixed    <NA>  motor_scor~  0.274   0.0321   -11.0   2.28e-28  0.218    0.345
- 7 fixed    <NA>  pupilNone    3.20    0.317     11.7   8.18e-32  2.63     3.88 
- 8 fixed    <NA>  pupilOne     1.75    0.195      5.06  4.27e- 7  1.41     2.18 
- 9 fixed    <NA>  ctIII        2.41    0.268      7.89  3.05e-15  1.94     2.99 
-10 fixed    <NA>  ctIV/V       2.30    0.214      8.95  3.55e-19  1.92     2.76 
-11 ran_pars name  sd__(Inter~  0.230  NA         NA    NA        NA       NA    
-# ... with abbreviated variable names 1: estimate, 2: std.error, 3: statistic,
-#   4: conf.low, 5: conf.high
+   effect  group term  estimate std.error statistic   p.value conf.low conf.high
+   <chr>   <chr> <chr>    <dbl>     <dbl>     <dbl>     <dbl>    <dbl>     <dbl>
+ 1 fixed   <NA>  (Int~   0.0863   0.0182     -11.6   2.99e-31   0.0571     0.130
+ 2 fixed   <NA>  type~   0.757    0.137       -1.54  1.22e- 1   0.531      1.08 
+ 3 fixed   <NA>  age     1.03     0.00265     12.9   7.40e-38   1.03       1.04 
+ 4 fixed   <NA>  moto~   0.651    0.0732      -3.82  1.34e- 4   0.522      0.811
+ 5 fixed   <NA>  moto~   0.489    0.0555      -6.30  2.97e-10   0.391      0.611
+ 6 fixed   <NA>  moto~   0.274    0.0321     -11.0   2.28e-28   0.218      0.345
+ 7 fixed   <NA>  pupi~   3.20     0.317       11.7   8.18e-32   2.63       3.88 
+ 8 fixed   <NA>  pupi~   1.75     0.195        5.06  4.27e- 7   1.41       2.18 
+ 9 fixed   <NA>  ctIII   2.41     0.268        7.89  3.05e-15   1.94       2.99 
+10 fixed   <NA>  ctIV~   2.30     0.214        8.95  3.55e-19   1.92       2.76 
+11 ran_pa~ name  sd__~   0.230   NA           NA    NA         NA         NA    
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1074,7 +1078,7 @@ Select relevant variables:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> dat <- select(obesity, -"bmi")
+R> dat <- obesity
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -1095,8 +1099,8 @@ Create predictor matrix:
 \begin{CodeChunk}
 \begin{CodeInput}
 R> pred <- quickpred(dat)   # predictor matrix
-R> pred["weight","cluster"]<- -2 # clustering variable
-R> pred["weight","rt"] <- -3 #inclusion-restriction variable
+R> pred["Weight","Cluster"]<- -2 # clustering variable
+R> pred["Weight", ] <- -3 #inclusion-restriction variable
 R> plot_pred(pred)
 \end{CodeInput}
 
@@ -1139,7 +1143,75 @@ R> imp <- mice(
 \item
   More complex data types: timeseries and polynomial relationship in the
   clustering.
+\item
+  FIML vs MI
 \end{itemize}
+
+An alternative approach to missing data is to use Full Information
+Maximum Likelihood (FIML). This method does not require the imputation
+of any missing values. Whereas MI consists of imputation, analyses and
+pooling steps, FIML analyses the data in a single step. When the
+assumptions are met the two approaches should produce equivalent
+results. {[}REF{]} As FIML requires specialised software, not all
+analyses can be performed with standard software. {[}REF{]}
+
+\begin{itemize}
+\tightlist
+\item
+  Survival / TTE, this could be put in the paragraph on congeniality
+\end{itemize}
+
+When the outcome is time-to-event, the Nelson-Aalen estimate of the time
+to event should be included as a covariate in the imputation model
+{[}REF{]}
+
+In hierarchical datasets, clustering is a concern because the
+homoscedasticity in the error terms cannot be assumed across clusters
+and the relationship among variables may vary at different hierarchical
+levels. When multiple imputation is used to deal with missing data, as
+the imputation and analysis process is performed separately, it is
+necessary that imputation model being congenial with the main analysis
+model (Meng, 1994), e.g.~if the main model accounts for the hierarchical
+structure also imputation model should do it (Audigier, 2021). Not
+including clustering into the imputation process may lead to effect
+estimates with smaller standard errors and inflated type I error.
+
+There are different strategies that can be adopted in the imputation
+process that account for clustering: inclusion of cluster indicator
+variable, performing a separate imputation process for each cluster, or
+performing a simultaneous imputation process by using an imputation
+method that accounts for clustering.(Stata:
+\url{https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/})
+
+The selection of each strategy depends mainly on the assumptions in the
+main analysis and also on the restriction of the analyzed data.
+
+Regarding the restrictions imposed by the data, for instance, the use of
+cluster indicator variables is restricted in datasets where there are
+not many clusters and many observations per cluster (Graham, 2009). The
+last restriction is also required when imputations are performed on each
+cluster separately. When this restriction cannot be achieved, one can
+use an imputation model that simultaneously imputes all clusters using a
+hierarchical model (Allison 2002).
+
+Under this hierarchical imputation model, observations within clusters
+are correlated and this correlation is modelled by a random effect so
+the hierarchical model can be estimated even when there are few
+observations per cluster. However, this strategy is best suited for
+balanced data (Grund, 2017) and when random effects model is
+appropriated, i.e.~the number of clusters is adequate. (Austin,2018).
+
+Here it is important to evaluate the assumptions imposed by the main
+model, for instance by using the cluster indicator strategy may lead to
+bias estimates when the model is based on a hierarchical model
+(Taaljard,2008). Even when an imputation strategy congenial with the
+main model is preferred, it is important to consider whether it is
+appropriate for the data as a less complex imputation strategies may
+also lead to unbiased estimates in certain scenarios(Bailey 2020). For
+instance, in causal effect analysis, separately imputation may lead to
+smaller bias when the size of the smaller exposure cluster is large,
+compared with an imputation model that includes exposure-confounder
+interactions. (Zhang,2023).
 
 \hypertarget{funding}{%
 \section{Funding}\label{funding}}
