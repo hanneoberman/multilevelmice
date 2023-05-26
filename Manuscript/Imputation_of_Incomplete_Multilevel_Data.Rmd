@@ -573,6 +573,7 @@ as.mitml.result(fit)
 
 # Case study III: obesity data
 
+TODO: explain exclusion restriction.
 
 Data are simulated and included in the `miceheckman` package. We will use the following variables:
   
@@ -581,7 +582,7 @@ Data are simulated and included in the `miceheckman` package. We will use the fo
 - `age` Age of the patient,
 - `height` Height in meters,
 - `weight` Weight in kilograms,
-- `rt`` Response time in minutes (inclusion-restriction variable).
+- `time`` Response time in minutes (inclusion-restriction variable).
 
 The imputation of these data is based on the [IPDMA Heckman Github repo](https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R) 
 
@@ -602,12 +603,13 @@ Visualize missing data pattern:
 plot_pattern(dat)
 ```
 
+The matrix only shows the predictors for the main model, not the selection model.
 
 Create predictor matrix:
 ```{r obesity-pred}
 pred <- quickpred(dat)   # predictor matrix
-pred["Weight","Cluster"]<- -2 # clustering variable
-pred["Weight", ] <- -3 #inclusion-restriction variable
+pred[,"Cluster"]<- -2 # clustering variable
+pred[, "Weight"] <- -3 #inclusion-restriction variable
 plot_pred(pred)
 ```
 
@@ -638,6 +640,13 @@ imp <- mice(
 <!-- # semi-cont with jomo is not ideal (schafer, '97) because you need 2-step approach -->
 <!-- # pmm is better (more efficient) because it will still look for donors (maybe outside of cluster) based on predictive distance, even for very small clusters -->
 <!-- # make assumptions of these methods explicit! -->
+ORDER:
+
+- summary
+- congeniality, then in hierarchical models
+- look whether we can fit cong. back in the main body
+- alt. methods
+- conclusion: mice is really easy!
 
 - Additional levels of clustering
 
@@ -673,13 +682,13 @@ When the outcome is time-to-event, the Nelson-Aalen estimate of the time to even
 
 In hierarchical datasets, clustering is a concern because the homoscedasticity in the error terms cannot be assumed across clusters and the relationship among variables may vary at different hierarchical levels. When multiple imputation is used to deal with missing data, as the imputation and analysis process is performed separately, it is necessary that imputation model being congenial with the main analysis model (Meng, 1994), e.g. if the main model accounts for the hierarchical structure also imputation model should do it (Audigier, 2021). Not including clustering into the imputation process may lead to effect estimates with smaller standard errors and inflated type I error.
 
-There are different strategies that can be adopted in the imputation process that account for clustering: inclusion of cluster indicator variable, performing a separate imputation process for each cluster, or performing a simultaneous imputation process by using an imputation method that accounts for clustering.(Stata: https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/)
+There are different strategies that can be adopted in the imputation process that account for clustering: inclusion of cluster indicator variable, performing a separate imputation process for each cluster, or performing a simultaneous imputation process by using an imputation method that accounts for clustering.(Stata: https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/) TODO: replace ref.
 
 The selection of each strategy depends mainly on the assumptions in the main analysis and also on the restriction of the analyzed data. 
 
 Regarding the restrictions imposed by the data, for instance, the use of cluster indicator variables is restricted in datasets where there are not many clusters and many observations per cluster (Graham, 2009). The last restriction is also required when imputations are performed on each cluster separately.  When this restriction cannot be achieved, one can use an imputation model that simultaneously imputes all clusters using a hierarchical model (Allison 2002).
 
-Under this hierarchical imputation model, observations within clusters are correlated and this correlation is modelled by a random effect so the hierarchical model can be estimated even when there are few observations per cluster. However, this strategy is best suited for balanced data (Grund, 2017) and when random effects model is appropriated, i.e. the number of clusters is adequate. (Austin,2018).
+Under this hierarchical imputation model, observations within clusters are correlated and this correlation is modeled by a random effect so the hierarchical model can be estimated even when there are few observations per cluster. However, this strategy is best suited for balanced data (Grund, 2017) and when random effects model is appropriated, i.e. the number of clusters is adequate. (Austin,2018).
 
 Here it is important to evaluate the assumptions imposed by the main model, for instance by using the cluster indicator strategy may lead to bias estimates when the model is based on a hierarchical model (Taaljard,2008). Even when an imputation strategy congenial with the main model is preferred, it is important to consider whether it is appropriate for the data as a less complex imputation strategies may also lead to unbiased estimates in certain scenarios(Bailey 2020). For instance, in causal effect analysis, separately imputation may lead to smaller bias when the size of the smaller exposure cluster is large, compared with an imputation model that includes exposure-confounder interactions. (Zhang,2023).
 
