@@ -38,7 +38,7 @@ title:
   plain:     "Imputation of Incomplete Multilevel Data with mice"
   short:     "Multilevel \\pkg{mice}"
 abstract: >
-  This tutorial illustrates the imputation of incomplete multilevel data with the \proglang{R} packackage \pkg{mice}. 
+  This tutorial illustrates the imputation of incomplete multilevel data with the \proglang{R} packackage \pkg{mice}. Our scope is only simple multilevel models, to show how imputation can yield less biased estimates from incomplete clustered data. More complex models can be accomodated, but are outside the scope of this paper. 
 keywords:
   # at least one keyword must be supplied
   formatted: [missing data, multilevel, clustering, "\\pkg{mice}", "\\proglang{R}"]
@@ -185,7 +185,7 @@ This tutorial is dedicated to readers who are unfamiliar with multiple imputatio
 Install non-CRAN packages if necessary:
 ```{r packages, eval=FALSE, include=TRUE}
 devtools::install_github("amices/ggmice")
-devtools::install_github("hanneoberman/miceheckman")
+# devtools::install_github("hanneoberman/miceheckman")
 ```
 
 <!-- [TODO: Add environment info, seed and version number(s) somewhere.]  -->
@@ -200,7 +200,7 @@ library(ggplot2)      # for visualization
 library(dplyr)        # for data wrangling
 library(lme4)         # for multilevel modeling
 library(mitml)        # for multilevel parameter pooling
-library(miceheckman)  # for imputation cf. heckman models
+library(micemd)  # for imputation cf. heckman models
 library(metamisc)     # for case study data
 ```
 <!-- library(broom.mixed)  # for multilevel estimates -->
@@ -590,12 +590,12 @@ The imputation of these data is based on the [IPDMA Heckman Github repo](https:/
 
 Load the data:
 ```{r obesity}
-data("obesity", package = "miceheckman")
+data("data_heckman", package = "micemd")
 ```
 
 Select relevant variables:
 ```{r bmi}
-dat <- obesity
+dat <- data_heckman
 ```
 
 Visualize missing data pattern:

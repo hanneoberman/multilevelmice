@@ -116,14 +116,16 @@ Table 1: Concepts in multilevel methods
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.2100}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.7900}}@{}}
-\toprule()
+\toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 \textbf{Concept}
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 \textbf{Details}
 \end{minipage} \\
-\midrule()
+\midrule\noalign{}
 \endhead
+\bottomrule\noalign{}
+\endlastfoot
 Sample unit & Units of the population from which measurements are taken
 in a sample. \\
 Hierarchical levels & Data are grouped into clusters at different
@@ -155,7 +157,6 @@ by including \\
 e.g. \\
 & \citet{gelm06}, \citet{hox17} and \citet{jong21}{]}. {[}TODO: add
 stratified intercept as concept..{]} \\
-\bottomrule()
 \end{longtable}
 
 \hypertarget{missingness-in-multilevel-data}{%
@@ -206,14 +207,16 @@ Table 2: Concepts in missing data methods
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.1739}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.8261}}@{}}
-\toprule()
+\toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 \textbf{Concept}
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 \textbf{Details}
 \end{minipage} \\
-\midrule()
+\midrule\noalign{}
 \endhead
+\bottomrule\noalign{}
+\endlastfoot
 MCAR & Missing Completely At Random, where the probability to be missing
 is equal \\
 & across all data entries \\
@@ -226,7 +229,6 @@ missing \\
 non-ignorable \\
 & \citep{rubi76, meng94}. \\
 & \\
-\bottomrule()
 \end{longtable}
 
 \hypertarget{aim-of-this-paper}{%
@@ -284,7 +286,7 @@ Install non-CRAN packages if necessary:
 \begin{CodeChunk}
 \begin{CodeInput}
 R> devtools::install_github("amices/ggmice")
-R> devtools::install_github("hanneoberman/miceheckman")
+R> # devtools::install_github("hanneoberman/miceheckman")
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -300,7 +302,7 @@ R> library(ggplot2)      # for visualization
 R> library(dplyr)        # for data wrangling
 R> library(lme4)         # for multilevel modeling
 R> library(mitml)        # for multilevel parameter pooling
-R> library(miceheckman)  # for imputation cf. heckman models
+R> library(micemd)  # for imputation cf. heckman models
 R> library(metamisc)     # for case study data
 \end{CodeInput}
 \end{CodeChunk}
@@ -991,6 +993,8 @@ R> # testEstimates(as.mitml.result(fit))
 \section{Case study III: obesity
 data}\label{case-study-iii-obesity-data}}
 
+TODO: explain exclusion restriction.
+
 Data are simulated and included in the \texttt{miceheckman} package. We
 will use the following variables:
 
@@ -1007,7 +1011,7 @@ will use the following variables:
 \item
   \texttt{weight} Weight in kilograms,
 \item
-  `rt`` Response time in minutes (inclusion-restriction variable).
+  `time`` Response time in minutes (inclusion-restriction variable).
 \end{itemize}
 
 The imputation of these data is based on the
@@ -1018,7 +1022,7 @@ Load the data:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> data("obesity", package = "miceheckman")
+R> data("data_heckman", package = "micemd")
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -1026,7 +1030,7 @@ Select relevant variables:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> dat <- obesity
+R> dat <- data_heckman
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -1042,13 +1046,16 @@ R> plot_pattern(dat)
 
 \end{CodeChunk}
 
+The matrix only shows the predictors for the main model, not the
+selection model.
+
 Create predictor matrix:
 
 \begin{CodeChunk}
 \begin{CodeInput}
 R> pred <- quickpred(dat)   # predictor matrix
-R> pred["Weight","Cluster"]<- -2 # clustering variable
-R> pred["Weight", ] <- -3 #inclusion-restriction variable
+R> pred[,"Cluster"]<- -2 # clustering variable
+R> pred[, "Weight"] <- -3 #inclusion-restriction variable
 R> plot_pred(pred)
 \end{CodeInput}
 
@@ -1085,7 +1092,19 @@ R> imp <- mice(
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
 
+ORDER:
+
 \begin{itemize}
+\item
+  summary
+\item
+  congeniality, then in hierarchical models
+\item
+  look whether we can fit cong. back in the main body
+\item
+  alt. methods
+\item
+  conclusion: mice is really easy!
 \item
   Additional levels of clustering
 \item
@@ -1130,6 +1149,7 @@ variable, performing a separate imputation process for each cluster, or
 performing a simultaneous imputation process by using an imputation
 method that accounts for clustering.(Stata:
 \url{https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/})
+TODO: replace ref.
 
 The selection of each strategy depends mainly on the assumptions in the
 main analysis and also on the restriction of the analyzed data.
@@ -1143,11 +1163,11 @@ use an imputation model that simultaneously imputes all clusters using a
 hierarchical model (Allison 2002).
 
 Under this hierarchical imputation model, observations within clusters
-are correlated and this correlation is modelled by a random effect so
-the hierarchical model can be estimated even when there are few
-observations per cluster. However, this strategy is best suited for
-balanced data (Grund, 2017) and when random effects model is
-appropriated, i.e.~the number of clusters is adequate. (Austin,2018).
+are correlated and this correlation is modeled by a random effect so the
+hierarchical model can be estimated even when there are few observations
+per cluster. However, this strategy is best suited for balanced data
+(Grund, 2017) and when random effects model is appropriated, i.e.~the
+number of clusters is adequate. (Austin,2018).
 
 Here it is important to evaluate the assumptions imposed by the main
 model, for instance by using the cluster indicator strategy may lead to
@@ -1184,14 +1204,16 @@ Table 3: Notation
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5495}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.4505}}@{}}
-\toprule()
+\toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 \textbf{Formula \pkg{lme4}}
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 \textbf{Details}
 \end{minipage} \\
-\midrule()
+\midrule\noalign{}
 \endhead
+\bottomrule\noalign{}
+\endlastfoot
 \texttt{y\ \textasciitilde{}\ x1\ +\ (1\ \textbar{}\ g1)} & Fixed
 \texttt{x1} predictor with random intercept \\
 & varying among \texttt{g1} \\
@@ -1218,7 +1240,6 @@ variance-covariance matrix estimated only with \\
 & Random intercept varying among \texttt{g1} and among
 \texttt{g2\ \ \ \textbar{}\ \textbar{}}y \textasciitilde{} (1 \\
 & \\
-\bottomrule()
 \end{longtable}
 
 \bibliography{../References/multilevelmice.bib}
