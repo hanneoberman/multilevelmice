@@ -1,66 +1,42 @@
 \documentclass[
 ]{jss}
 
+%% recommended packages
+\usepackage{orcidlink,thumbpdf,lmodern}
+
 \usepackage[utf8]{inputenc}
 
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-
 \author{
-<<<<<<< HEAD
-Hanne Oberman\\Utrecht University \And Johanna Munoz\\University Medical
-Center Utrecht \AND Valentijn de Jong\\University Medical Center
-Utrecht \And Gerko Vink\\Utrecht University \AND Thomas
-Debray\\University Medical Center Utrecht
-||||||| 19d7170
-Hanne Oberman\\Utrecht University \And Johanna Munoz Avila\\University
-Medical Center Utrecht \AND Valentijn de Jong\\University Medical
-Center Utrecht \And Gerko Vink\\Utrecht University \AND Thomas
-Debray\\University Medical Center Utrecht
-=======
-Hanne I. Oberman\\Utrecht University \And Johanna Munoz Avila\\Julius
-Center for Health Sciences and Primary Care,\\
+Hanne I. Oberman\\Methodology and Statistics\\
+Utrecht University \And Johanna Muñoz\\Julius Center for Health Sciences
+and Primary Care,\\
 University Medical Center Utrecht, Utrecht University,\\
 Utrecht, The Netherlands \AND Thomas P. A. Debray\\Julius Center
-for Health Sciences and Primary Care \And Gerko Vink\\Utrecht University
-\AND Valentijn M. T. de Jong\\Julius Center for Health Sciences and
-Primary Care,\\
+for Health Sciences and Primary Care,\\
 University Medical Center Utrecht, Utrecht University,\\
-Utrecht, The Netherlands
->>>>>>> main
+Utrecht, The Netherlands \And Gerko Vink\\Methodology and Statistics\\
+Utrecht University \AND Valentijn M. T. de Jong\\Julius Center for
+Health Sciences and Primary Care,\\
+University Medical Center Utrecht, Utrecht University,\\
+Utrecht, The Netherlands\\
+Data Analytics and Methods Task Force,\\
+European Medicines Agency,\\
+Amsterdam, The Netherlands
 }
 \title{Imputation of Incomplete Multilevel Data with \pkg{mice}}
 
-<<<<<<< HEAD
-\Plainauthor{Hanne Oberman, Johanna Munoz, Valentijn de Jong, Gerko
-Vink, Thomas Debray}
-||||||| 19d7170
-\Plainauthor{Hanne Oberman, Johanna Munoz Avila, Valentijn de
-Jong, Gerko Vink, Thomas Debray}
-=======
-\Plainauthor{Hanne I. Oberman, Johanna Munoz Avila, Thomas P. A.
-Debray, Gerko Vink, Valentijn M. T. de Jong}
->>>>>>> main
+\Plainauthor{Hanne I. Oberman, Johanna Muñoz, Thomas P. A. Debray, Gerko
+Vink, Valentijn M. T. de Jong}
 \Plaintitle{Imputation of Incomplete Multilevel Data with mice}
 \Shorttitle{Multilevel \pkg{mice}}
 
 
 \Abstract{
 This tutorial illustrates the imputation of incomplete multilevel data
-with the \proglang{R} packackage \pkg{mice}. Footnotes in the current
-version show work in progress/under construction. The last section is
-not part of the manuscript, but purely for reminders. See also all of
-the TODOs that need to be worked out. We aim to submit at JSS, so there
-is no word count limit (``There is no page limit, nor a limit on the
-number of figures or tables''). {[}Just adding some text to get a better
-guess of what the actura abstract will look like: Lorem ipsum dolor sit
-amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est
-laborum.{]}
+with the \proglang{R} packackage \pkg{mice}. Our scope is only simple
+multilevel models, to show how imputation can yield less biased
+estimates from incomplete clustered data. More complex models can be
+accomodated, but are outside the scope of this paper.
 }
 
 \Keywords{missing
@@ -77,22 +53,31 @@ data, multilevel, clustering, \pkg{mice}, \proglang{R}}
 
 \Address{
     Hanne I. Oberman\\
-    Utrecht University\\
+    Methodology and Statistics\\
+Utrecht University\\
     Padualaan 14\\
 3584 CH Utrecht\\
   E-mail: \email{h.i.oberman@uu.nl}\\
   URL: \url{https://hanneoberman.github.io/}\\~\\
-        Thomas P. A. Debray\\
-    Julius Center for Health Sciences and Primary Care\\
-    University Medical Center Utrecht, Utrecht University,\\
-Utrecht, The Netherlands\\
-  
-  
-      }
+          }
 
-% Pandoc syntax highlighting
 
-% Pandoc citation processing
+% tightlist command for lists without linebreak
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% From pandoc table feature
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+
 
 \usepackage{graphicx}
 \usepackage{mathtools}
@@ -102,102 +87,80 @@ Utrecht, The Netherlands\\
 
 \begin{document}
 
+
+
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-Many datasets include individuals from multiple settings, geographic
-regions, or even different studies. In the simplest case, individuals
-(e.g., students) are nested within so-called clusters (e.g., school
-classes). More complex clustered structures may occur when there are
-multiple hierarchical levels (e.g., patients within hospitals within
-regions or countries), or when the clustering is non-nested (e.g.,
-electronic health record data from diverse settings and populations
-within large databases). In general, individuals from the same cluster
-tend to be more similar than individuals from other clusters. In
-statistical terms, this implies that observations from the same cluster
-are correlated. If this correlation is left unaddressed, estimates of
-\emph{p} values, confidence intervals even model parameters are prone to
-bias \citep{loca01}. {[}TODO: make a link to imputation methods, which
-require adequate handling and propagation of variance; we are not
-recommending the adoption of multilevel models for data analysis here,
-but rather for imputation. VMTdJ: ``I would only make that link after
-introducing missing data, and missing data is not mentioned yet, so I
-would do that in the next section''{]} Statistical methods for clustered
-data typically adopt hierarchical models that explicitly describe the
-grouping of observations. These models are also known as `multilevel
-models', `hierarchical models', `mixed effect models', `random effect
-models', and in the context of time-to-event data as `frailty models'.
-Table \ref{tab:clus} provides an overview of some key concepts in
-multilevel modeling.
+Many datasets include individuals that are clustered together, for
+example in geographic regions, or even different studies. In the
+simplest case, individuals (e.g., students) are nested within a single
+cluster (e.g., school classes). More complex clustered structures may
+occur when there are multiple hierarchical levels (e.g., students in
+different schools or patients within hospitals within regions across
+countries), or when the clustering is non-nested (e.g., electronic
+health record data from diverse settings and populations within large
+databases). With clustered data we generally assume that individuals
+from the same cluster tend to be more similar than individuals from
+other clusters. In statistical terms, this implies that observations
+from the same cluster are not independent and may in fact be correlated.
+If this correlation is left unaddressed, estimates of \emph{p} values,
+confidence intervals even model parameters are prone to bias
+\citep{loca01}. Statistical methods for clustered data typically adopt
+hierarchical models that explicitly describe the grouping of
+observations. These models are also known as `multilevel models',
+`hierarchical models', `mixed effect models', `random effect models',
+and in the context of time-to-event data as `frailty models'. Table
+\ref{tab:clus} provides an overview of some key concepts in multilevel
+modeling.
 
-\begin{table}[tb]
-\caption{Concepts in multilevel methods}
-\label{tab:clus}
+\begin{CodeChunk}
+\begin{table}
+
+\caption{\label{tab:clus}Concepts in multilevel methods}
 \centering
-\begin{tabular}{ll}
-\hline
-\textbf{Concept} & \textbf{Details}   \\
-\hline
-Sample unit         & Units of the population from which measurements are taken in a sample.\\                           & These should be distinct and not overlapping, e.g., patients, students.\\ 
-Hierarchical levels & Data are grouped into clusters at different levels. A three-level \\                               & hierarchical model could occur by collecting observations of math scores\\                         & (lower level) which can be measured over the whole school year for each\\                          & student, and then grouped by student (middle level) and these in turn can\\                        & be aggregated into classrooms (high level).\\
-Fixed effect        & Here we assume that the values of an independent variable are fixed, i.e., \\ 
-  & the values observed in the study are representative of all values in the \\                        & population we are interested in. In the case of a fixed factor variable, for \\                     & example treatment type, we are only concerned with assessing the difference \\ 
-                & in the dependent variable y e.g., blood pressure between treatments A and B.\\                     & There may be additional treatments, but based on the objective of the study,\\                     & which in this case is the equivalence effect of A and B, the other treatment\\                     & types are irrelevant and therefore the treatment type is included as a fixed \\                     & effect with only the A and B levels in the hierarchical model. \\
-Random effect       & The values of an independent variable are assumed to be randomly drawn from \\                     & a population with more values. In a random factor, the levels observed in the\\                     & study represent a sample of all possible levels, e.g., hospitals, classrooms.\\                     & For example, in a study to predict the blood pressure of patients on \\  
-& admission we might select only certain hospitals that are representative of \\                     & the entire population of hospitals. Here we are not interested in measuring \\ 
-& the difference of y between individual hospitals, but rather the variation of\\                     & y between hospitals, to create a model that can be generalized to the entire\\                     & population of hospitals. \\                    
-
-ICC                 & The variability due to clustering is often measured by means of the \\
-                    & intraclass coefficient (ICC). The ICC can be seen as the percentage \\
-                    & of variance that can be attributed to the cluster-level, where a high \\
-                    & ICC would indicate that a lot of variability is due to the cluster \\
-                    & structure. \\
-Random effect       & Multilevel models typically accommodate for variability by including \\
-                    & a separate group mean for each cluster. In addition to random \\
-                    & intercepts, multilevel models can also include random coefficients \\
-                    & and heterogeneous residual error variances across clusters [see e.g. \\
-                    & @gelm06, @hox17 and @jong21]. [TODO: add stratification.] \\
-\hline
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{12cm}}
+\toprule
+Concept & Details\\
+\midrule
+Sample unit & Units of the population from which measurements are taken in a sample.\\
+Hierarchical levels & Data are grouped into clusters at different levels, observations belonging to the same cluster are expected to share certain characteristics.\\
+Fixed effect & Effects that are constant across all sample units, e.g. something that researchers control for and can repeat, such as the administration of a drug.\\
+Random effect & Effects that are a source of random variation in the data, and whose levels are not fully sampled. e.g. individuals are drawn from a population of hospitals, here it is not possible to sample all hospitals but drug effects could vary between hospitals.\\
+Mixed effect & Includes fixed and random effects, e.g. the fixed effect would be the treatment effect of a drug and the random effect would be the ID of the hospital where the patient is treated. Multilevel models typically accommodate for variability by including a separate group mean for each cluster e.g random intercept on hospitals. In addition to random intercepts, multilevel models can also include random coefficients and heterogeneous residual error variances across clusters (see e.g. @gelm06, @hox17 and @jong21).\\
+\addlinespace
+ICC & The variability due to clustering is often measured by means of the intraclass coefficient (ICC). The ICC can be seen as the percentage
+of variance that can be attributed to the cluster-level, where a high ICC would indicate that a lot of variability is due to the cluster structure.\\
+Stratified intercept & \\
+\bottomrule
 \end{tabular}
 \end{table}
 
-\begin{verbatim}
+\end{CodeChunk}
 
-## Missingness in multilevel data
+\hypertarget{missingness-in-multilevel-data}{%
+\subsection{Missingness in multilevel
+data}\label{missingness-in-multilevel-data}}
 
-<<<<<<< HEAD
-<!-- Maybe besides CC and imputation name also likelihood based methods -->
-Like any other dataset, clustered datasets are prone to missing data. Several strategies can be used to handle missing data, including complete case analysis and imputation. We focus on the latter approach and discuss statistical methods for replacing the missing data with one or more plausible values. Afterwards, the completed data can be analyzed as if they were completely observed. In contrast to single imputation (where missing data are only replaced once), multiple imputation allows to preserve uncertainty due to missingness and is therefore recommended (c.f. Rubin 1976). 
-||||||| 19d7170
-When clustered datasets are affected by missing values, we can
-distinguish between two types of missing data: sporadic missingness and
-systematic missingness \citep{resc13}. Sporadic missingness arises when
-variables are missing for some but not all of the units in a cluster
-\citep{buur18, jola18}. For example, it is possible that test results
-are missing for several students in one or more classes. {[}TODO:
-Provide an example for one of the case studies below.{]} When all
-observations are missing within one or more clusters, data are
-systematically missing. {[}TODO: Refer to Figure 1 and put
-interpretation in the figure caption.{]}
-=======
-When clustered datasets are affected by missing values, we can
-distinguish between two types of missing data: sporadic missingness and
-systematic missingness \citep{resc13}. Sporadic missingness arises when
-variables are missing for some but not all of the units in a cluster
-\citep{buur18, jola18}. For example, it is possible that test results
-are missing for several students in one or more classes. {[}TODO:
-Provide an example for one of the case studies below.{]} When all
-observations are missing within one or more clusters, data are
-systematically missing. {[}TODO: Refer to Figure 1 and put
-interpretation in the figure caption. VMTdJ: ``Mention in text that this
-is sporadic missingness?''{]}
->>>>>>> main
+As with any other dataset, clustered datasets may be impacted by
+missingness in much the same way. Several strategies can be used to
+handle missing data, including complete case analysis and imputation. We
+focus on the latter approach and discuss statistical methods for
+replacing the missing data with one or more plausible values. Imputation
+separates the missing data problem from the analysis and the completed
+data can be analyzed as if it were completely observed. It is generally
+recommended to impute the missing values more than once to preserve
+uncertainty due to missingness and to allow for valid inferences (c.f.
+Rubin 1976).
 
-When clustered datasets are affected by missing values, we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. [TODO: Provide an example for one of the case studies below.] When all observations are missing within one or more clusters, data are systematically missing. [TODO: Refer to Figure 1 and put interpretation in the figure caption.]
+With incomplete clustered datasets we can distinguish between two types
+of missing data: sporadic missingness and systematic missingness
+\citep{resc13}. Sporadic missingness arises when variables are missing
+for some but not all of the units in a cluster \citep{buur18, jola18}.
+For example, it is possible that test results are missing for several
+students in one or more classes. When all observations are missing
+within one or more clusters, data are said to be systematically missing.
 
-<!-- Systematic missingness implies that one or more variables are never observed in a certain cluster. With sporadic missingness there may be observed data for some but not all units in a cluster [@buur18; @jola18]. We have visualized this difference in Figure 1, which shows an $n \times p$ set $\mathbf{X} = X_1, \dots, X_p$, with $n$ units distributed over $N$ clusters and $p$ variables.  -->
-
-```{=latex}
 \begin{CodeChunk}
 \begin{figure}
 
@@ -205,108 +168,65 @@ When clustered datasets are affected by missing values, we can distinguish betwe
 
 }
 
-\caption[Missingness in multilevel data]{Missingness in multilevel data}\label{fig:patterns}
+\caption[Sporadic missingness in multilevel data]{Sporadic missingness in multilevel data}\label{fig:patterns}
 \end{figure}
 \end{CodeChunk}
-\end{verbatim}
 
 Imputation of missing data requires consideration of the mechanism
 behind the missingness. Rubin proposed to distinguish between data that
 are missing completely at random (MCAR), data that are missing at random
 (MAR) and data that are missing not at random (MNAR; see Table
 \ref{tab:miss}). For each of these three missingness generating
-mechanisms, different imputation strategies are warranted \citet{yuce08}
-and \citet{hox15}. We here consider the general case that data are MAR,
-and expand on certain MNAR situations.
+mechanisms, different imputation strategies are warranted
+(\citet{yuce08} and \citet{hox15}). We here consider the general case
+that data are MAR, and expand on certain MNAR situations.
 
-\begin{table}[tb]
-\caption{Concepts in missing data methods}
-\label{tab:miss}
-\centering
-\begin{tabular}{ll}
-\hline
-\textbf{Concept} & \textbf{Details}   \\
-\hline
-MCAR    & Missing Completely At Random, where the probability to be missing is equal \\
+Table 2: Concepts in missing data methods
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.1739}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.8261}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Concept}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Details}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+MCAR & Missing Completely At Random, where the probability to be missing
+is equal \\
 & across all data entries \\
-MAR     & Missing At Random, where the probability to be missing depends on observed \\
+MAR & Missing At Random, where the probability to be missing depends on
+observed \\
 & information \\
-MNAR    & Missing Not At Random (MNAR), where the probability to be missing \\
-& depends on unrecorded information, making the missingness non-ignorable \\
-& [@rubi76; @meng94]. \\
-& [TODO: add congeniality, but maybe in-text?] \\
-\hline
-\end{tabular}
-\end{table}
-
-The \proglang{R} package \pkg{mice} has become the de-facto standard for
-imputation by chained equations, which iteratively solves the
-missingness on a variable-by-variable basis. \pkg{mice} is known to
-yield valid inferences under many different missing data circumstances
-\citep{buur18}. However, commonly used imputation methods were not
-designed for use in clustered data and usually generate observations
-that are independent whereas multilevel data are dependent. For this
-reason, we discuss how the \proglang{R} package \pkg{mice} can be used
-to impute multilevel data.
-
-{[}TODO: clarify why clustering is relevant during imputation, and why
-this exposes the need for specialized imputation methods and more
-attention during their implementation (``thou shall not simply run
-\texttt{mice()} on any incomplete dataset'').{]} {[}TODO: Add that the
-more the random effects are of interest, the more you need multilevel
-imputation models.{]} {[}TODO: Add an overview of all possible predictor
-matrix values in manuscript or \texttt{ggmice} legend.{]}
+MNAR & Missing Not At Random (MNAR), where the probability to be
+missing \\
+& depends on unrecorded information, making the missingness
+non-ignorable \\
+& \citep{rubi76, meng94}. \\
+& \\
+\end{longtable}
 
 \hypertarget{aim-of-this-paper}{%
 \subsection{Aim of this paper}\label{aim-of-this-paper}}
 
 This papers serves as a tutorial for imputing incomplete multilevel data
-with \pkg{mice} in \proglang{R}. We provide practical guidelines and
-code snippets for different missing data situations, including
-non-ignorable mechanisms. For reasons of brevity, we focus on multilevel
-imputation by chained equations with \pkg{mice} exclusively; other
-imputation methods and packages (e.g., \pkg{jomo} and \pkg{mdmb}) are
-outside the scope of this tutorial. {[}TODO: change this sentence
-because we do not assume familiarity: ``Assumed knowledge includes basic
-familiarity with multilevel imputation \citep[see e.g.][ and
-\citet{grun18}]{audi18} and the \pkg{lme4} notation for multilevel
-models (see Table \ref{tab:mod})''{]}.
+with \pkg{mice} in \proglang{R}. \pkg{mice} has become the de-facto
+standard for imputation by chained equations, which iteratively solves
+the missingness on a variable-by-variable basis. \pkg{mice} is known to
+yield valid inferences under many different missing data circumstances
+\citep{buur18}.
 
-\begin{table}[tb]
-\caption{Notation}
-\label{tab:mod}
-\centering
-\begin{tabular}{lll}
-\hline
-\textbf{Formula lme4} & \textbf{Details}   \\
-\hline
-y$\sim$ x1 + (1 | g1)                                       & Fixed x1 predictor with random intercept  \\
-                                                         & varying among g\\
-y$\sim$x1*x2+ (1| g1)                                      & Interactions of x1 and x2 only in fixed effect\\
-y$\sim$x1*x2+ (x2| g1)                                     & Interactions of x1 and x2 only in fixed effect\\
-                                                         & with slope of x2 randomly varying among g1\\
-y$\sim$x1*x2+ (x1*x2| g1)                                  & variance-covariance matrix estimated only with \\
-                                                         & the variance terms of intercept, slope of x1, \\
-                                                         & slope of x2 and interaction x1*x2\\
-y$\sim$x1*x2+ (x1| g1)+ (x2| g1)                           & variance-covariance matrix estimated separately,\\
-                                                         & i.e, one for intercept and x1 and another for \\
-                                                         & intercept and x2\\
-y$\sim$x1 + (x1 | g1) or 1 + x1 + (1 + x1 | g1)            & Fixed x1 with correlated random intercept and \\
-                                                         & random slope of x\\
-y$\sim$x1 + (x1 || g1) or 1 + x1 + (1 | g1) + (0 + x1 | g1) & Fixed x1 with uncorrelated random intercept\\
-                                                         & and random slope of x1\\  
-y$\sim$(1 | g1) + (1 | g2)                                 & Random intercept varying among g1 and among g2\\
-y$\sim$(1 | g1/g2) or ~(1|g1)+(1|g1:g2)                    & Random intercept varying among g1 and g2 
-                                                         & withing g1\\
-
-
-& [TODO: explain \pkg{lme4} notation here
-https://datalorax.github.io/equatiomatic/articles/lmer4-lmer.html
-https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf
-] \\
-\hline
-\end{tabular}
-\end{table}
+We provide practical guidelines and code snippets for different missing
+data situations, including non-ignorable mechanisms. For reasons of
+brevity, we focus on multilevel imputation by chained equations with
+\pkg{mice} exclusively; other imputation methods and packages \citep[see
+e.g.][ and \citet{grun18}]{audi18} are outside the scope of this
+tutorial. Assumed knowledge includes basic familiarity with the
+\pkg{lme4} notation for multilevel models (see Table \ref{tab:mod}).
 
 We illustrate imputation of incomplete multilevel data using three case
 studies:
@@ -322,9 +242,9 @@ studies:
   on traumatic brain injuries, \(n = 11,022\) patients across \(N = 15\)
   studies with data that are MAR,][]{metamisc};
 \item
-  \texttt{hiv} from the \pkg{GJRM} package \citep[simulated data on HIV
-  diagnoses, \(n = 6,416\) patients across \(N = 9\) regions with data
-  that are MNAR,][]{GJRM}.
+  \texttt{obesity} from the \pkg{micemd} package {[}simulated data on
+  obesity, \(n = 2,111\) patients across \(N = 5\) regions with data
+  that are MNAR{]}.
 \end{itemize}
 
 For each of these datasets, we discuss the nature of the missingness,
@@ -334,29 +254,34 @@ we will also highlight one specific aspect of the imputation workflow.
 This tutorial is dedicated to readers who are unfamiliar with multiple
 imputation. More experienced readers can skip the introduction (case
 study 1) and directly head to practical applications of multilevel
-imputation under MAR conditions (case study IMPACT) or under MNAR
-conditions (case study HIV).
-
-TODO: explicit statement about not going into workings of the methods.
-Galimer 2l methods.
+imputation under MAR conditions (case study 2) or under MNAR conditions
+(case study 3).
 
 \hypertarget{setup}{%
 \subsection{Setup}\label{setup}}
 
-{[}TODO: Add environment info, seed and version number(s) somewhere.{]}
+Install non-CRAN packages if necessary:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> devtools::install_github("amices/ggmice")
+\end{CodeInput}
+\end{CodeChunk}
+
 Set up the R environment and load the necessary packages:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> set.seed(2022)
+R> set.seed(2022)        # for reproducibility
 R> library(mice)         # for imputation
-R> library(miceadds)     # for imputation
-R> library(ggmice)       # for visualization
+R> library(miceadds)     # for additional imputation routines
+R> library(ggmice)       # for incomplete/imputed data visualization
 R> library(ggplot2)      # for visualization
 R> library(dplyr)        # for data wrangling
 R> library(lme4)         # for multilevel modeling
-R> library(mitml)        # for multilevel pooling
-R> library(miceheckman)  # for imputation
+R> library(mitml)        # for multilevel parameter pooling
+R> library(micemd)  # for imputation cf. heckman models
+R> library(metamisc)     # for case study data
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -364,13 +289,11 @@ R> library(miceheckman)  # for imputation
 \section{Case study I: popularity
 data}\label{case-study-i-popularity-data}}
 
-{[}TODO: explain case study{]}
-
-In this section we'll go over the different steps involved with imputing
-incomplete multilevel data with the R package mice. We consider the
-simulated \texttt{popmis} dataset, which included pupils (\(n = 2000\))
-clustered within schools (\(N = 100\)). The following variables are of
-primary interest:
+In this section we will go over the different steps involved with
+imputing incomplete multilevel data with the R package mice. We consider
+the simulated \texttt{popmis} dataset, which included pupils
+(\(n = 2000\)) clustered within schools (\(N = 100\)). The following
+variables are of primary interest:
 
 \begin{itemize}
 \tightlist
@@ -399,15 +322,6 @@ R> mod <- popular ~ 1 + sex + (1 | school)
 \end{CodeInput}
 \end{CodeChunk}
 
-The true effect is:
-
-\begin{CodeChunk}
-
-
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/unnamed-chunk-3-1} \end{center}
-
-\end{CodeChunk}
-
 Load the data into the environment and select the relevant variables:
 
 \begin{CodeChunk}
@@ -416,7 +330,8 @@ R> popmis <- popmis[, c("school", "popular", "sex")]
 \end{CodeInput}
 \end{CodeChunk}
 
-Plot the missing data pattern:
+First we plot the pattern of missing data within categories of the
+relevant variables. Plot the missing data pattern:
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -553,10 +468,6 @@ N-1 indicator variables representing allocation of N clusters as a fixed
 factor in the model \citep{reit06, ende16}. Colloquially, this is
 `multilevel imputation for dummies'.
 
-{[}TODO: Add that it doesn't work with systematic missingness (only with
-sporadic). There's some pros and cons, and it may not even differ much
-if the number of clusters is low.{]}
-
 \begin{CodeChunk}
 \begin{CodeInput}
 R> # adjust the predictor matrix
@@ -597,31 +508,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-<<<<<<< HEAD
 (Intercept)     4.915     0.217    22.642     4.926     0.000     9.110     0.926 
 sex             0.975     0.283     3.444     4.250     0.024    32.504     0.978 
-||||||| 19d7170
-(Intercept)     5.054     0.266    19.029     4.554     0.000    14.936     0.954 
-sex             0.732     0.306     2.393     4.233     0.071    34.886     0.980 
-=======
-(Intercept)     4.808     0.197    24.354     5.072     0.000     7.930     0.916 
-sex             1.086     0.135     8.056     5.271     0.000     6.761     0.902 
->>>>>>> main
 
                             Estimate 
-<<<<<<< HEAD
 Intercept~~Intercept|school    0.351 
 Residual~~Residual             1.153 
 ICC|school                     0.233 
-||||||| 19d7170
-Intercept~~Intercept|school    0.318 
-Residual~~Residual             1.257 
-ICC|school                     0.208 
-=======
-Intercept~~Intercept|school    0.324 
-Residual~~Residual             1.130 
-ICC|school                     0.226 
->>>>>>> main
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -671,31 +564,13 @@ testEstimates(model = as.mitml.result(fit), extra.pars = TRUE)
 Final parameter estimates and inferences obtained from 5 imputed data sets.
 
              Estimate Std.Error   t.value        df   P(>|t|)       RIV       FMI 
-<<<<<<< HEAD
 (Intercept)     5.011     0.410    12.222     4.226     0.000    35.955     0.980 
 sex             0.928     0.381     2.434     4.168     0.069    48.221     0.985 
-||||||| 19d7170
-(Intercept)     4.714     0.193    24.432     5.032     0.000     8.224     0.919 
-sex             1.286     0.288     4.460     4.218     0.010    37.215     0.981 
-=======
-(Intercept)     4.808     0.197    24.354     5.072     0.000     7.930     0.916 
-sex             1.086     0.135     8.056     5.271     0.000     6.761     0.902 
->>>>>>> main
 
                             Estimate 
-<<<<<<< HEAD
 Intercept~~Intercept|school    0.313 
 Residual~~Residual             1.428 
 ICC|school                     0.188 
-||||||| 19d7170
-Intercept~~Intercept|school    0.299 
-Residual~~Residual             1.050 
-ICC|school                     0.228 
-=======
-Intercept~~Intercept|school    0.324 
-Residual~~Residual             1.130 
-ICC|school                     0.226 
->>>>>>> main
 
 Unadjusted hypothesis test as appropriate in larger samples.
 \end{CodeOutput}
@@ -705,17 +580,12 @@ Unadjusted hypothesis test as appropriate in larger samples.
 \section{Case study II: IMPACT data (syst missingness, pred
 matrix)}\label{case-study-ii-impact-data-syst-missingness-pred-matrix}}
 
-{[}TODO: check if there is systematic missingness in this dataset, if
-not make Marshall Computerized Tomography classification (ct)
-systematically missing.{]}
-
 We illustrate how to impute incomplete multilevel data by means of a
 case study: \texttt{impact} from the \pkg{metamisc} package
 \citep[empirical data on traumatic brain injuries, \(n = 11,022\) units
-across \(N = 15\) clusters,][]{metamisc}. {[}TODO: add more info about
-the complete data.{]} The \texttt{impact} data set contains traumatic
-brain injury data on \(n = 11022\) patients clustered in \(N = 15\)
-studies with the following 11 variables:
+across \(N = 15\) clusters,][]{metamisc}. The \texttt{impact} data set
+contains traumatic brain injury data on \(n = 11022\) patients clustered
+in \(N = 15\) studies with the following 11 variables:
 
 \begin{itemize}
 \tightlist
@@ -731,9 +601,7 @@ studies with the following 11 variables:
 \item
   \texttt{pupil} Pupillary reactivity,
 \item
-  \texttt{ct} Marshall Computerized Tomography classification, {[}TODO:
-  make this one var? also shows that you don't always need random
-  effects everywhere?{]}
+  \texttt{ct} Marshall Computerized Tomography classification,
 \item
   \texttt{hypox} Hypoxia (0=no, 1=yes),
 \item
@@ -796,25 +664,15 @@ R> # tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
 \end{CodeInput}
 \end{CodeChunk}
 
-{[}TODO: show how much variance there is after different methods{]}
-
-{[}TODO: add ICC before/after imputation and interpret: This tells us
-that the multilevel structure of the data should probably be taken into
-account. If we don't, we'll may end up with incorrect imputations,
-biasing the effect of the clusters towards zero.{]}
-
-{[}TODO: add descriptive statistics of the complete and incomplete
-data.{]}
-
 \hypertarget{missingness}{%
 \subsection{Missingness}\label{missingness}}
 
 To explore the missingness, it is wise to look at the missing data
-pattern:
+pattern. The ten most frequent missingness patterns are shown:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> plot_pattern(dat, rotate = TRUE, npat = 10L)  # plot missingness pattern
+R> plot_pattern(dat, rotate = TRUE)  # plot missingness pattern
 \end{CodeInput}
 
 
@@ -822,17 +680,16 @@ R> plot_pattern(dat, rotate = TRUE, npat = 10L)  # plot missingness pattern
 
 \end{CodeChunk}
 
-This shows\ldots{} {[}TODO: fill in that we need to impute \texttt{ct}
-and \texttt{pupil}.{]}
+This shows that we need to impute \texttt{ct} and \texttt{pupil}.
 
 To develop the best imputation model, we need to investigate the
 relations between the observed values of the incomplete variables and
 the observed values of other variables, and the relation between the
 missingness indicators of the incomplete variables and the observed
 values of the other variables. To see whether the missingness depends on
-the observed values of other variables, we\ldots{} {[}TODO: fill in that
-we can test this statistically or use visual inspection (e.g.~a
-histogram faceted by the missingness indicator).{]}
+the observed values of other variables, we can test this statistically
+or use visual inspection (e.g.~a histogram faceted by the missingness
+indicator).
 
 We should impute the variables \texttt{ct} and \texttt{pupil} and any
 auxiliary variables we might want to use to impute these incomplete
@@ -866,9 +723,8 @@ R> dat <- select(dat, !hypox)  # remove variable
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{complete-case-analysis-todo-remove-this}{%
-\subsection{Complete case analysis {[}TODO: remove
-this?{]}}\label{complete-case-analysis-todo-remove-this}}
+\hypertarget{complete-case-analysis}{%
+\subsection{Complete case analysis}\label{complete-case-analysis}}
 
 As previously stated, complete case analysis lowers statistical power
 and may bias results. The complete case analysis estimates are:
@@ -880,28 +736,26 @@ R> tidy(fit, conf.int = TRUE, exponentiate = TRUE)             # print estimates
 \end{CodeInput}
 \begin{CodeOutput}
 # A tibble: 11 x 9
-   effect   group term        estim~1 std.er~2 stati~3   p.value conf.~4 conf.~5
-   <chr>    <chr> <chr>         <dbl>    <dbl>   <dbl>     <dbl>   <dbl>   <dbl>
- 1 fixed    <NA>  (Intercept)  0.0863  0.0182   -11.6   2.98e-31  0.0571   0.130
- 2 fixed    <NA>  typeRCT      0.757   0.137     -1.54  1.22e- 1  0.531    1.08 
- 3 fixed    <NA>  age          1.03    0.00265   12.9   7.39e-38  1.03     1.04 
- 4 fixed    <NA>  motor_scor~  0.651   0.0732    -3.82  1.34e- 4  0.522    0.811
- 5 fixed    <NA>  motor_scor~  0.489   0.0555    -6.30  2.97e-10  0.391    0.611
- 6 fixed    <NA>  motor_scor~  0.274   0.0321   -11.0   2.28e-28  0.218    0.345
- 7 fixed    <NA>  pupilNone    3.20    0.317     11.7   8.19e-32  2.63     3.88 
- 8 fixed    <NA>  pupilOne     1.75    0.195      5.06  4.27e- 7  1.41     2.18 
- 9 fixed    <NA>  ctIII        2.41    0.268      7.89  3.05e-15  1.94     2.99 
-10 fixed    <NA>  ctIV/V       2.30    0.214      8.95  3.55e-19  1.92     2.76 
-11 ran_pars name  sd__(Inter~  0.230  NA         NA    NA        NA       NA    
-# ... with abbreviated variable names 1: estimate, 2: std.error, 3: statistic,
-#   4: conf.low, 5: conf.high
+   effect  group term  estimate std.error statistic   p.value conf.low conf.high
+   <chr>   <chr> <chr>    <dbl>     <dbl>     <dbl>     <dbl>    <dbl>     <dbl>
+ 1 fixed   <NA>  (Int~   0.0863   0.0182     -11.6   3.00e-31   0.0571     0.130
+ 2 fixed   <NA>  type~   0.757    0.137       -1.54  1.22e- 1   0.531      1.08 
+ 3 fixed   <NA>  age     1.03     0.00265     12.9   7.40e-38   1.03       1.04 
+ 4 fixed   <NA>  moto~   0.651    0.0732      -3.82  1.34e- 4   0.522      0.811
+ 5 fixed   <NA>  moto~   0.489    0.0555      -6.30  2.97e-10   0.391      0.611
+ 6 fixed   <NA>  moto~   0.274    0.0321     -11.0   2.28e-28   0.218      0.345
+ 7 fixed   <NA>  pupi~   3.20     0.317       11.7   8.18e-32   2.63       3.88 
+ 8 fixed   <NA>  pupi~   1.75     0.195        5.06  4.27e- 7   1.41       2.18 
+ 9 fixed   <NA>  ctIII   2.41     0.268        7.89  3.05e-15   1.94       2.99 
+10 fixed   <NA>  ctIV~   2.30     0.214        8.95  3.56e-19   1.92       2.76 
+11 ran_pa~ name  sd__~   0.230   NA           NA    NA         NA         NA    
 \end{CodeOutput}
 \end{CodeChunk}
 
-As we can see\ldots{} {[}TODO: fill in: This means that a higher ct
-(Marshall Computerized Tomography classification) is associated with a
-lower odds of 6-month mortality, given by the odds ratio exp(0.42), CI
-\ldots{} to \ldots, when controlling for \ldots{]}
+As we can see, a higher \texttt{ct} (Marshall Computerized Tomography
+classification) is associated with a lower odds of 6-month mortality,
+given by the odds ratio exp(0.42), CI \ldots{} to \ldots, when
+controlling for\ldots{}
 
 \hypertarget{imputation-model}{%
 \subsection{Imputation model}\label{imputation-model}}
@@ -922,7 +776,7 @@ Create a methods vector and predictor matrix, and make sure
 \begin{CodeInput}
 R> meth <- make.method(dat) # methods vector
 R> pred <- quickpred(dat)   # predictor matrix
-R> plot_pred(pred)
+R> plot_pred(pred, rotate = TRUE)
 \end{CodeInput}
 
 
@@ -935,7 +789,7 @@ R> pred[, "mort"] <- 2
 R> pred[c("name", "type", "age", "motor_score", "mort"), ] <- 0
 R> pred[, "name"] <- -2
 R> diag(pred) <- 0
-R> plot_pred(pred)
+R> plot_pred(pred, rotate = TRUE)
 \end{CodeInput}
 
 
@@ -968,93 +822,33 @@ R> fit <- imp %>%
 R> tidy(pool(fit))
 \end{CodeInput}
 \begin{CodeOutput}
-<<<<<<< HEAD
                      term    estimate   std.error  statistic      p.value
-1             (Intercept) -2.35201485 0.340106796  -6.915519 4.943219e-12
-2                    type -0.41266362 0.180240358  -2.289518 2.206828e-02
-3                     age  0.03049017 0.001570142  19.418732 1.231236e-81
-4 as.factor(motor_score)2 -0.66765094 0.068736642  -9.713174 3.473396e-22
-5 as.factor(motor_score)3 -1.05520421 0.070218236 -15.027495 2.532464e-50
-6 as.factor(motor_score)4 -1.51238926 0.072304429 -20.916966 1.894925e-90
-7                   pupil  0.48421322 0.038983420  12.421004 6.807219e-17
-8                      ct  0.43474506 0.029967898  14.507025 2.318762e-36
+1             (Intercept) -2.35203726 0.340181747  -6.914061 4.994037e-12
+2                    type -0.41265892 0.180274846  -2.289054 2.209524e-02
+3                     age  0.03049023 0.001570162  19.418521 1.238416e-81
+4 as.factor(motor_score)2 -0.66764920 0.068737865  -9.712975 3.480413e-22
+5 as.factor(motor_score)3 -1.05520001 0.070218940 -15.027285 2.540225e-50
+6 as.factor(motor_score)4 -1.51238349 0.072304262 -20.916934 1.850073e-90
+7                   pupil  0.48421447 0.038982800  12.421234 6.772069e-17
+8                      ct  0.43474621 0.029968474  14.506785 2.342253e-36
              b          df dfcom         fmi      lambda m         riv
-1 5.283158e-04 10118.53147 11013 0.005677319 0.005480804 5 0.005511008
-2 4.875905e-05 10894.06456 11013 0.001984282 0.001801077 5 0.001804327
-3 3.333802e-08  6323.24413 11013 0.016538196 0.016227183 5 0.016494848
-4 4.185462e-05  8330.19444 11013 0.010867814 0.010630361 5 0.010744580
-5 5.135737e-05  7632.09368 11013 0.012757930 0.012499256 5 0.012657465
-6 1.404727e-04  2826.80320 11013 0.032927570 0.032243595 5 0.033317884
-7 3.572093e-04    49.95954 11013 0.309174397 0.282061687 5 0.392877330
-8 8.584367e-05   294.82759 11013 0.120648604 0.114703577 5 0.129565165
-||||||| 19d7170
-                     term    estimate   std.error  statistic      p.value
-1             (Intercept) -2.33813790 0.340459131  -6.867602 6.978862e-12
-2                    type -0.41509929 0.179936773  -2.306918 2.107792e-02
-3                     age  0.03034813 0.001561834  19.431086 0.000000e+00
-4 as.factor(motor_score)2 -0.66052409 0.068846376  -9.594174 0.000000e+00
-5 as.factor(motor_score)3 -1.05030912 0.070059114 -14.991756 0.000000e+00
-6 as.factor(motor_score)4 -1.49637069 0.071492961 -20.930322 0.000000e+00
-7                   pupil  0.48922641 0.038536483  12.695149 0.000000e+00
-8                      ct  0.42634415 0.028388807  15.018037 0.000000e+00
-             b          df dfcom          fmi       lambda m          riv
-1 9.395965e-04  8668.10341 11013 0.0099557149 0.0097273074 5 0.0098228573
-2 1.729929e-05 10991.51028 11013 0.0008229571 0.0006411648 5 0.0006415761
-3 8.332782e-09 10482.95010 11013 0.0042891736 0.0040992241 5 0.0041160969
-4 5.649577e-05  6979.24803 11013 0.0145856016 0.0143032580 5 0.0145108098
-5 3.003051e-05  9526.87220 11013 0.0075503299 0.0073420043 5 0.0073963080
-6 3.329522e-05  9362.42789 11013 0.0080288174 0.0078169354 5 0.0078785213
-7 3.337070e-04    54.63795 11013 0.2949938851 0.2696512493 5 0.3692088868
-8 1.180517e-05  5893.23780 11013 0.0179108151 0.0175775781 5 0.0178920775
-=======
-                     term   estimate   std.error  statistic      p.value
-1             (Intercept) -2.3054756 0.340854445  -6.763813 1.425704e-11
-2                    type -0.4200458 0.180837517  -2.322780 2.021049e-02
-3                     age  0.0302518 0.001561625  19.372002 0.000000e+00
-4 as.factor(motor_score)2 -0.6619736 0.069527977  -9.520967 0.000000e+00
-5 as.factor(motor_score)3 -1.0520025 0.070748986 -14.869507 0.000000e+00
-6 as.factor(motor_score)4 -1.5087772 0.072240455 -20.885489 0.000000e+00
-7                   pupil  0.4731045 0.038187004  12.389150 0.000000e+00
-8                      ct  0.4291135 0.032126389  13.357041 0.000000e+00
-             b          df dfcom         fmi      lambda m         riv
-1 7.937082e-04  9227.60708 11013 0.008412824 0.008197930 5 0.008265691
-2 1.386594e-04 10229.67142 11013 0.005282534 0.005088076 5 0.005114097
-3 1.138007e-08 10083.78177 11013 0.005796971 0.005599802 5 0.005631337
-4 1.427540e-04  2450.43742 11013 0.036222753 0.035436457 5 0.036738334
-5 1.147119e-04  3540.28145 11013 0.028049975 0.027501049 5 0.028278744
-6 1.377409e-04  2902.11217 11013 0.032339200 0.031672563 5 0.032708526
-7 3.160434e-04    58.71181 11013 0.284053948 0.260073900 5 0.351486317
-8 1.985834e-04    74.37520 11013 0.250767587 0.230887509 5 0.300199921
->>>>>>> main
+1 5.281599e-04 10119.70041 11013 0.005673265 0.005476771 5 0.005506932
+2 4.881699e-05 10893.89378 11013 0.001985736 0.001802528 5 0.001805783
+3 3.335358e-08  6320.89582 11013 0.016545467 0.016234340 5 0.016502243
+4 4.188703e-05  8327.24771 11013 0.010875748 0.010638213 5 0.010752602
+5 5.135721e-05  7632.20045 11013 0.012757637 0.012498967 5 0.012657168
+6 1.403058e-04  2831.75462 11013 0.032888241 0.032205434 5 0.033277139
+7 3.571497e-04    49.97295 11013 0.309130930 0.282023647 5 0.392803531
+8 8.586645e-05   294.69765 11013 0.120677044 0.114729598 5 0.129598366
           ubar
-<<<<<<< HEAD
-1 1.150387e-01
-2 3.242808e-02
-3 2.425341e-06
-4 4.674500e-03
-5 4.868972e-03
-6 5.059363e-03
-7 1.091056e-03
-8 7.950625e-04
-||||||| 19d7170
-1 1.147849e-01
-2 3.235648e-02
-3 2.429325e-06
-4 4.672029e-03
-5 4.872243e-03
-6 5.071289e-03
-7 1.084612e-03
-8 7.917581e-04
-=======
-1 1.152293e-01
-2 3.253582e-02
-3 2.425016e-06
-4 4.662835e-03
-5 4.867765e-03
-6 5.053394e-03
-7 1.078995e-03
-8 7.938047e-04
->>>>>>> main
+1 1.150898e-01
+2 3.244044e-02
+3 2.425385e-06
+4 4.674630e-03
+5 4.869071e-03
+6 5.059539e-03
+7 1.091079e-03
+8 7.950697e-04
 \end{CodeOutput}
 \begin{CodeInput}
 R> as.mitml.result(fit)
@@ -1067,51 +861,19 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
       AIC       BIC    logLik  deviance  df.resid 
-<<<<<<< HEAD
 10495.423 10561.192 -5238.712 10477.423     11013 
-||||||| 19d7170
-10522.944 10588.713 -5252.472 10504.944     11013 
-=======
-10494.825 10560.593 -5238.412 10476.825     11013 
->>>>>>> main
 Random effects:
  Groups Name        Std.Dev.
-<<<<<<< HEAD
  name   (Intercept) 0.2843  
-||||||| 19d7170
- name   (Intercept) 0.2913  
-=======
- name   (Intercept) 0.2917  
->>>>>>> main
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-<<<<<<< HEAD
-               -2.37193                 -0.41015                  0.03052  
-||||||| 19d7170
-               -2.32713                 -0.41953                  0.03031  
-=======
-               -2.33693                 -0.43143                  0.03013  
->>>>>>> main
+               -2.37195                 -0.41014                  0.03052  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-<<<<<<< HEAD
-               -0.65803                 -1.04612                 -1.51245  
-||||||| 19d7170
-               -0.65651                 -1.04719                 -1.49327  
-=======
-               -0.67764                 -1.05120                 -1.49989  
->>>>>>> main
+               -0.65802                 -1.04611                 -1.51245  
                   pupil                       ct  
-<<<<<<< HEAD
                 0.50405                  0.42496  
 optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-||||||| 19d7170
-                0.48990                  0.42335  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-=======
-                0.49336                  0.44123  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 2 lme4 warnings 
->>>>>>> main
 
 [[2]]
 Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -1119,45 +881,19 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
  Family: binomial  ( logit )
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
-<<<<<<< HEAD
      AIC      BIC   logLik deviance df.resid 
 10500.88 10566.65 -5241.44 10482.88    11013 
-||||||| 19d7170
-      AIC       BIC    logLik  deviance  df.resid 
-10525.723 10591.492 -5253.861 10507.723     11013 
-=======
-      AIC       BIC    logLik  deviance  df.resid 
-10543.607 10609.376 -5262.803 10525.607     11013 
->>>>>>> main
 Random effects:
  Groups Name        Std.Dev.
  name   (Intercept) 0.2917  
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-<<<<<<< HEAD
-               -2.37717                 -0.41511                  0.03067  
-||||||| 19d7170
-               -2.30150                 -0.41940                  0.03024  
-=======
-               -2.28159                 -0.42088                  0.03026  
->>>>>>> main
+               -2.37718                 -0.41511                  0.03067  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-<<<<<<< HEAD
-               -0.66935                 -1.05210                 -1.49428  
-||||||| 19d7170
-               -0.65497                 -1.04451                 -1.49454  
-=======
-               -0.65610                 -1.04928                 -1.49432  
->>>>>>> main
+               -0.66935                 -1.05211                 -1.49429  
                   pupil                       ct  
-<<<<<<< HEAD
                 0.49013                  0.43835  
-||||||| 19d7170
-                0.47281                  0.42888  
-=======
-                0.48055                  0.41014  
->>>>>>> main
 optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
 
 [[3]]
@@ -1166,54 +902,20 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
  Family: binomial  ( logit )
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
-<<<<<<< HEAD
       AIC       BIC    logLik  deviance  df.resid 
 10505.026 10570.795 -5243.513 10487.026     11013 
-||||||| 19d7170
-     AIC      BIC   logLik deviance df.resid 
-10512.28 10578.05 -5247.14 10494.28    11013 
-=======
-      AIC       BIC    logLik  deviance  df.resid 
-10543.170 10608.939 -5262.585 10525.170     11013 
->>>>>>> main
 Random effects:
  Groups Name        Std.Dev.
-<<<<<<< HEAD
  name   (Intercept) 0.2908  
-||||||| 19d7170
- name   (Intercept) 0.2852  
-=======
- name   (Intercept) 0.2901  
->>>>>>> main
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-<<<<<<< HEAD
                -2.32339                 -0.42359                  0.03023  
-||||||| 19d7170
-               -2.35320                 -0.41028                  0.03034  
-=======
-               -2.29948                 -0.40181                  0.03038  
->>>>>>> main
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-<<<<<<< HEAD
                -0.67142                 -1.05776                 -1.51038  
-||||||| 19d7170
-               -0.66933                 -1.05474                 -1.50379  
-=======
-               -0.65959                 -1.06391                 -1.52075  
->>>>>>> main
                   pupil                       ct  
-<<<<<<< HEAD
                 0.49756                  0.42474  
 optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-||||||| 19d7170
-                0.49491                  0.42442  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-=======
-                0.45837                  0.42186  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 2 lme4 warnings 
->>>>>>> main
 
 [[4]]
 Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -1221,52 +923,20 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
  Family: binomial  ( logit )
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
-<<<<<<< HEAD
       AIC       BIC    logLik  deviance  df.resid 
 10519.511 10585.280 -5250.755 10501.511     11013 
-||||||| 19d7170
-     AIC      BIC   logLik deviance df.resid 
-10530.02 10595.79 -5256.01 10512.02    11013 
-=======
-      AIC       BIC    logLik  deviance  df.resid 
-10527.222 10592.991 -5254.611 10509.222     11013 
->>>>>>> main
 Random effects:
  Groups Name        Std.Dev.
-<<<<<<< HEAD
  name   (Intercept) 0.2961  
-||||||| 19d7170
- name   (Intercept) 0.2923  
-=======
- name   (Intercept) 0.2962  
->>>>>>> main
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-<<<<<<< HEAD
-               -2.33576                 -0.40872                  0.03039  
-||||||| 19d7170
-               -2.32670                 -0.41286                  0.03037  
-=======
-               -2.27660                 -0.42912                  0.03016  
->>>>>>> main
+               -2.33581                 -0.40871                  0.03039  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-<<<<<<< HEAD
-               -0.66477                 -1.05453                 -1.51860  
-||||||| 19d7170
-               -0.66801                 -1.04770                 -1.50070  
-=======
-               -0.66963                 -1.05952                 -1.51971  
->>>>>>> main
+               -0.66477                 -1.05451                 -1.51858  
                   pupil                       ct  
-<<<<<<< HEAD
                 0.45928                  0.44419  
-||||||| 19d7170
-                0.47210                  0.43109  
-=======
-                0.45085                  0.44439  
->>>>>>> main
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
+optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 2 lme4 warnings 
 
 [[5]]
 Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -1275,51 +945,19 @@ Generalized linear mixed model fit by maximum likelihood (Laplace
 Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
     name)
       AIC       BIC    logLik  deviance  df.resid 
-<<<<<<< HEAD
 10522.038 10587.807 -5252.019 10504.038     11013 
-||||||| 19d7170
-10488.615 10554.383 -5235.307 10470.615     11013 
-=======
-10519.178 10584.947 -5250.589 10501.178     11013 
->>>>>>> main
 Random effects:
  Groups Name        Std.Dev.
-<<<<<<< HEAD
  name   (Intercept) 0.2955  
-||||||| 19d7170
- name   (Intercept) 0.2939  
-=======
- name   (Intercept) 0.2897  
->>>>>>> main
 Number of obs: 11022, groups:  name, 15
 Fixed Effects:
             (Intercept)                     type                      age  
-<<<<<<< HEAD
-               -2.35182                 -0.40575                  0.03064  
-||||||| 19d7170
-               -2.38215                 -0.41343                  0.03049  
-=======
-               -2.33278                 -0.41699                  0.03032  
->>>>>>> main
+               -2.35187                 -0.40574                  0.03064  
 as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-<<<<<<< HEAD
-               -0.67468                 -1.06551                 -1.52623  
-||||||| 19d7170
-               -0.65379                 -1.05740                 -1.48956  
-=======
-               -0.64691                 -1.03611                 -1.50921  
->>>>>>> main
+               -0.67468                 -1.06551                 -1.52622  
                   pupil                       ct  
-<<<<<<< HEAD
                 0.47006                  0.44148  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 2 lme4 warnings 
-||||||| 19d7170
-                0.51641                  0.42397  
 optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-=======
-                0.48240                  0.42794  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
->>>>>>> main
 
 attr(,"class")
 [1] "mitml.result" "list"        
@@ -1329,178 +967,295 @@ R> # testEstimates(as.mitml.result(fit))
 \end{CodeInput}
 \end{CodeChunk}
 
-\hypertarget{case-study-iii-hiv-data}{%
-\section{Case study III: HIV data}\label{case-study-iii-hiv-data}}
+\hypertarget{case-study-iii-obesity-data}{%
+\section{Case study III: obesity
+data}\label{case-study-iii-obesity-data}}
 
-Data are simulated and included in the \texttt{GJRM} package. We will
-use the following variables:
+In this example, we demonstrate a multilevel imputation of an intercept
+and slope random model with a continuous response. We utilize the
+obesity dataset included in the \texttt{micemd} package, a simulated
+dataset that emulates an electronic survey in which individuals are
+asked to provide information about their weight and consumption habits
+in different countries. To easy the explanations we simulate data for 5
+clusters and we reduce the dataset to the following variables:
 
 \begin{itemize}
 \tightlist
 \item
   \texttt{region} Cluster variable,
 \item
-  \texttt{hiv} HIV diagnosis (0=no, 1=yes),
+  \texttt{gender} Gender (0=male, 1=female),
 \item
   \texttt{age} Age of the patient,
 \item
-  \texttt{marital} Marital status,
+  \texttt{height} Height in meters,
 \item
-  \texttt{condom} Condom use during last intercourse,
+  \texttt{weight} Weight in kilograms,
 \item
-  \texttt{smoke} Smoker (levels; inclusion restriction variable).
+  `time`` Response time in minutes (inclusion-restriction variable).
+\item
+  `FamOb`` Family obesity history (yes or not)
 \end{itemize}
 
-The imputation of these date is based on the toy example from
-\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{IPDMA
-Heckman Github repo}.
+Age and FamOb are missing according to a Missing At Random (MAR)
+mechanism, whereas the weight variable is subject to selection bias,
+following an indirect Missing Not At Random (MNAR) mechanism, that
+usually happens when it is unobserved or omitted a variable affecting
+both the value of incomplete variable (here weight) and its probability
+of missing.
 
-\begin{CodeChunk}
+The analysis model considers BMI as the dependent variable, predicted by
+Age, Height, Gender, and FAV. Random slopes are considered for the Age
+variable, which contains missing values.
 
-
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/hiv-1} \end{center}
-
-\end{CodeChunk}
-
-R=region+language+(1\textbar InterviewID) model with interviewer as
-random effects, because the observations are not independent. Interviews
-are not allocated randomly. In theory we expect the
-inclusion-restriction variable to be randomly assigned, that's why we're
-adding region and language to compensate for non-random allocation.
-{[}TODO: Explain exclusion-restriction, refer to paper Johanna{]}.
-
-Load the data:
+The model is represented as:
+\[BMI_{ij}= (\beta_{o}+ b_{oj} ) + (\beta_{1}+ b_{oj})* Age_{ij} + \beta_{2}*FAV_{ij}+ \beta_{3}Gender_{ij} + \epsilon_{ij}\]
+We load the data:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> data("obesity",  package = "miceheckman")
+R> data("data_heckman", package = "micemd")
+R> dat <- data_heckman
 \end{CodeInput}
 \end{CodeChunk}
 
-We obtain here the random effects for each interviewer, this is an
-approximation of the interviewer's skill which will be used as an
-exclusion constraint. Here, since the location of the interviewer was
-not randomly assigned to the subjects, the assignment was corrected for
-region and language.
-
-Set the Heckman model as imputation method
+Now, let's begin by examining the missing patterns in the data by
+cluster:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> #Set prediction matrix and methods
-R> ini <- mice(obesity, maxit = 0)
-R> meth<-ini$method
+R> plot_pattern(dat)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obesity-md-1} \end{center}
+
+\end{CodeChunk}
+
+We observe that the proportion of missingness for the Age and FAVC
+variables is quite similar across the clusters. However, regarding the
+weight variable, we notice a heterogeneous proportion of missingness,
+with systematic missingness in cluster 5. In order to evaluate if it is
+required a imputation method for 1-level or 2-level we assess the
+Intraclass Correlation Coefficient (ICC) for the outcome variable, we
+use the ``performance'' package:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> dat$bmi=dat$Weight/(dat$Height)^2
+R> Nulmodel <- lme4::lmer(bmi ~ 1 + (1|Cluster), data = dat)
+R> #Performance::ICC(Nulmodel)
+\end{CodeInput}
+\end{CodeChunk}
+
+Since the ICC is above 0.1, we decide to employ two-level (2l)
+imputation methods. In this imputation process, we include all predictor
+variables in the main model and since BMI is a composite variable. We
+also incorporate weight and height variables.
+
+To determine the best imputation method for these variables, we can use
+the \texttt{find.defaultMethod}function provided in the \texttt{micemd}
+package, which suggests an appropriate method for MAR variables based on
+the type of variable, number of observations in the cluster, and number
+of clusters. It suggests using ``2l.2stage.bin'' for the FAV variable
+and ``2l.2stage.norm'' for the age and weight variables. However, after
+inspecting the age density plot, we consider modifying its method to
+``2l.2stage.ppm.'' For the BMI variable, we employ deterministic
+imputation.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> meth_mar <- find.defaultMethod(dat, ind.clust=7, I.small = 7, ni.small = 100, prop.small = 0.4)
+\end{CodeInput}
+\end{CodeChunk}
+
+For these imputation models, it is necessary to specify the prediction
+matrix, with the cluster variable labeled as -2 and the predictor
+variable labeled as 2, encompassing all variables.
+
+After confirming convergence, we proceed to fit the main model and save
+the results for future use. Users are considering the possibility that
+the weight variable may not have been selected randomly. It's likely
+that an omitted variable, like self-esteem, could influence this
+selection. For instance, individuals with lower self-esteem might have
+higher weight values, impacting their willingness to provide honest
+information due to embarrassment.
+
+To address this situation, two approaches have been proposed for dealing
+with Missing Not at Random (MNAR) data: pattern-mixed models and
+selection models. Within pattern-mixed models, methods like the delta
+method and more advanced ones like NARFS have been suggested. In
+contrast, the selection model approach includes methods such as the
+Heckman model, which can be particularly useful in this case. Several
+methods, including Galimar2017, Hammon2021, and the recent Munoz method,
+designed for two-level data, allowing for variations in intercepts and
+exposure effects (random intercept and slope).
+
+Create predictor matrix:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> pred <- quickpred(dat)   # predictor matrix
+R> pred[,"Cluster"]<- -2 # clustering variable
+R> pred[, "Weight"] <- -3 #inclusion-restriction variable
+R> plot_pred(pred)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obesity-pred-1} \end{center}
+
+\end{CodeChunk}
+
+Set the Heckman model as imputation method:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> meth <- make.method(dat) # methods vector
 R> meth["weight"]<-"2l.heckman"
-R> pred <- ini$pred
-R> pred["weight","cluster"]<- -2
-R> pred["weight","rt"] <- -3
 \end{CodeInput}
 \end{CodeChunk}
 
-<<<<<<< HEAD
-||||||| 19d7170
-Impute the data:
+Impute the missingness:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> imp <- mice( hivdata, # dataset with missing values
-+                         m = 10,   # number of imputations
-+                         maxit = 1,
-+                         seed = 1234, #seed attached to the dataID
-+                         meth = meth, #imputation method vector
-+                         pred = pred, #imputation predictors matrix
-+                         print = T,
-+                         meta_method="reml",
-+                         pmm=FALSE)
-\end{CodeInput}
-\begin{CodeOutput}
-
- iter imp variable
-  1   1  hiv
-  1   2  hiv
-  1   3  hiv
-  1   4  hiv
-  1   5  hiv
-  1   6  hiv
-  1   7  hiv
-  1   8  hiv
-  1   9  hiv
-  1   10  hiv
-\end{CodeOutput}
-\end{CodeChunk}
-
-=======
-Impute the data:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> imp <- mice(obesity, # dataset with missing values
-+                         m = 10,   # number of imputations
-+                         maxit = 1,
-+                         seed = 1234, #seed attached to the dataID
-+                         meth = meth, #imputation method vector
-+                         pred = pred, #imputation predictors matrix
-+                         print = T,
-+                         meta_method="reml",
-+                         pmm=FALSE)
+R> imp <- mice(
++   dat, # dataset with missing values
++   m = 5, # number of imputations
++   maxit = 10,
++   meth = meth, #imputation method vector
++   pred = pred, #imputation predictors matrix
++   meta_method = "reml",
++   printFlag = FALSE
++ )
 \end{CodeInput}
 \end{CodeChunk}
 
->>>>>>> main
+To apply the Munoz method, the weight variable should be specified as
+``2l.2stage.heckman'' found in the micemd package. Additionally, the
+prediction matrix needs modification because this method involves
+specifying two equations: one for the outcome, describing the incomplete
+variable in terms of partially observed predictors (in this case, all
+variables from the main model), and the other for the selection model,
+explaining the probability of being observed based on certain variables.
+
+TODO: explain exclusion restriction. In this specific case, it's assumed
+that height does not influence selection (-4), and an exclusion
+restriction variable is introduced as an instrumental variable affecting
+selection but not the outcome. Time of response is used for this
+purpose, as it's believed that subjects taking more time to complete the
+survey are more likely to not respond due to poor connectivity or lack
+of familiarity with electronic surveys (specified as -3).
+
+After implementing these imputation procedures, it's crucial to check
+for convergence. If convergence issues arise and imputed values are far
+from plausible, especially affecting BMI values, a post-imputation
+procedure is employed to constrain BMI values within a plausible range.
+
+Then after this modification we proceed to compare the effects on the
+model \#\#\#Plot estimates
+
+The imputation of these data is based on the
+\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{IPDMA
+Heckman Github repo}
+
+Visualize missing data pattern:
+
+The matrix only shows the predictors for the main model, not the
+selection model.
+
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
 
+ORDER:
+
 \begin{itemize}
 \item
-  JOMO in \pkg{mice} -\textgreater{} on the side for now
+  summary
+\item
+  congeniality, then in hierarchical models
+\item
+  look whether we can fit cong. back in the main body
+\item
+  alt. methods
+\item
+  conclusion: mice is really easy!
 \item
   Additional levels of clustering
 \item
   More complex data types: timeseries and polynomial relationship in the
   clustering.
+\item
+  FIML vs MI
 \end{itemize}
 
-\hypertarget{think-about}{%
-\section{Think about}\label{think-about}}
+An alternative approach to missing data is to use Full Information
+Maximum Likelihood (FIML). This method does not require the imputation
+of any missing values. Whereas MI consists of imputation, analyses and
+pooling steps, FIML analyses the data in a single step. When the
+assumptions are met the two approaches should produce equivalent
+results. {[}REF{]} As FIML requires specialised software, not all
+analyses can be performed with standard software. {[}REF{]}
 
 \begin{itemize}
+\tightlist
 \item
-  Adding evaluations of the imputations such as convergence checks
-\item
-  Adding some kind of help function to mice that suggests a suitable
-  predictor matrix to the user, given a certain analysis model.
-\item
-  Adding a \texttt{multilevel\_ampute()} wrapper function in mice.
-\item
-  Exporting \texttt{mids} objects to other packages like \texttt{lme4}
-  or \texttt{coxme}?
-\item
-  Adding a ICC=0 dataset to show that even if there is no clustering it
-  doesn't hurt.
-\item
-  Show use case for deductive imputation for cluster level variables?
-\item
-  env dump in repo
-\item
-  I don't know if in your article you cover something about model
-  complexity, for example sometimes I have to switch from 2l. methods to
-  1l. methods just because the model didn't converge.. this is due to
-  the considered imputation model is very complex regarding the amount
-  of information counted\ldots{} I know that a solution for an
-  imputation model with many predictors is to check correlation plots as
-  you did or use quickpred().. (maybe you can add this somewhere after
-  the correlation plots)\ldots..But as for cluster specification, I
-  don't know if besides plots of distribution per cluster there is
-  something else can be done to see if i have to use 1l. or 2l. for a
-  given variable, also I have no idea.. how to test which is better
-  between 2l.norm or 2l.2stage.norm.
+  Survival / TTE, this could be put in the paragraph on congeniality
 \end{itemize}
 
-<<<<<<< HEAD
-Translated with www.DeepL.com/Translator (free version)
+When the outcome is time-to-event, the Nelson-Aalen estimate of the time
+to event should be included as a covariate in the imputation model
+{[}REF{]}
 
-||||||| 19d7170
-=======
+In hierarchical datasets, clustering is a concern because the
+homoscedasticity in the error terms cannot be assumed across clusters
+and the relationship among variables may vary at different hierarchical
+levels. When multiple imputation is used to deal with missing data, as
+the imputation and analysis process is performed separately, it is
+necessary that imputation model being congenial with the main analysis
+model (Meng, 1994), e.g.~if the main model accounts for the hierarchical
+structure also imputation model should do it (Audigier, 2021). Not
+including clustering into the imputation process may lead to effect
+estimates with smaller standard errors and inflated type I error.
+
+There are different strategies that can be adopted in the imputation
+process that account for clustering: inclusion of cluster indicator
+variable, performing a separate imputation process for each cluster, or
+performing a simultaneous imputation process by using an imputation
+method that accounts for clustering.(Stata:
+\url{https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/})
+TODO: replace ref.
+
+The selection of each strategy depends mainly on the assumptions in the
+main analysis and also on the restriction of the analyzed data.
+
+Regarding the restrictions imposed by the data, for instance, the use of
+cluster indicator variables is restricted in datasets where there are
+not many clusters and many observations per cluster (Graham, 2009). The
+last restriction is also required when imputations are performed on each
+cluster separately. When this restriction cannot be achieved, one can
+use an imputation model that simultaneously imputes all clusters using a
+hierarchical model (Allison 2002).
+
+Under this hierarchical imputation model, observations within clusters
+are correlated and this correlation is modeled by a random effect so the
+hierarchical model can be estimated even when there are few observations
+per cluster. However, this strategy is best suited for balanced data
+(Grund, 2017) and when random effects model is appropriated, i.e.~the
+number of clusters is adequate. (Austin,2018).
+
+Here it is important to evaluate the assumptions imposed by the main
+model, for instance by using the cluster indicator strategy may lead to
+bias estimates when the model is based on a hierarchical model
+(Taaljard,2008). Even when an imputation strategy congenial with the
+main model is preferred, it is important to consider whether it is
+appropriate for the data as a less complex imputation strategies may
+also lead to unbiased estimates in certain scenarios(Bailey 2020). For
+instance, in causal effect analysis, separately imputation may lead to
+smaller bias when the size of the smaller exposure cluster is large,
+compared with an imputation model that includes exposure-confounder
+interactions. (Zhang,2023).
+
 \hypertarget{funding}{%
 \section{Funding}\label{funding}}
 
@@ -1513,9 +1268,57 @@ and may not be understood or quoted as being made on behalf of or
 reflecting the position of the regulatory agency/agencies or
 organizations with which the authors are employed/affiliated.
 
->>>>>>> main
-\renewcommand\refname{References}
+\hypertarget{references}{%
+\section{References}\label{references}}
+
+\hypertarget{appendix}{%
+\section{Appendix}\label{appendix}}
+
+Table 3: Notation
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5495}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.4505}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Formula \pkg{lme4}}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Details}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{y\ \textasciitilde{}\ x1\ +\ (1\ \textbar{}\ g1)} & Fixed
+\texttt{x1} predictor with random intercept \\
+& varying among \texttt{g1} \\
+\texttt{y\textasciitilde{}x1*x2+\ (1\textbar{}\ g1)} & Interactions of
+\texttt{x1} and \texttt{x2} only in fixed effect \\
+\texttt{y\ \textasciitilde{}\ x1*x2+\ (x2\textbar{}\ g1)} & Interactions
+of \texttt{x1} and \texttt{x2} only in fixed effect \\
+& with slope of \texttt{x2} randomly varying among \texttt{g1} \\
+\texttt{y\ \textasciitilde{}\ x1*x2+\ (x1*x2\textbar{}\ g1)} &
+variance-covariance matrix estimated only with \\
+& the variance terms of intercept, slope of \texttt{x1}, \\
+& slope of \texttt{x2} and interaction \texttt{x1*x2} \\
+\texttt{y\ \textasciitilde{}\ x1*x2+\ (x1\ \textbar{}\ g1)+\ (x2\textbar{}\ g1)}
+& variance-covariance matrix estimated separately, \\
+& i.e, one for intercept and \texttt{x1} and another for \\
+& intercept and \texttt{x2} \\
+\texttt{y\ \textasciitilde{}\ x1\ +\ (x1\ \textbar{}\ g1)\ or\ 1\ +\ x1\ +\ (1\ +\ x1\ \textbar{}\ g1)}
+& Fixed \texttt{x1} with correlated random intercept and \\
+& random slope of \texttt{x} \\
+\texttt{y\ \textasciitilde{}\ x1\ +\ (x1\ \textbar{}\textbar{}\ g1)\ or\ 1\ +\ x1\ +\ (1\ \textbar{}\ g1)\ +\ (0\ +\ x1\ \textbar{}\ g1)}
+& Fixed \texttt{x1} with uncorrelated random intercept \\
+& and random slope of \texttt{x1} \\
+\texttt{y\ \textasciitilde{}\ (1\ \textbar{}\ g1)\ +\ (1\ \textbar{}\ g2)}
+& Random intercept varying among \texttt{g1} and among
+\texttt{g2\ \ \ \textbar{}\ \textbar{}}y \textasciitilde{} (1 \\
+& \\
+\end{longtable}
+
 \bibliography{../References/multilevelmice.bib}
+
 
 
 \end{document}
