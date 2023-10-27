@@ -647,7 +647,7 @@ into the analysis model:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) 
+R> mod <- mort ~ type + age + motor_score + pupil + ct + (1 | name) 
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -671,14 +671,9 @@ R> dat <- read.table("link/to/the/data.txt") # incomplete data
 \end{CodeInput}
 \end{CodeChunk}
 
-The estimated effects in the complete data are presented in Table XYZ.
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> # fit <- glmer(mod, family = "binomial", data = impact) # fit the model
-R> # tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
-\end{CodeInput}
-\end{CodeChunk}
+We will use the complete data estimates as comparative truth in this
+tutorial. The estimated effects in the complete data are presented in
+Table XYZ.
 
 \hypertarget{missingness}{%
 \subsection{Missingness}\label{missingness}}
@@ -736,6 +731,7 @@ imputation:
 \begin{CodeChunk}
 \begin{CodeInput}
 R> dat <- select(dat, !hypox)  # remove variable
+R> dat <- mutate(dat, motor_score = as.factor(motor_score))
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -848,154 +844,16 @@ Analyze the imputed data:
 \begin{CodeChunk}
 \begin{CodeInput}
 R> fit <- imp %>% 
-+   with(glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial")) 
-R> tidy(pool(fit))
-\end{CodeInput}
-\begin{CodeOutput}
-                     term    estimate   std.error  statistic      p.value
-1             (Intercept) -2.29521346 0.349767178  -6.562118 7.886872e-11
-2                    type -0.41750657 0.180984169  -2.306868 2.108127e-02
-3                     age  0.03038268 0.001579024  19.241433 2.785453e-78
-4 as.factor(motor_score)2 -0.65834010 0.068555350  -9.603045 9.808985e-22
-5 as.factor(motor_score)3 -1.05935395 0.070432441 -15.040711 4.685873e-50
-6 as.factor(motor_score)4 -1.51332652 0.072497350 -20.874232 1.222074e-88
-7                   pupil  0.45660452 0.043112821  10.590922 2.255987e-10
-8                      ct  0.43389476 0.034110953  12.720101 1.856548e-15
-             b          df dfcom         fmi      lambda m         riv
-1 5.551031e-03  1194.39341 11013 0.056029215 0.054449867 5 0.057585384
-2 9.060570e-05 10652.43106 11013 0.003506444 0.003319369 5 0.003330424
-3 6.016742e-08  3298.53424 11013 0.029546025 0.028957788 5 0.029821348
-4 3.222589e-05  9216.80652 11013 0.008443314 0.008228174 5 0.008296439
-5 8.436583e-05  5080.45332 11013 0.020793493 0.020408089 5 0.020833256
-6 1.633007e-04  2263.14149 11013 0.038133867 0.037284215 5 0.038728164
-7 6.411714e-04    23.25984 11013 0.458579946 0.413944862 5 0.706324089
-8 3.096973e-04    39.00604 11013 0.351802055 0.319397049 5 0.469285431
-          ubar
-1 1.156758e-01
-2 3.264654e-02
-3 2.421115e-06
-4 4.661165e-03
-5 4.859490e-03
-6 5.059905e-03
-7 1.089310e-03
-8 7.919204e-04
-\end{CodeOutput}
-\begin{CodeInput}
-R> as.mitml.result(fit)
-\end{CodeInput}
-\begin{CodeOutput}
-[[1]]
-Generalized linear mixed model fit by maximum likelihood (Laplace
-  Approximation) [glmerMod]
- Family: binomial  ( logit )
-Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
-    name)
-      AIC       BIC    logLik  deviance  df.resid 
-10498.989 10564.757 -5240.494 10480.989     11013 
-Random effects:
- Groups Name        Std.Dev.
- name   (Intercept) 0.2895  
-Number of obs: 11022, groups:  name, 15
-Fixed Effects:
-            (Intercept)                     type                      age  
-               -2.39617                 -0.40607                  0.03021  
-as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.65393                 -1.05692                 -1.49555  
-                  pupil                       ct  
-                0.48407                  0.45095  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-
-[[2]]
-Generalized linear mixed model fit by maximum likelihood (Laplace
-  Approximation) [glmerMod]
- Family: binomial  ( logit )
-Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
-    name)
-      AIC       BIC    logLik  deviance  df.resid 
-10502.536 10568.305 -5242.268 10484.536     11013 
-Random effects:
- Groups Name        Std.Dev.
- name   (Intercept) 0.2926  
-Number of obs: 11022, groups:  name, 15
-Fixed Effects:
-            (Intercept)                     type                      age  
-                -2.3350                  -0.4268                   0.0301  
-as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-                -0.6647                  -1.0565                  -1.5065  
-                  pupil                       ct  
-                 0.4827                   0.4481  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-
-[[3]]
-Generalized linear mixed model fit by maximum likelihood (Laplace
-  Approximation) [glmerMod]
- Family: binomial  ( logit )
-Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
-    name)
-      AIC       BIC    logLik  deviance  df.resid 
-10574.673 10640.442 -5278.337 10556.673     11013 
-Random effects:
- Groups Name        Std.Dev.
- name   (Intercept) 0.2921  
-Number of obs: 11022, groups:  name, 15
-Fixed Effects:
-            (Intercept)                     type                      age  
-               -2.23276                 -0.41737                  0.03068  
-as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.66414                 -1.07209                 -1.52198  
-                  pupil                       ct  
-                0.44804                  0.40791  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-
-[[4]]
-Generalized linear mixed model fit by maximum likelihood (Laplace
-  Approximation) [glmerMod]
- Family: binomial  ( logit )
-Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
-    name)
-      AIC       BIC    logLik  deviance  df.resid 
-10548.019 10613.788 -5265.009 10530.019     11013 
-Random effects:
- Groups Name        Std.Dev.
- name   (Intercept) 0.2953  
-Number of obs: 11022, groups:  name, 15
-Fixed Effects:
-            (Intercept)                     type                      age  
-               -2.29768                 -0.41020                  0.03058  
-as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.65615                 -1.04746                 -1.52793  
-                  pupil                       ct  
-                0.43858                  0.43668  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-
-[[5]]
-Generalized linear mixed model fit by maximum likelihood (Laplace
-  Approximation) [glmerMod]
- Family: binomial  ( logit )
-Formula: mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 |  
-    name)
-      AIC       BIC    logLik  deviance  df.resid 
-10562.267 10628.035 -5272.133 10544.267     11013 
-Random effects:
- Groups Name        Std.Dev.
- name   (Intercept) 0.2949  
-Number of obs: 11022, groups:  name, 15
-Fixed Effects:
-            (Intercept)                     type                      age  
-               -2.21445                 -0.42713                  0.03034  
-as.factor(motor_score)2  as.factor(motor_score)3  as.factor(motor_score)4  
-               -0.65280                 -1.06379                 -1.51469  
-                  pupil                       ct  
-                0.42960                  0.42587  
-optimizer (Nelder_Mead) convergence code: 0 (OK) ; 0 optimizer warnings; 1 lme4 warnings 
-
-attr(,"class")
-[1] "mitml.result" "list"        
-\end{CodeOutput}
-\begin{CodeInput}
++   with(glmer(
++     mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name),
++     family = "binomial")) 
+R> # tidy(pool(fit))
+R> # as.mitml.result(fit)
 R> # testEstimates(as.mitml.result(fit))
 \end{CodeInput}
 \end{CodeChunk}
+
+The estimated effects after imputation are presented in Table XYZ.
 
 \hypertarget{case-study-iii-obesity-data}{%
 \section{Case study III: obesity

@@ -429,7 +429,7 @@ The `impact` data set contains traumatic brain injury data on $n = 11022$ patien
 
 The analysis model for this dataset is a prediction model with `mort` as the outcome. In this tutorial we'll estimate the adjusted prognostic effect of `ct` on mortality outcomes. The estimand is the adjusted odds ratio for `ct`, after including `type`, `age` `motor_score` and `pupil` into the analysis model: 
 ```{r mod}
-mod <- mort ~ 1 + type + age + motor_score + pupil + ct + (1 | name) 
+mod <- mort ~ type + age + motor_score + pupil + ct + (1 | name) 
 ```
 
 Note that variables `hypots`, `hypox`, `tsah` and `edh` are not part of the analysis model, and may thus serve as auxiliary variables for imputation. 
@@ -446,8 +446,6 @@ dat <- read.table("link/to/the/data.txt") # incomplete data
 data("impact", package = "metamisc")
 dat <- readRDS("../Data/impact_incomplete.RDS")
 ```
-
-The estimated effects in the complete data are presented in Table XYZ. 
 
 <!-- visualized in Figure \ref{}. -->
 
@@ -482,10 +480,11 @@ The estimated effects in the complete data are presented in Table XYZ.
 # # TODO: missingness prop inside clusters
 # # TODO: make row height proportional to pattern frequency
 ```
-<!-- We will use the following estimates as comparative truth in this tutorial: -->
-```{r truth}
-# fit <- glmer(mod, family = "binomial", data = impact) # fit the model
-# tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
+
+We will use the complete data estimates as comparative truth in this tutorial. The estimated effects in the complete data are presented in Table XYZ. 
+```{r impact_truth, include=FALSE, echo=TRUE}
+fit <- glmer(mod, family = "binomial", data = impact) # fit the model
+tidy(fit, conf.int = TRUE, exponentiate = TRUE)       # print estimates
 ```
 
 <!-- [TODO: show how much variance there is after different methods] -->
@@ -513,6 +512,7 @@ plot_corr(dat, rotate = TRUE) # plot correlations
 This shows us that `hypox` and `hypot` would not be useful auxiliary variables for imputing `ct`. Depending on the minimum required correlation, `tsah` could be useful, while `edh` has the strongest correlation with `ct` out of all the variables in the data and should definitely be included in the imputation model. For the imputation of `pupil`, none of the potential auxiliary variables has a very strong relation, but `hypots` could be used. We conclude that we can exclude `hypox` from the data, since this is neither an analysis model variable nor an auxiliary variable for imputation:
 ```{r}
 dat <- select(dat, !hypox)  # remove variable
+dat <- mutate(dat, motor_score = as.factor(motor_score))
 ```
 
 <!-- We'll highlight one other variable to illustrate, but ideally one would inspect all relations. The questions we'll ask are: 'Does the missing data of pupil popularity (`popular`) depend on observed teacher popularity (`texp`)?'. This can be evaluated statistically, but visual inspection usually suffices. We'll make a histogram of `texp` separately for the pupils with known popularity and missing popularity. -->
@@ -592,11 +592,16 @@ plot_trace(imp)
 Analyze the imputed data:
 ```{r impact-fit, cache=TRUE}
 fit <- imp %>% 
-  with(glmer(mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name), family = "binomial")) 
-tidy(pool(fit))
-as.mitml.result(fit)
+  with(glmer(
+    mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name),
+    family = "binomial"
+    )) 
+# tidy(pool(fit))
+# as.mitml.result(fit)
 # testEstimates(as.mitml.result(fit))
 ```
+The estimated effects after imputation are presented in Table XYZ.
+
 
 # Case study III: obesity data
 
