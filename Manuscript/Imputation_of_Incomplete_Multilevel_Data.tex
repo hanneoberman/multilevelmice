@@ -972,11 +972,11 @@ R> # testEstimates(as.mitml.result(fit))
 data}\label{case-study-iii-obesity-data}}
 
 In this example, we demonstrate a multilevel imputation of an intercept
-and slope random model with a continuous response. We utilize the
-obesity dataset included in the \texttt{micemd} package, a simulated
-dataset that emulates an electronic survey in which individuals are
-asked to provide information about their weight and consumption habits
-in different countries. To easy the explanations we simulate data for 5
+and slope random model with a continuous response. We use the obesity
+dataset included in the \texttt{micemd}@ package, a synthetic dataset
+that emulates an electronic survey in which individuals are asked to
+provide information about their weight and consumption habits in
+different countries. To easy the explanations we simulate data for 5
 clusters and we reduce the dataset to the following variables:
 
 \begin{itemize}
@@ -997,25 +997,25 @@ clusters and we reduce the dataset to the following variables:
   `FamOb`` Family obesity history (yes or not)
 \end{itemize}
 
-Age and FamOb are missing according to a Missing At Random (MAR)
-mechanism, whereas the weight variable is subject to selection bias,
-following an indirect Missing Not At Random (MNAR) mechanism, that
-usually happens when it is unobserved or omitted a variable affecting
-both the value of incomplete variable (here weight) and its probability
-of missing.
+In this dataset, Age and FamOb are MAR, while the weight variable is
+affected by selection bias, attributed to an indirect MNAR mechanism.
+This MNAR mechanism typically arises when an unobserved or omitted
+variable influences both the value of the incomplete variable (in this
+case, Weight) and its likelihood of being missing (denoted as R).
 
-The analysis model considers BMI as the dependent variable, predicted by
-Age, Height, Gender, and FAV. Random slopes are considered for the Age
-variable, which contains missing values.
+In the primary analysis model, BMI serves as the dependent variable,
+with Age, Gender, and FamOb as predictors. Researchers, based on
+observable data, are considering the inclusion of random intercept
+effects, as well as introducing a random slope for the Age variable.
 
-The model is represented as:
-\[BMI_{ij}= (\beta_{o}+ b_{oj} ) + (\beta_{1}+ b_{oj})* Age_{ij} + \beta_{2}*FAV_{ij}+ \beta_{3}Gender_{ij} + \epsilon_{ij}\]
-We load the data:
+The main model is given by:
+\[BMI_{ij}= (\beta_{o}+ b_{oj} ) + (\beta_{1}+ b_{oj})* Age_{ij} + \beta_{2}*FamOb_{ij}+ \beta_{3}Gender_{ij} + \epsilon_{ij}\]
+We start by loading the data:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> data("data_heckman", package = "micemd")
-R> dat <- data_heckman
+R> #data("data_heckman", package = "micemd")
+R> #dat <- data_heckman
 \end{CodeInput}
 \end{CodeChunk}
 
@@ -1024,7 +1024,13 @@ cluster:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> plot_pattern(dat)
+R> require(patchwork)
+R>   myplots <- lapply(1:5, function(i) {
++          ggmice::plot_pattern(setDT(Obesity)[Cluster==i])+ 
++            ggtitle(paste0("Cluster", i))+ 
++       theme(legend.position = ifelse(i==1,"bottom","none"))
++       })
+R>   myplots[[1]]+ myplots[[2]] /myplots[[3]]+ myplots[[4]] /myplots[[5]]
 \end{CodeInput}
 
 
@@ -1032,54 +1038,126 @@ R> plot_pattern(dat)
 
 \end{CodeChunk}
 
-We observe that the proportion of missingness for the Age and FAVC
-variables is quite similar across the clusters. However, regarding the
-weight variable, we notice a heterogeneous proportion of missingness,
-with systematic missingness in cluster 5. In order to evaluate if it is
+We observe that the missing pattern is quite similar across the
+clusters. However, regarding the weight variable, we notice that is
+systematically missing in cluster 3. In order to evaluate if it is
 required a imputation method for 1-level or 2-level we assess the
 Intraclass Correlation Coefficient (ICC) for the outcome variable, we
 use the ``performance'' package:
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> dat$bmi=dat$Weight/(dat$Height)^2
-R> Nulmodel <- lme4::lmer(bmi ~ 1 + (1|Cluster), data = dat)
-R> #Performance::ICC(Nulmodel)
+R> Nulmodel <- lme4::lmer(BMI ~ 1 + (1|Cluster), data = Obesity)
+R> performance::icc(Nulmodel)
 \end{CodeInput}
+\begin{CodeOutput}
+# Intraclass Correlation Coefficient
+
+    Adjusted ICC: 0.342
+  Unadjusted ICC: 0.342
+\end{CodeOutput}
 \end{CodeChunk}
 
-Since the ICC is above 0.1, we decide to employ two-level (2l)
-imputation methods. In this imputation process, we include all predictor
-variables in the main model and since BMI is a composite variable. We
-also incorporate weight and height variables.
+Since the ICC is above 0.1 and as the main analyis will be consider a
+mixed model, we decide to use two-level (2l) imputation methods. In this
+imputation process, we include all predictor variables in the main model
+and since BMI is a composite variable. We also incorporate weight and
+height variables.
 
 To determine the best imputation method for these variables, we can use
 the \texttt{find.defaultMethod}function provided in the \texttt{micemd}
 package, which suggests an appropriate method for MAR variables based on
 the type of variable, number of observations in the cluster, and number
 of clusters. It suggests using ``2l.2stage.bin'' for the FAV variable
-and ``2l.2stage.norm'' for the age and weight variables. However, after
-inspecting the age density plot, we consider modifying its method to
-``2l.2stage.ppm.'' For the BMI variable, we employ deterministic
+and ``2l.2stage.norm'' for the age variable. However, after inspecting
+the age density plot, we consider modifying its method to
+``2l.2stage.pmm.'' For the BMI variable, we employ deterministic
 imputation.
 
 \begin{CodeChunk}
 \begin{CodeInput}
-R> meth_mar <- find.defaultMethod(dat, ind.clust=7, I.small = 7, ni.small = 100, prop.small = 0.4)
+R> meth_mar <- meth_mar <- find.defaultMethod(Obesity, ind.clust=1, I.small = 7, ni.small = 100, prop.small = 0.4)
+R> meth_mar["BMI"]<- "~ I(Weight / (Height)^2)"
+R> meth_mar["Age"]<-"2l.2stage.pmm" 
 \end{CodeInput}
 \end{CodeChunk}
 
 For these imputation models, it is necessary to specify the prediction
 matrix, with the cluster variable labeled as -2 and the predictor
-variable labeled as 2, encompassing all variables.
+variable labeled as 2, encompassing all variables. We need to suprime
+the variable Time as this variable is not especified in the main model
+and modify also in the prediction matrix the relationship between BMI,
+weight and height to avoid circular predictions. Then we proced to run
+the imputation model.
 
-After confirming convergence, we proceed to fit the main model and save
-the results for future use. Users are considering the possibility that
-the weight variable may not have been selected randomly. It's likely
-that an omitted variable, like self-esteem, could influence this
-selection. For instance, individuals with lower self-esteem might have
-higher weight values, impacting their willingness to provide honest
-information due to embarrassment.
+\begin{CodeChunk}
+\begin{CodeInput}
+R> pred_mar <- mice(Obesity, maxit = 0)$pred   # predictor matrix
+R> pred_mar[,"Cluster"]<- -2 # clustering variable
+R> pred_mar[,"Time"]<-0
+R> pred_mar[pred_mar==1]<-2
+R> pred_mar[c("Height", "Weight"), "BMI"] <- 0
+R> ggmice::plot_pred(pred_mar)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmar_pred-1} \end{center}
+
+\end{CodeChunk}
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> summary(complete(imp_mar,"long")$Weight)
+\end{CodeInput}
+\begin{CodeOutput}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  2.409  69.703  82.925  82.476  95.310 158.420 
+\end{CodeOutput}
+\begin{CodeInput}
+R> plot(imp_mar)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmar_plot-1} \end{center}
+
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmar_plot-2} \end{center}
+
+\end{CodeChunk}
+
+We are also contemplating the utilization of the ``pmm'' option, given
+that the imputed values' weights are lower than those of the observable
+values.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> summary(complete(imp_mar_pmm,"long")$Weight)
+\end{CodeInput}
+\begin{CodeOutput}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  27.50   71.02   83.82   83.76   95.55  135.98 
+\end{CodeOutput}
+\begin{CodeInput}
+R> plot(imp_mar_pmm)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmarp_plot-1} \end{center}
+
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmarp_plot-2} \end{center}
+
+\end{CodeChunk}
+
+After confirming convergence, we proceed to save the results for future
+use. Users are considering the possibility that the weight variable may
+not have been selected randomly. It's likely that an omitted variable,
+like self-esteem, could influence this selection. For instance,
+individuals with lower self-esteem might have higher weight values,
+impacting their willingness to provide honest information due to
+embarrassment.
 
 To address this situation, two approaches have been proposed for dealing
 with Missing Not at Random (MNAR) data: pattern-mixed models and
@@ -1091,73 +1169,167 @@ methods, including Galimar2017, Hammon2021, and the recent Munoz method,
 designed for two-level data, allowing for variations in intercepts and
 exposure effects (random intercept and slope).
 
-Create predictor matrix:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> pred <- quickpred(dat)   # predictor matrix
-R> pred[,"Cluster"]<- -2 # clustering variable
-R> pred[, "Weight"] <- -3 #inclusion-restriction variable
-R> plot_pred(pred)
-\end{CodeInput}
-
-
-\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obesity-pred-1} \end{center}
-
-\end{CodeChunk}
-
-Set the Heckman model as imputation method:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> meth <- make.method(dat) # methods vector
-R> meth["weight"]<-"2l.heckman"
-\end{CodeInput}
-\end{CodeChunk}
-
-Impute the missingness:
-
-\begin{CodeChunk}
-\begin{CodeInput}
-R> imp <- mice(
-+   dat, # dataset with missing values
-+   m = 5, # number of imputations
-+   maxit = 10,
-+   meth = meth, #imputation method vector
-+   pred = pred, #imputation predictors matrix
-+   meta_method = "reml",
-+   printFlag = FALSE
-+ )
-\end{CodeInput}
-\end{CodeChunk}
-
-To apply the Munoz method, the weight variable should be specified as
+To apply the heckman method, the weight variable should be specified as
 ``2l.2stage.heckman'' found in the micemd package. Additionally, the
 prediction matrix needs modification because this method involves
 specifying two equations: one for the outcome, describing the incomplete
 variable in terms of partially observed predictors (in this case, all
 variables from the main model), and the other for the selection model,
-explaining the probability of being observed based on certain variables.
+explaining the probability of being observed based (R) on certain
+variables.
 
-TODO: explain exclusion restriction. In this specific case, it's assumed
-that height does not influence selection (-4), and an exclusion
-restriction variable is introduced as an instrumental variable affecting
-selection but not the outcome. Time of response is used for this
-purpose, as it's believed that subjects taking more time to complete the
-survey are more likely to not respond due to poor connectivity or lack
-of familiarity with electronic surveys (specified as -3).
+Here for the outcome equation we consider is the same imputation model
+that we used for the MAR case (main model).
+\[Weight_{ij}= \beta^O_{o} + \beta^O_{1}* Age_{ij} + \beta^O_{2}*FamOb_{ij}+ \beta^O_{3}Gender_{ij} + \epsilon^O_{ij}\]
+Regarding the selection equation, we include the same predictors as
+those in the primary model, as well as a time variable. Here the time
+variable serves as a restriction exclusion variable specifically
+explaining the probability of being observed but not affecting the
+incomplete value (Weight). In this context, we assume that the time a
+user spends completing the survey serves as a proxy for the barriers
+they may encounter in survey completion, such as familiarity with the
+survey content or internet speed. These factors may lead the user to
+skip specific questions or even the entire survey. Also we assume the
+time is not have any influence on the weight assigned to the subject.
+\[R_{ij}= \beta^S_{o} + \beta^S_{1}* Age_{ij} + \beta^S_{2}*FamOb_{ij}+ \beta^S_{3}Gender_{ij} +\beta^S_{4}Time_{ij}+ \epsilon^S_{ij}\]
+These two equations are jointly estimated under the assumption that the
+error terms are interconnected with a bivariate normal distribution. For
+a more comprehensive understanding of the model and the exclusion
+restriction, you can refer to (Munoz).
 
-After implementing these imputation procedures, it's crucial to check
-for convergence. If convergence issues arise and imputed values are far
-from plausible, especially affecting BMI values, a post-imputation
-procedure is employed to constrain BMI values within a plausible range.
+To integrate information from both equations, we must adjust the
+prediction matrix. The cluster variable remains specified as before
+(-2). In this imputation method, all the variables present in both the
+selection and outcome equations are included with a random effect.
+However, it's essential to distinguish which of these variables appear
+in each equation.
+
+In this framework, when a variable is shared between both equations, it
+is denoted as (2). Predictors exclusive to the outcome equation are
+indicated as (-4), while those exclusive to the selection equation are
+labeled as (-3). Consequently, the only alteration needed in the
+predictor matrix pertains to the variable ``Time.''
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> pred_mnar <- pred_mar
+R> pred_mnar["Weight","Time"]<- -3
+R> ggmice::plot_pred(pred_mnar)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmnar_pred-1} \end{center}
+
+\end{CodeChunk}
+
+We also need to modify the method of the weight variable
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> meth_mnar <- meth_mar
+R> meth_mnar["Weight"]<- "3l.2stage.heckman"
+\end{CodeInput}
+\end{CodeChunk}
+
+Then we proceed to run the imputation model as before Impute the
+missingness:
+
+After executing these imputation procedures, it is essential to assess
+convergence and the coherence of the imputed values. Upon examining the
+weight variable, we noticed that the imputed range falls outside the
+realm of plausible values (as weight should be positive). Consequently,
+we are contemplating a different approach, specifically, the use of
+``pmm,'' which involves imputing values from donor observations. This
+approach ensures that the imputed values remain within the range of
+observable values.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> summary(complete(imp_mnar,"long")$Weight)
+\end{CodeInput}
+\begin{CodeOutput}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  10.26   73.41   86.94   88.27  101.73  186.47 
+\end{CodeOutput}
+\begin{CodeInput}
+R> plot(imp_mnar)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmnar_plot-1} \end{center}
+
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmnar_plot-2} \end{center}
+
+\end{CodeChunk}
+
+We then run the imputation model but this time using the option of pmm,
+to assure that weight values are in the range of the observable data,
+this can be implemented by seeting the pmm parameter as true.
+
+\begin{CodeChunk}
+\begin{CodeInput}
+R> summary(complete(imp_mnar_pmm,"long"))
+\end{CodeInput}
+\begin{CodeOutput}
+      .imp           .id          Cluster           Time          Gender     
+ Min.   : 1.0   Min.   :   1   Min.   :1.000   Min.   :1.016   Female:10720  
+ 1st Qu.: 3.0   1st Qu.: 528   1st Qu.:2.000   1st Qu.:3.724   Male  :10390  
+ Median : 5.5   Median :1056   Median :3.000   Median :5.151                 
+ Mean   : 5.5   Mean   :1056   Mean   :2.868   Mean   :5.211                 
+ 3rd Qu.: 8.0   3rd Qu.:1584   3rd Qu.:4.000   3rd Qu.:6.698                 
+ Max.   :10.0   Max.   :2111   Max.   :5.000   Max.   :9.957                 
+     Height      FamOb            Age            Weight            BMI       
+ Min.   :1.450   no : 3794   Min.   :14.00   Min.   : 27.50   Min.   : 9.59  
+ 1st Qu.:1.642   yes:17316   1st Qu.:20.00   1st Qu.: 75.19   1st Qu.:25.84  
+ Median :1.701               Median :25.00   Median : 88.88   Median :30.57  
+ Mean   :1.702               Mean   :24.82   Mean   : 89.61   Mean   :31.02  
+ 3rd Qu.:1.760               3rd Qu.:29.00   3rd Qu.:103.78   3rd Qu.:35.89  
+ Max.   :1.961               Max.   :47.00   Max.   :135.98   Max.   :63.21  
+\end{CodeOutput}
+\begin{CodeInput}
+R> plot(imp_mnar_pmm)
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmnarp_plot-1} \end{center}
+
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/obsmnarp_plot-2} \end{center}
+
+\end{CodeChunk}
 
 Then after this modification we proceed to compare the effects on the
-model \#\#\#Plot estimates
+model, therefore we run the analysis model on each of the completed
+datasets along with the dataset where the incomplete values are removed
+(CC).
 
-The imputation of these data is based on the
-\href{https://github.com/johamunoz/Heckman-IPDMA/blob/main/Toy_example.R}{IPDMA
-Heckman Github repo}
+\begin{CodeChunk}
+\begin{CodeInput}
+R> library(ggplot2)
+R> cc_rs<- with(Obesity[complete.cases(Obesity),],lme( BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
+R> mar_rs <- with(imp_mar,lme( BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
+R> mar_pmm_rs <- with(imp_mar_pmm,lme( BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
+R> mnar_rs<- with(imp_mnar,lme(BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
+R> mnar_pmm_rs<- with(imp_mnar_pmm, lme(BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
+R> list_models<-list(cc_rs,mar_rs,mar_pmm_rs,mnar_rs,mnar_pmm_rs)
+R> plot_models(list_models,mod_name=c("Complete case", "MAR","MAR_pmm", "MNAR","MNAR_S", "MNAR_pmm"))
+\end{CodeInput}
+
+
+\begin{center}\includegraphics{Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/models-1} \end{center}
+
+\end{CodeChunk}
+
+We note that there is minimal disparity in the age effect, FamObs,
+across the various imputation models under consideration. Nonetheless,
+with respect to Gender, we observe a notable distinction: in the M(C)AR
+assumption, the effect is significant, whereas under the MNAR
+assumption, it becomes insignificant. An analysis of the intercept
+reveals that, under the MNAR assumption, a higher average BMI is
+anticipated compared to the MAR assumption.
 
 Visualize missing data pattern:
 
