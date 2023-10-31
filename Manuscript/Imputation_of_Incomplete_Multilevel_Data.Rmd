@@ -604,8 +604,8 @@ Now, let's begin by examining the missing patterns in the data by cluster:
 require(patchwork)
   myplots <- lapply(1:5, function(i) {
          ggmice::plot_pattern(setDT(Obesity)[Cluster==i])+ 
-           ggtitle(paste0("Cluster", i))+ 
-      theme(legend.position = ifelse(i==1,"bottom","none"))
+         ggplot2::ggtitle(paste0("Cluster", i))+ 
+         ggplot2::theme(legend.position = ifelse(i==1,"bottom","none"))
       })
   myplots[[1]]+ myplots[[2]] /myplots[[3]]+ myplots[[4]] /myplots[[5]]
 
@@ -739,7 +739,7 @@ mar_pmm_rs <- with(imp_mar_pmm,lme( BMI ~ Age + FamOb + Gender,random=~1+Age|Clu
 mnar_rs<- with(imp_mnar,lme(BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
 mnar_pmm_rs<- with(imp_mnar_pmm, lme(BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
 list_models<-list(cc_rs,mar_rs,mar_pmm_rs,mnar_rs,mnar_pmm_rs)
-plot_models(list_models,mod_name=c("Complete case", "MAR","MAR_pmm", "MNAR","MNAR_S", "MNAR_pmm"))
+plot_models(list_models,mod_name=c("Complete case", "MAR","MAR_pmm", "MNAR", "MNAR_pmm"))
 ```
 
 We note that there is minimal disparity in the age effect, FamObs, across the various imputation models under consideration. Nonetheless, with respect to Gender, we observe a notable distinction: in the M(C)AR assumption, the effect is significant, whereas under the MNAR assumption, it becomes insignificant. An analysis of the intercept reveals that, under the MNAR assumption, a higher average BMI is anticipated compared to the MAR assumption.

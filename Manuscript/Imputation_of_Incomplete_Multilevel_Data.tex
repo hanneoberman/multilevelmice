@@ -1027,8 +1027,8 @@ cluster:
 R> require(patchwork)
 R>   myplots <- lapply(1:5, function(i) {
 +          ggmice::plot_pattern(setDT(Obesity)[Cluster==i])+ 
-+            ggtitle(paste0("Cluster", i))+ 
-+       theme(legend.position = ifelse(i==1,"bottom","none"))
++          ggplot2::ggtitle(paste0("Cluster", i))+ 
++          ggplot2::theme(legend.position = ifelse(i==1,"bottom","none"))
 +       })
 R>   myplots[[1]]+ myplots[[2]] /myplots[[3]]+ myplots[[4]] /myplots[[5]]
 \end{CodeInput}
@@ -1053,8 +1053,8 @@ R> performance::icc(Nulmodel)
 \begin{CodeOutput}
 # Intraclass Correlation Coefficient
 
-    Adjusted ICC: 0.342
-  Unadjusted ICC: 0.342
+    Adjusted ICC: 0.362
+  Unadjusted ICC: 0.362
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1111,7 +1111,7 @@ R> summary(complete(imp_mar,"long")$Weight)
 \end{CodeInput}
 \begin{CodeOutput}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  2.409  69.703  82.925  82.476  95.310 158.420 
+ -19.48   68.45   81.65   81.28   94.12  160.76 
 \end{CodeOutput}
 \begin{CodeInput}
 R> plot(imp_mar)
@@ -1136,7 +1136,7 @@ R> summary(complete(imp_mar_pmm,"long")$Weight)
 \end{CodeInput}
 \begin{CodeOutput}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  27.50   71.02   83.82   83.76   95.55  135.98 
+  28.35   69.55   82.54   82.47   94.83  134.61 
 \end{CodeOutput}
 \begin{CodeInput}
 R> plot(imp_mar_pmm)
@@ -1248,8 +1248,8 @@ observable values.
 R> summary(complete(imp_mnar,"long")$Weight)
 \end{CodeInput}
 \begin{CodeOutput}
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  10.26   73.41   86.94   88.27  101.73  186.47 
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+ -0.3457  71.4561  84.9177  85.1453  98.5923 182.3955 
 \end{CodeOutput}
 \begin{CodeInput}
 R> plot(imp_mnar)
@@ -1280,13 +1280,13 @@ R> summary(complete(imp_mnar_pmm,"long"))
  Mean   : 5.5   Mean   :1056   Mean   :2.868   Mean   :5.211                 
  3rd Qu.: 8.0   3rd Qu.:1584   3rd Qu.:4.000   3rd Qu.:6.698                 
  Max.   :10.0   Max.   :2111   Max.   :5.000   Max.   :9.957                 
-     Height      FamOb            Age            Weight            BMI       
- Min.   :1.450   no : 3794   Min.   :14.00   Min.   : 27.50   Min.   : 9.59  
- 1st Qu.:1.642   yes:17316   1st Qu.:20.00   1st Qu.: 75.19   1st Qu.:25.84  
- Median :1.701               Median :25.00   Median : 88.88   Median :30.57  
- Mean   :1.702               Mean   :24.82   Mean   : 89.61   Mean   :31.02  
- 3rd Qu.:1.760               3rd Qu.:29.00   3rd Qu.:103.78   3rd Qu.:35.89  
- Max.   :1.961               Max.   :47.00   Max.   :135.98   Max.   :63.21  
+     Height      FamOb            Age            Weight            BMI        
+ Min.   :1.450   no : 3954   Min.   :14.00   Min.   : 28.35   Min.   : 8.191  
+ 1st Qu.:1.642   yes:17156   1st Qu.:21.00   1st Qu.: 71.74   1st Qu.:24.699  
+ Median :1.701               Median :25.00   Median : 85.36   Median :29.396  
+ Mean   :1.702               Mean   :24.88   Mean   : 85.99   Mean   :29.717  
+ 3rd Qu.:1.761               3rd Qu.:29.00   3rd Qu.: 99.26   3rd Qu.:34.216  
+ Max.   :2.012               Max.   :47.00   Max.   :134.61   Max.   :61.911  
 \end{CodeOutput}
 \begin{CodeInput}
 R> plot(imp_mnar_pmm)
@@ -1315,7 +1315,7 @@ R> mar_pmm_rs <- with(imp_mar_pmm,lme( BMI ~ Age + FamOb + Gender,random=~1+Age|
 R> mnar_rs<- with(imp_mnar,lme(BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
 R> mnar_pmm_rs<- with(imp_mnar_pmm, lme(BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
 R> list_models<-list(cc_rs,mar_rs,mar_pmm_rs,mnar_rs,mnar_pmm_rs)
-R> plot_models(list_models,mod_name=c("Complete case", "MAR","MAR_pmm", "MNAR","MNAR_S", "MNAR_pmm"))
+R> plot_models(list_models,mod_name=c("Complete case", "MAR","MAR_pmm", "MNAR", "MNAR_pmm"))
 \end{CodeInput}
 
 
