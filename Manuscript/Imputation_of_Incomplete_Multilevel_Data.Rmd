@@ -625,9 +625,29 @@ Load the data:
 data("data_heckman", package = "micemd")
 ```
 
+Load the data:
+```{r}
+#data("obesity", package = "miceheckman")
+```
+
 Select relevant variables:
 ```{r bmi}
-dat <- data_heckman
+#dat <- select(obesity, -"bmi")
+```
+
+Create predictor matrix:
+```{r}
+#pred <- quickpred(dat)   # predictor matrix
+#pred["weight","cluster"]<- -2 # clustering variable
+#pred["weight","rt"] <- -3 #inclusion-restriction variable
+#plot_pred(pred)
+```
+
+
+Set the Heckman model as imputation method:
+```{r}
+#meth <- make.method(dat) # methods vector
+#meth["weight"]<-"2l.heckman"
 ```
 
 Visualize missing data pattern:
@@ -638,16 +658,16 @@ plot_pattern(dat)
 The matrix only shows the predictors for the main model, not the selection model.
 
 Create predictor matrix:
-```{r obesity-pred}
+```{r obesity-pred, eval = FALSE}
 pred <- quickpred(dat)   # predictor matrix
-pred[,"Cluster"]<- -2 # clustering variable
+pred[,"Cluster"] <- -2 # clustering variable
 pred[, "Weight"] <- -3 #inclusion-restriction variable
 plot_pred(pred)
 ```
 
 
 Set the Heckman model as imputation method:
-```{r meth}
+```{r, eval = FALSE}
 meth <- make.method(dat) # methods vector
 meth["weight"]<-"2l.heckman"
 ```
