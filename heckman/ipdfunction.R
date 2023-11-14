@@ -21,7 +21,7 @@ copulaIPD <- function(data, sel, out, family, send) {
   fit <- try(GJRM::gjrm( formula = list(sel, out),
                          data = data,
                          margins = c("probit", ifelse(family=="binomial","probit","N")),
-                         Model = "BSS",
+                         model = "BSS",
                          gamlssfit = TRUE,
                          extra.regI = "sED",
                          parscale = TRUE),
