@@ -90,11 +90,17 @@ The popular [mice]{.pkg} package in [R]{.proglang} @R...
 
 ### concepts in multilevel data
 
-### concepts in missing data
-
 ::: callout
 Box 1. The intraclass correlation coefficient.
 :::
+
+In [R]{.proglang}, multilevel models may be fitted using the package [lme4]{.pkg}. For linear mixed-effects models, the function 
+
+```r
+lmer(formula, data, ...)
+```
+
+### concepts in missing data
 
 The [R]{.proglang} package [mice]{.pkg} provides a framework for imputing incomplete data on a variable-by-variable basis. The [mice]{.fct} function allows users to flexibly specify how many times and under what model the missing data should be imputed. This is reflected in the first four function arguments
 
@@ -104,12 +110,79 @@ mice(data, m, method, predictorMatrix, ...)
 
 where `data` refers to the incomplete dataset, `m` determines the number of imputations, `method` denotes the functional form of the imputation model and `predictorMatrix` specifies the interrelational dependencies between variables and imputation models (i.e., the set of predictors to be used for imputing each incomplete variable).
 
+::: callout
+Box 2. The `methods`.
+:::
+
+::: callout
+Box 2. The predictor matrix.
+:::
 
 
 ## Illustrations {#sec-illustrations}
 
 In this section, we demonstrate the workflow using three case studies. 
 
+### Setup
+
+```{R}
+#| prompt: true
+#| warning: false
+#| message: false
+library(mice)
+library(ggmice)
+```
+
+### Popularity data
+
+```{R}
+#| prompt: true
+data("popmis", package = "mice")
+```
+
+```{R}
+#| prompt: true
+dat <- popmis[, c("school", "popular", "sex")] 
+```
+
+```{R}
+#| prompt: true
+#| label: fig-pattern
+#| fig-cap: "Missing data pattern."
+plot_pattern(dat)
+```
+
+```{R}
+#| prompt: true
+#| fig-cap: "Pair-wise correlations."
+plot_corr(dat)
+```
+
+```{R}
+#| prompt: true
+meth <- make.method(dat)
+```
+
+```{R}
+#| prompt: true
+pred <- quickpred(dat)
+plot_pred(pred, method = meth)
+```
+
+```{R}
+#| prompt: true
+imp <- mice(
+  data = dat,
+  method = meth,
+  predictorMatrix = pred,
+  printFlag = FALSE
+)
+```
+
+```{R}
+#| prompt: true
+plot_trace(imp)
+```
 
 ## Summary and discussion {#sec-summary}
 

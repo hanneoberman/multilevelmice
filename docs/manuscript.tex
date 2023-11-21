@@ -291,14 +291,21 @@ The popular \pkg{mice} package in \proglang{R} \citet{R}\ldots{}
 \subsection{concepts in multilevel
 data}\label{concepts-in-multilevel-data}}
 
-\hypertarget{concepts-in-missing-data}{%
-\subsection{concepts in missing data}\label{concepts-in-missing-data}}
-
-\begin{tcolorbox}[enhanced jigsaw, colback=white, rightrule=.15mm, left=2mm, breakable, arc=.35mm, opacityback=0, leftrule=.75mm, toprule=.15mm, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
 
 Box 1. The intraclass correlation coefficient.
 
 \end{tcolorbox}
+
+In \proglang{R}, multilevel models may be fitted using the package
+\pkg{lme4}. For linear mixed-effects models, the function
+
+\begin{verbatim}
+lmer(formula, data, ...)
+\end{verbatim}
+
+\hypertarget{concepts-in-missing-data}{%
+\subsection{concepts in missing data}\label{concepts-in-missing-data}}
 
 The \proglang{R} package \pkg{mice} provides a framework for imputing
 incomplete data on a variable-by-variable basis. The \fct{mice} function
@@ -317,10 +324,107 @@ specifies the interrelational dependencies between variables and
 imputation models (i.e., the set of predictors to be used for imputing
 each incomplete variable).
 
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+
+Box 2. The \texttt{methods}.
+
+\end{tcolorbox}
+
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+
+Box 2. The predictor matrix.
+
+\end{tcolorbox}
+
 \hypertarget{sec-illustrations}{%
 \section{Illustrations}\label{sec-illustrations}}
 
 In this section, we demonstrate the workflow using three case studies.
+
+\hypertarget{setup}{%
+\subsection{Setup}\label{setup}}
+
+\begin{verbatim}
+R> library(mice)
+R> library(ggmice)
+\end{verbatim}
+
+\hypertarget{popularity-data}{%
+\subsection{Popularity data}\label{popularity-data}}
+
+\begin{verbatim}
+R> data("popmis", package = "mice")
+\end{verbatim}
+
+\begin{verbatim}
+R> dat <- popmis[, c("school", "popular", "sex")] 
+\end{verbatim}
+
+\begin{verbatim}
+R> plot_pattern(dat)
+\end{verbatim}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/fig-pattern-1.pdf}
+
+}
+
+\caption{\label{fig-pattern}Missing data pattern.}
+
+\end{figure}
+
+\begin{verbatim}
+R> plot_corr(dat)
+\end{verbatim}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-5-1.pdf}
+
+}
+
+\caption{Pair-wise correlations.}
+
+\end{figure}
+
+\begin{verbatim}
+R> meth <- make.method(dat)
+\end{verbatim}
+
+\begin{verbatim}
+R> pred <- quickpred(dat)
+R> plot_pred(pred, method = meth)
+\end{verbatim}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-7-1.pdf}
+
+}
+
+\end{figure}
+
+\begin{verbatim}
+R> imp <- mice(
++  data = dat,
++  method = meth,
++  predictorMatrix = pred,
++  printFlag = FALSE
++)
+\end{verbatim}
+
+\begin{verbatim}
+R> plot_trace(imp)
+\end{verbatim}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-9-1.pdf}
+
+}
+
+\end{figure}
 
 \hypertarget{sec-summary}{%
 \section{Summary and discussion}\label{sec-summary}}
@@ -357,7 +461,7 @@ research and innovation programme under ReCoDID grant agreement No
 \section*{More technical details}\label{sec-techdetails}}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, colback=white, rightrule=.15mm, left=2mm, breakable, arc=.35mm, opacityback=0, leftrule=.75mm, toprule=.15mm, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -389,7 +493,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, colback=white, rightrule=.15mm, left=2mm, breakable, arc=.35mm, opacityback=0, leftrule=.75mm, toprule=.15mm, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
