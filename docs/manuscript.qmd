@@ -1,0 +1,179 @@
+---
+title: "Imputation of Incomplete Multilevel Data with R"
+title-formatted: "Imputation of Incomplete Multilevel Data with [R]{.proglang}"
+format:
+    jss-pdf:
+        keep-tex: true
+    jss-html: default
+author:
+  - name: Hanne I. Oberman
+    affiliations:
+      - name: Utrecht University
+        department: Methodology and Statistics
+        address: Padualaan 14
+        city: Utrecht
+        country: The Netherlands
+        postal-code: 3584 CH
+      - Journal of Statistical Software
+    orcid: 0000-0003-3276-2141
+    email: Achim.Zeileis@R-project.org
+    url: https://www.zeileis.org/
+  - name: Johanna Muñoz
+    affiliations:
+      - name: University Medical Center Utrecht
+        department: Julius Centre for Health Sciences and Primary Care
+        address: Universiteitsweg 100
+        city: Utrecht
+        country: The Netherlands
+        postal-code: 3584 CG
+      - Journal of Statistical Software
+    orcid: 0000-0002-2384-5415
+  - name: Valentijn M.T. de Jong
+    affiliations:
+      - name: University Medical Center Utrecht
+        department: Julius Centre for Health Sciences and Primary Care
+        city: Utrecht
+        country: The Netherlands
+      - name: European Medicines Agency
+        department: Data Analytics and Methods Task Force
+        city: Amsterdam
+        country: The Netherlands
+      - Journal of Statistical Software
+    orcid: 0000-0001-9921-3468
+  - name: Gerko Vink
+    affiliations:
+      - name: University Medical Center Utrecht
+        department: Julius Centre for Health Sciences and Primary Care
+        address: Universiteitsweg 100
+        city: Utrecht
+        country: The Netherlands
+        postal-code: 3584 CG
+      - Journal of Statistical Software
+    orcid: 0000-0001-9767-1924
+  - name: Thomas P.A. Debray
+    affiliations:
+      - name: University Medical Center Utrecht
+        department: Julius Centre for Health Sciences and Primary Care
+        address: Universiteitsweg 100
+        city: Utrecht
+        country: The Netherlands
+        postal-code: 3584 CG
+      - Journal of Statistical Software
+    orcid: 0000-0002-1790-2719    
+abstract: |
+  This tutorial illustrates the imputation of incomplete multilevel data with the [R]{.proglang} packackage [mice]{.pkg}. Our scope is only simple multilevel models, to show how imputation can yield less biased estimates from incomplete clustered data. More complex models can be accomodated, but are outside the scope of this paper. Incomplete multilevel data requires careful consideration of the missing data problem and analysis strategy. In this tutorial, we focus on a popular strategy for accommodating missingness in multilevel data: replacing the missing data with one or more plausible values, i.e., imputation.Imputation separates the missing data problem from the main analysis and the completed data can be analyzed as if it has been fully observed. This tutorial illustrates the imputation of incomplete multilevel data with the statistical programming language R. We aim to show how imputation can yield less biased estimates from incomplete clustered data. We provide practical guidelines and code snippets for different missing data situations, including non-ignorable missingness mechanisms. For brevity, we focus on multilevel imputation using chained equations with the R mice package and its adjacent packages.
+
+keywords: [missing data, multilevel, clustering, mice, R]
+keywords-formatted: [missing data, multilevel, clustering, "[mice]{.pkg}", "[R]{.proglang}"]
+
+bibliography: bibliography.bib  
+---
+
+## Introduction: Clustering and incomplete data {#sec-intro}
+
+1. missing data occur often in data with human subjects
+2. missing data may be resolved, but need to be handled in accordance with the analysis of scientific interest
+3. in human-subjects research, there is often clustering, which may be captured with multilevel modeling techniques
+4. if the analysis of scientific interest is a multilevel model, the missing data handling method should accommodate the multilevel structure of the data
+4. both missingness and multilevel structures require advanced statistical techniques
+5. this tutorial sets out to facilitate empirical researchers in accommodating both multilevel structures as well as missing data.
+6. we illustrate the use of the software by means of three case studies from the social and biomedical sciences.
+
+### overview of software
+
+The popular [mice]{.pkg} package in [R]{.proglang} @R...
+
+### scope 
+
+
+## Background {#sec-models}
+
+### concepts in multilevel data
+
+### concepts in missing data
+
+::: callout
+Box 1. The intraclass correlation coefficient.
+:::
+
+The [R]{.proglang} package [mice]{.pkg} provides a framework for imputing incomplete data on a variable-by-variable basis. The [mice]{.fct} function allows users to flexibly specify how many times and under what model the missing data should be imputed. This is reflected in the first four function arguments
+
+```r
+mice(data, m, method, predictorMatrix, ...)
+```
+
+where `data` refers to the incomplete dataset, `m` determines the number of imputations, `method` denotes the functional form of the imputation model and `predictorMatrix` specifies the interrelational dependencies between variables and imputation models (i.e., the set of predictors to be used for imputing each incomplete variable).
+
+
+
+## Illustrations {#sec-illustrations}
+
+In this section, we demonstrate the workflow using three case studies. 
+
+
+## Summary and discussion {#sec-summary}
+
+What is missing from this manuscript...
+
+
+## Computational details {.unnumbered}
+
+The results in this paper were obtained using [R]{.proglang}~4.3.0. [R]{.proglang} itself and all packages used are available from the Comprehensive [R]{.proglang} Archive Network (CRAN) at [https://CRAN.R-project.org/].
+
+
+## Acknowledgments {.unnumbered}
+
+This project has received funding from the European Union's Horizon 2020 research and innovation programme under ReCoDID grant agreement No 825746.
+
+## References {.unnumbered}
+
+:::{#refs}
+
+:::
+
+{{< pagebreak >}}
+
+## More technical details {#sec-techdetails .unnumbered}
+
+:::{.callout}
+
+Appendices can be included after the bibliography (with a page break). Each
+section within the appendix should have a proper section title (rather than
+just _Appendix_).
+
+For more technical style details, please check out JSS's style FAQ at
+[https://www.jstatsoft.org/pages/view/style#frequently-asked-questions]
+which includes the following topics:
+
+- Title vs. sentence case.
+- Graphics formatting.
+- Naming conventions.
+- Turning JSS manuscripts into [R]{.proglang} package vignettes.
+- Trouble shooting.
+- Many other potentially helpful details...
+
+:::
+
+## Using BibTeX {#sec-bibtex .unnumbered}
+
+:::{.callout}
+
+References need to be provided in a {{< bibtex >}} file (`.bib`). All
+references should be made with `@cite` syntax. This commands yield different
+formats of author-year citations and allow to include additional details (e.g.,pages, chapters, \dots) in brackets. In case you are not familiar with these
+commands see the JSS style FAQ for details.
+
+Cleaning up {{< bibtex >}} files is a somewhat tedious task -- especially
+when acquiring the entries automatically from mixed online sources. However,
+it is important that informations are complete and presented in a consistent
+style to avoid confusions. JSS requires the following format.
+
+- item JSS-specific markup (`\proglang`, `\pkg`, `\code`) should be used in the references.
+- item Titles should be in title case.
+- item Journal titles should not be abbreviated and in title case.
+- item DOIs should be included where available.
+- item Software should be properly cited as well. For [R]{.proglang} packages `citation("pkgname")` typically provides a good starting point.
+
+:::
+
+
