@@ -95,20 +95,6 @@ Utrecht University\\
 \usepackage{graphicx}
 \usepackage{mathtools}
 \usepackage{ulem}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
 
 \usepackage{amsmath}
 
@@ -122,27 +108,35 @@ Utrecht University\\
 \hypertarget{multilevel-data}{%
 \subsection{Multilevel data}\label{multilevel-data}}
 
+Understanding and effectively handling missing data within multilevel
+structures are crucial for preserving the integrity of analyses and
+deriving accurate inferences.
+
 Many datasets include individuals that are clustered together, for
-example in geographic regions, or even different studies. In the
-simplest case, individuals (e.g., students) are nested within a single
-cluster (e.g., school classes). More complex clustered structures may
-occur when there are multiple hierarchical levels (e.g., students in
-different schools or patients within hospitals within regions across
-countries), or when the clustering is non-nested (e.g., electronic
-health record data from diverse settings and populations within large
-databases). With clustered data we generally assume that individuals
-from the same cluster tend to be more similar than individuals from
-other clusters. In statistical terms, this implies that observations
-from the same cluster are not independent and may in fact be correlated.
-If this correlation is left unaddressed, estimates of \emph{p} values,
-confidence intervals even model parameters are prone to bias
-\citep{loca01}. Statistical methods for clustered data typically adopt
-hierarchical models that explicitly describe the grouping of
-observations. These models are also known as `multilevel models',
-`hierarchical models', `mixed effect models', `random effect models',
-and in the context of time-to-event data as `frailty models'. Table
-\ref{tab:clus} provides an overview of some key concepts in multilevel
-modeling.
+example by geographic region. In the simplest case, each individual is a
+unit (e.g., a student) which is nested within a single cluster (e.g., a
+school class). More complex clustered structures may occur when there
+are multiple hierarchical levels (e.g., patients within hospitals within
+regions across countries), or when the clustering is non-nested (e.g.,
+electronic health record data from diverse settings and populations
+within large databases). The hierarchical structures of such clustered
+data may be captured using multilevel analysis techniques.
+
+With clustered data we generally assume that individuals from the same
+cluster tend to be more similar than individuals from other clusters. In
+statistical terms, this implies that observations from the same cluster
+are not independent and may in fact be correlated. If this correlation
+is left unaddressed, estimates of \emph{p} values, confidence intervals
+even model parameters are prone to bias \citep{loca01}. Statistical
+methods for clustered data typically adopt hierarchical models that
+explicitly describe the grouping of observations. These models are also
+known as `multilevel models', `hierarchical models', `mixed effect
+models', `random effect models', and in the context of time-to-event
+data as `frailty models'. Table \ref{tab:clus} provides an overview of
+some key concepts in multilevel modeling.
+
+In the context of multilevel data, missingness can occur at different
+levels, complicating the interpretation and reliability of results.
 
 Table 1: Concepts in multilevel methods
 

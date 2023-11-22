@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.11.10)  10 NOV 2023 15:12
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.11.10)  21 NOV 2023 14:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -602,98 +602,274 @@ LaTeX Info: Redefining \] on input line 2954.
 \ULC@box=\box76
 Package: ulem 2019/11/18
 \ULdepth=\dimen295
-) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/multirow/multirow.sty
-Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
-\multirow@colwidth=\skip75
-\multirow@cntb=\count326
-\multirow@dima=\skip76
-\bigstrutjot=\dimen296
-) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/wrapfig/wrapfig.sty
-\wrapoverhang=\dimen297
-\WF@size=\dimen298
-\c@WF@wrappedlines=\count327
-\WF@box=\box77
-\WF@everypar=\toks40
-Package: wrapfig 2003/01/31  v 3.6
-) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/float/float.sty
-Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count328
-\float@exts=\toks41
-\float@box=\box78
-\@float@everytoks=\toks42
-\@floatcapt=\box79
-) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty
-Package: colortbl 2022/06/20 v1.0f Color table columns (DPC)
-\everycr=\toks43
-\minrowclearance=\skip77
-\rownum=\count329
-) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape.sty
-Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
-(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty
-Package: pdflscape-nometadata 2022-10-28 v0.13 Display of landscape pages in PDF (HO)
-(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/lscape.sty
-Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
 )
-Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
-)) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tabu/tabu.sty
-Package: tabu 2019/01/11 v2.9 - flexible LaTeX tabulars (FC+tabu-fixed)
-(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty
-Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
-\@vwid@box=\box80
-\sift@deathcycles=\count330
-\@vwid@loff=\dimen299
-\@vwid@roff=\dimen300
-)
-\c@taburow=\count331
-\tabu@nbcols=\count332
-\tabu@cnt=\count333
-\tabu@Xcol=\count334
-\tabu@alloc=\count335
-\tabu@nested=\count336
-\tabu@target=\dimen301
-\tabu@spreadtarget=\dimen302
-\tabu@naturalX=\dimen303
-\tabucolX=\dimen304
-\tabu@Xsum=\dimen305
-\extrarowdepth=\dimen306
-\abovetabulinesep=\dimen307
-\belowtabulinesep=\dimen308
-\tabustrutrule=\dimen309
-\tabu@thebody=\toks44
-\tabu@footnotes=\toks45
-\tabu@box=\box81
-\tabu@arstrutbox=\box82
-\tabu@hleads=\box83
-\tabu@vleads=\box84
-\tabu@cellskip=\skip78
-) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/threeparttable/threeparttable.sty
-Package: threeparttable 2003/06/13  v 3.0
-\@tempboxb=\box85
-) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/threeparttablex/threeparttablex.sty
-Package: threeparttablex 2013/07/23 v0.3 by daleif
-(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/environ/environ.sty
-Package: environ 2014/05/04 v0.3 A new way to define environments
-(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
-Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 101.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmr.fd
+File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+) (c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2023-11-04 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count326
+\l__pdf_internal_box=\box77
+) (./Imputation_of_Incomplete_Multilevel_Data.aux)
+\openout1 = `Imputation_of_Incomplete_Multilevel_Data.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 101.
+LaTeX Font Info:    ... okay on input line 101.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-\TPTL@width=\skip79
+Package hyperref Info: Link coloring ON on input line 101.
+(./Imputation_of_Incomplete_Multilevel_Data.out) (./Imputation_of_Incomplete_Multilevel_Data.out)
+\@outlinefile=\write5
+\openout5 = `Imputation_of_Incomplete_Multilevel_Data.out'.
+
+<jsslogo.jpg, id=35, 540.0175pt x 393.47pt>
+File: jsslogo.jpg Graphic file (type jpg)
+<use jsslogo.jpg>
+Package pdftex.def Info: jsslogo.jpg  used on input line 101.
+(pdftex.def)             Requested size: 89.80768pt x 65.43607pt.
+LaTeX Font Info:    Trying to load font information for T1+pzc on input line 101.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/t1pzc.fd
+File: t1pzc.fd 2020/03/25 font definitions for T1/pzc.
+)
+LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <28> not available
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 101.
+
+Package xcolor Warning: Incompatible color definition on input line 101.
+
+LaTeX Font Info:    Trying to load font information for T1+lmss on input line 101.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmss.fd
+File: t1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 101.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
+File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 101.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
+File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 101.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
+File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 101.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
+File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 101.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <8> on input line 101.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <6> on input line 101.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[1
+
+{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc} <./jsslogo.jpg>]
+Overfull \vbox (80.7373pt too high) has occurred while \output is active []
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 2 []
+ []
+
+[2]
+
+Package natbib Warning: Citation `loca01' on page 3 undefined on input line 130.
+
+
+LaTeX Warning: Reference `tab:clus' on page 3 undefined on input line 135.
+
+
+Overfull \hbox (8.13757pt too wide) in paragraph at lines 148--168
+ [][] 
+ []
+
+
+Package natbib Warning: Citation `resc13' on page 3 undefined on input line 189.
+
+
+Package natbib Warning: Citation `buur18' on page 3 undefined on input line 190.
+
+
+Package natbib Warning: Citation `jola18' on page 3 undefined on input line 190.
+
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/patterns-1.pdf, id=60, 296.10625pt x 108.405pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/patterns-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/patterns-1.pdf>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/patterns-1.pdf  used on input line 199.
+(pdftex.def)             Requested size: 354.12434pt x 129.6503pt.
+
+LaTeX Warning: Reference `tab:miss' on page 3 undefined on input line 211.
+
+
+Package natbib Warning: Citation `yuce08' on page 3 undefined on input line 213.
+
+
+Package natbib Warning: Citation `hox15' on page 3 undefined on input line 213.
+
+
+Package natbib Warning: Citation `rubi76' on page 3 undefined on input line 241.
+
+
+Package natbib Warning: Citation `meng94' on page 3 undefined on input line 241.
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 3
+ []
+
+[3]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 4 []
+ []
+
+[4]
+
+Package natbib Warning: Citation `buur18' on page 5 undefined on input line 253.
+
+
+Package natbib Warning: Citation `audi18' on page 5 undefined on input line 259.
+
+
+Package natbib Warning: Citation `grun18' on page 5 undefined on input line 259.
+
+
+LaTeX Warning: Reference `tab:mod' on page 5 undefined on input line 261.
+
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 269.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
+File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 269.
+(c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
+File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 
-! LaTeX Error: Option clash for package ulem.
+Package natbib Warning: Citation `mice' on page 5 undefined on input line 271.
+
+
+Package natbib Warning: Citation `metamisc' on page 5 undefined on input line 275.
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 5
+ []
+
+[5{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/4216318/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc} <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/patterns-1.pdf>]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 6 []
+ []
+
+[6]
+
+Package xcolor Warning: Incompatible color definition on input line 374.
+
+
+Overfull \hbox (11.85104pt too wide) in paragraph at lines 373--375
+[]\T1/lmr/m/n/10.95 Add ta-ble de-scrib-ing 2l- im-pu-ta-tion mod-els. like this [][]$\T1/lmtt/m/n/10.95 https : / / bookdown . org / mwheymans /
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 388.
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 7
+ []
+
+[7]
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 8 []
+ []
+
+[8]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1.pdf, id=141, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1.pdf>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1.pdf  used on input line 565.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
+Package xcolor Warning: Incompatible color definition on input line 574.
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 9
+ []
+
+[9]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf, id=151, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf  used on input line 593.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 10 []
+ []
+
+[10 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop_pat-1.pdf> <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-corr-1.pdf>]
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1.pdf, id=176, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1.pdf>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1.pdf  used on input line 613.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
+Package hyperref Warning: Difference (2) between bookmark levels is greater 
+(hyperref)                than one, level fixed on input line 619.
+
+<Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-pred-1.pdf, id=177, 353.32pt x 264.99pt>
+File: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-pred-1.pdf Graphic file (type pdf)
+<use Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-pred-1.pdf>
+Package pdftex.def Info: Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-pred-1.pdf  used on input line 639.
+(pdftex.def)             Requested size: 354.12434pt x 265.59586pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 11
+ []
+
+[11 <./Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-hist-1.pdf>]
+
+! LaTeX Error: File `Imputation_of_Incomplete_Multilevel_Data_files/figure-latex/pop-ignored-conv-1' not found.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.110 \usepackage
-                 {makecell} 
+l.659 ...ta_files/figure-latex/pop-ignored-conv-1}
+                                                   \end{center} 
 Here is how much of TeX's memory you used:
- 22646 strings out of 476237
- 424717 string characters out of 5795339
- 1923533 words of memory out of 5000000
- 44204 multiletter control sequences out of 15000+600000
- 560739 words of font info for 40 fonts, out of 8000000 for 9000
+ 22277 strings out of 476237
+ 428392 string characters out of 5795339
+ 1940533 words of memory out of 5000000
+ 43740 multiletter control sequences out of 15000+600000
+ 635006 words of font info for 74 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 99i,0n,103p,422b,97s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,10n,103p,615b,635s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 !  ==> Fatal error occurred, no output PDF file produced!
