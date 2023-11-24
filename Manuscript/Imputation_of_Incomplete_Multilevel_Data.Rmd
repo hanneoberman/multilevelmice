@@ -177,58 +177,64 @@ This tutorial is dedicated to readers who are unfamiliar with multiple imputatio
 ## Imputation workflow
 Below we provide a imputation workflow that can be used in general to impute cluster data.
 
-### Main analysis
-When imputing clustered data, our first consideration should be the research question and the type of analysis that researchers intend to perform, assuming that non-incomplete values were present. This initial assessment provides valuable insights into the data's structure (see the level table), relationships among variables, and the causes of missingness.
+### Focus on the Main Analysis
+When imputing clustered data, we initially focus on the research question and the intended analysis, assuming the presence of non-incomplete values. This assessment sheds light on research hypotheses and the contemplated main(s) statistical model(s) and it provides insights into the data's structure (refer to the level table), variable types (e.g., confounders, auxiliary variables), and other considerations about variables relationships such as interactions or polynomial terms.
 
-When multiple imputation is used to deal with missing data, as the imputation and analysis process is performed separately, it is necessary that imputation model being congenial with the main analysis model (Meng, 1994), e.g. if the main model accounts for the hierarchical structure also imputation model should do it (Audigier, 2021).
+### Exploration of Available Data
+Next, it is necessary to explore the information available in the data. Exploring individual variables using tools such as histograms or QQ plots can help to delineate variable distributions and plausible ranges of values and also identify input errors or outliers. 
+Evaluating interactions between predictors using scatter plots or conditional plots, assessing collinearity using VIF or correlations, can help to glimpse nonlinear relationships that may affect the original formulation of the main model. Further testing of assumptions related to the response variable, including variance (homogeneity using conditional box plots), independence (e.g., ACF, variograms) and response vs. predictor relationships (conditional plots - x vs. y), may serve to choose an imputation model more suitable to the data.  In addition, the intraclass correlation coefficient (ICC) can be examined to assess cluster differences, aiding in the choice between the 2l and 1l methods for imputation.
+
+One can also explore missingness, specifically missing patterns at the cluster level to identify types of patterns (e.g., non-monotonic, systematic) to guide the selection of an appropriate imputation approach in terms of computational efficiency (e.g., simpler regression imputation versus FCS in univariate patterns). Similarly, these missing patterns can also be used to identify potential predictors in individual imputation models by means of inflow criteria (quantifying the connections between missing data in one variable and other observed variables) and outflow criteria (determining the connections between observed values in one variable and missing data in other variables). 
+Although several packages exist for visualizing missing data, this tutorial focuses on the recently implemented ggmice package.
 
 
-### Exploration of available data
-Then it is required to explore available information across clusters. This can involve evaluating the Intra-class Correlation Coefficient (ICC) to determine if a one-level imputation method is sufficient, particularly if there are no substantial differences between clusters. Additionally, it can be done by visualizing the data using available package as **ggmice**, for instance examining density plots can help us understand the variable type (normal, Poisson, categorical) and its range of plausible values. Exploring relationships between covariates through bivariate plots can be valuable in identifying potential interactions or non-linearities.
+### Assess Estimation Procedure Robustness to Missing Data
+Prior to implementing multiple imputation, it is critical to assess the robustness of the estimation model when confronted with missing data. \cite{Alisson_2002} highlighted scenarios in which specific Maximum Likelihood (ML) estimation methods outperform Multiple Imputation (MI) methods.  Notably, when the response variable is the sole incomplete variable, mixed models demonstrate robustness to missing data under the Missing at Random (MAR) assumption and with a correct variance-covariance specification.\cite{Molenberghs_2007}. Furthermore, depending on the proportion of missingness (usually is <5%), opting for a simpler complete case analysis might be sufficient.
 
-In the context of missingness, we should assess patterns of systematic and sporadic missing values and explore the relationships between the missingness of an incomplete variable and observable data. This evaluation allows us to consider the plausibility of Missing at Random (MAR) mechanisms over Missing Completely at Random (MCAR) methods and helps in selecting prediction variables to be included in the imputation model (considering overflux).
+### Pre-imputation
+Before proceeding with the imputation model, it is necessary to filter the dataset to include only the minimal variables required for the main model. If additional procedures are conducted during the analysis, it is essential to include variables associated with these procedures, such as confounders in the case of balancing techniques. Other relevant variables, like instrumental variables or auxiliary variables, may enhance parameter estimates even if not included in the main model, as they could be linked to the probability of missingness for some incomplete variables.
 
-### Selecting plausible imputation methods
-Before to implement multiple imputation it is requiered to evaluate if simpler imputation methods are suffice: 
-- For example, certain incomplete variables may not necessitate stochastic imputation methods like MICE. Instead, they can be effectively addressed through deductive imputation, where incomplete values can be inferred from logic and deterministic relationships between variables. This approach is particularly useful for variables that are functions of others, e.g. a person's BMI from their weight and height, determining values for one-level variables from two-level ones, e.g. in the context of Individual Participant Data (IPD), incomplete information can be extracted from metadata, such as deducing incomplete data about abortion in a country where abortion is illegal, or engaging in cross-temporal or protocol's deduction, like imputing missing test values for deceased patients.
+Furthermore, at the variable level, it is crucial to assess whether proxy variables should be considered or if deterministic imputation alone is adequate for imputing missing values. For instance, certain incomplete variables may not necessitate stochastic imputation methods like MICE. Instead, they can be effectively addressed through deductive imputation, where incomplete values are inferred from logical and deterministic relationships between variables. This approach is especially beneficial for variables that are functions of others, such as deriving a person's BMI from their weight and height. It also proves valuable for determining values for one-level variables from two-level ones, as seen in the context of Individual Participant Data (IPD). In such cases, incomplete information can be deduced from metadata, like inferring incomplete data about abortion in a country where abortion is illegal, or through cross-temporal or protocol-based deduction, such as imputing missing test values for deceased patients.
 
-- Under monotonic pattern, the use of regression models
-- CC when the proportion of missing is minimal <5%.
-- Analysis that are robust to missing data, for instance FIML models such as mixed model do not require imputation models when only the outcome variable is missing.An alternative approach to missing data is to use Full Information Maximum Likelihood (FIML). This method does not require the imputation of any missing values. Whereas MI consists of imputation, analyses and pooling steps, FIML analyses the data in a single step. When the assumptions are met the two approaches should produce equivalent results. [REF] As FIML requires specialised software, not all analyses can be performed with standard software. [REF]
+### Setting Imputation Model
 
-- Add table describing 2l- imputation models. like this https://bookdown.org/mwheymans/bookmi/multiple-imputation-models-for-multilevel-data.html
+##### Clustering Inclusion
+Various strategies can be employed in the imputation process to account for clustering, including the inclusion of a cluster indicator variable, conducting a separate imputation process for each cluster, or employing a simultaneous imputation method that considers clustering (Stata: Clustering and MI Impute) TODO: Replace ref.
 
-### Imputation process 
+The choice of strategy depends primarily on the assumptions made in the main analysis and the constraints imposed by the analyzed data.Concerning data restrictions, if there are few clusters with many observations per cluster, the cluster indicator or imputation separated by groups may be appropriate \cite{Graham_2009}. Conversely, an imputation model that simultaneously imputes all clusters using a hierarchical model can be employed when there are more clusters or fewer observations per cluster \cite{Allison_2002}.
 
-#### Clustering specification
-There are different strategies that can be adopted in the imputation process that account for clustering: inclusion of cluster indicator variable, performing a separate imputation process for each cluster, or performing a simultaneous imputation process by using an imputation method that accounts for clustering.(Stata: <https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/>) TODO: replace ref.
+In a hierarchical imputation model, correlations between observations within clusters are modeled by a random effect, allowing estimation even with a limited number of observations per cluster. Multiple imputation models based on hierarchical models have been proposed, each with different assumptions.
 
-The selection of each strategy depends mainly on the assumptions in the main analysis and also on the restriction of the analyzed data.
+<!--TODO: Add table 2l.imputation models --> 
 
-Regarding the restrictions imposed by the data, for instance, the use of cluster indicator variables is restricted in datasets where there are not many clusters and many observations per cluster (Graham, 2009). The last restriction is also required when imputations are performed on each cluster separately. When this restriction cannot be achieved, one can use an imputation model that simultaneously imputes all clusters using a hierarchical model (Allison 2002).
+Before choosing a particular strategy, it is crucial to verify if the assumptions of the imputation model align with those of the main analysis. For example, using the cluster indicator strategy may introduce bias estimates when the model is based on a hierarchical structure \cite{Taaljard_2008}. Even if an imputation strategy congruent with the main model is preferred, it is essential to assess its appropriateness for the data, considering that less complex imputation strategies may lead to unbiased estimates in certain scenarios \cite(Bailey_2020).
 
-Under this hierarchical imputation model, observations within clusters are correlated and this correlation is modeled by a random effect so the hierarchical model can be estimated even when there are few observations per cluster. However, this strategy is best suited for balanced data (Grund, 2017) and when random effects model is appropriated, i.e. the number of clusters is adequate. (Austin,2018).
+#### Choice of Individual Imputation Methods
+The initial step involves selecting the individual imputation model for each incomplete variable in the dataset. The mice package automatically proposes imputation methods based on the variable type for 1l variables. For 2l level variables, the micemd package's () function can be utilized. This function selects among the 2l imputation methods based on the size of the clusters and the proportion of missingness in each cluster.
 
-Here it is important to evaluate the assumptions imposed by the main model, for instance by using the cluster indicator strategy may lead to bias estimates when the model is based on a hierarchical model (Taaljard,2008). Even when an imputation strategy congenial with the main model is preferred, it is important to consider whether it is appropriate for the data as a less complex imputation strategies may also lead to unbiased estimates in certain scenarios(Bailey 2020). For instance, in causal effect analysis, separately imputation may lead to smaller bias when the size of the smaller exposure cluster is large, compared with an imputation model that includes exposure-confounder interactions. (Zhang,2023).
+In addition to the package-defined imputation methods, users can specify custom methods using the "I formula". This flexibility allows for the calculation of derived variables internally or adjustments to imputation methods based on specific conditions, such as conditioning the imputation model on the level of an incomplete covariate (e.g., pregnancy test on females).
 
-#### Selection of variables in the imputation model
-- Inclusion of outcome variable [Moons] When the outcome is time-to-event, the Nelson-Aalen estimate of the time to event should be included as a covariate in the imputation model [REF]
-- Imputation for interaction term, JAV, Machine lerarning methods (Random forest) and imputation separated by treatment group
-- Prediction matrix specfication (table) 
+#### Model Specification
+The imputation model must be congenial with the main model \cite{Meng_1994}. Congeniality issues arise when the imputation model and the main model make different assumptions, often due to the omission of a polynomial or interaction term or the use of transformed variables.
 
-#### Convergency problems during imputation
-- Check log 
-- Problems of convergence on some 2l methods can be solved by use of overflux or quickpred. 
-- Consider the use of scaled variables Vanburen. 
-- Consider to swap imputation mehtod in problematic variables: The use of non parametrical imputation methods such as pmm. or downgrade to 1l methods.
-- Also by the specification of post-processing in some variables can alivianate this. 
-- Separated imputation process for each endpoint analysis
+The imputation model can include additional terms than the main model terms that do not lead to uncongeniality. For instance, it is advisable to include the outcome variable in the imputation model for prediction variables \cite{Moons}. In cases where the outcome is time-to-event, the Nelson-Aalen estimate of the time to the event should be included as a covariate in the imputation model [REF]. Furthermore, the inclusion of auxiliary variables, even if not part of the main model, can be associated with the probability of missingness, enhancing the likelihood of satisfying the Missing at Random (MAR) assumption and improving estimation efficiency \cite{Hardt_2012}.
 
-### Convergency 
-Plots and also the prediction plots.
+The specification of imputation models is done on a variable basis, either using a prediction matrix where the type of prediction variable should be specified accordingly (see table) or through a list of formulas in the formula parameter. The latter option proves useful in formulating imputation models with polynomial terms or interactions compared to the prediction matrix specification, which requires the inclusion of additional terms as Just Another Variable (JAV).
 
-### Sensibility analysis
-About the possibility of assumptions about Missing mechanism. 
+<!--TODO: Add a table describing 2l-imputation models codes -->
+
+However, even when considering an interaction term, depending on the adapted individual imputation model, it has been suggested, for instance, for treatment interaction effects, to conduct separated imputation by treatment group \cite{Zhang_2023}. Additionally, there are imputation models based on random forest or deep learning that can handle interaction and non-linear terms that do not require the explicit inclusion of the non-linear terms.
+
+
+### Post-Imputation 
+
+During the imputation process, certain issues may arise that halt the process. In hierarchical model imputations, many issues are linked to methods based on parametric hierarchical models, which may struggle to estimate a model midway through the process. In such cases, it is advisable to examine the imputation log file to identify variables with imputation issues. Subsequently, reducing the number of predictors in the imputation model could be explored, either by using functions like quickpred or by considering variable transformations, such as scaling. Adjusting the level of the hierarchical model (e.g., using a homogenous variance model or a 1l model) can also be beneficial. Additionally, checking the range of imputed variables is crucial, as excessively large imputed values for one predictor could lead to convergence issues in other variables. This can be mitigated by including post-processing specifications on problematic variables or by using imputation models like Predicted Mean Matching (PMM), ensuring imputed values align with the observable values. In certain cases, a separate imputation strategy may be considered. For instance, in analyses involving multiple endpoints, conducting separate imputation processes for each endpoint might be preferable to a unified imputation process.
+
+### Convergence and Sensitivity Analysis
+
+Before commencing the analysis, it is imperative to verify the convergence of the imputation process. This is typically achieved through trace plots or by evaluating prediction plots.
+
+While the majority of Multiple Imputation by Chained Equations (MICE) methods are based on Missing at Random (MAR) assumptions, field expert input may suggest that the Missing Not at Random (MNAR) mechanism could be plausible for certain variables. An MNAR variable is one in which the probability of missingness depends on an unobservable variable. This can occur when missingness is associated with the incomplete value itself (self-marking) or when there is an unobserved variable linked to both the value and the probability of missingness of the incomplete value (indirectly non-informative). Specifically, for the indirectly non-informative case in hierarchical datasets, imputation methods based on the Heckman method, such as those proposed by Hammon (2021) and Munoz (2023), can be considered.
 
 
 <!-- With the `popmis` data, we show how (and how not) to develop an imputation model. With the `hiv` data we focus on extending the imputation model to include Heckman-type selection-inclusion methods. With the `impact` data we provide an example of multivariate missingness in real-world data. Together, this should give enough scaffolding for applied researchers who are faced with incomplete multilevel data. -->
