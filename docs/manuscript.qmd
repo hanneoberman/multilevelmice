@@ -4,6 +4,7 @@ title-formatted: "Imputation of Incomplete Multilevel Data with [R]{.proglang}"
 format:
     jss-pdf:
         keep-tex: true
+        fig-pos: 't'
     jss-html: default
 author:
   - name: Hanne I. Oberman
@@ -16,8 +17,8 @@ author:
         postal-code: 3584 CH
       - Journal of Statistical Software
     orcid: 0000-0003-3276-2141
-    email: Achim.Zeileis@R-project.org
-    url: https://www.zeileis.org/
+    email: h.i.oberman@uu.nl
+    url: https://www.hanneoberman.github.io
   - name: Johanna Muñoz
     affiliations:
       - name: University Medical Center Utrecht
@@ -149,8 +150,19 @@ dat <- popmis[, c("school", "popular", "sex")]
 #| prompt: true
 #| label: fig-pattern
 #| fig-cap: "Missing data pattern."
+#| fig-pos: 't'
 plot_pattern(dat)
 ```
+
+With the `ggmice` unction `plot_pattern` we can visualize this. 
+
+```{R}
+#| layout-ncol: 2
+#| echo: false
+plot_pattern(dat)
+plot_corr(dat)
+```
+
 
 ```{R}
 #| prompt: true

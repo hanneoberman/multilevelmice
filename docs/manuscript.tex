@@ -220,8 +220,8 @@ Hanne I. Oberman\\
 Methodology and Statistics\\
 Padualaan 14\\
 Utrecht The Netherlands\\
-E-mail: \email{Achim.Zeileis@R-project.org}\\
-URL: \url{https://www.zeileis.org/}\\
+E-mail: \email{h.i.oberman@uu.nl}\\
+URL: \url{https://www.hanneoberman.github.io}\\
 \\~
 Johanna Muñoz\\
 Julius Centre for Health Sciences and Primary Care\\
@@ -291,7 +291,7 @@ The popular \pkg{mice} package in \proglang{R} \citet{R}\ldots{}
 \subsection{concepts in multilevel
 data}\label{concepts-in-multilevel-data}}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, breakable, leftrule=.75mm, colback=white, bottomrule=.15mm, toprule=.15mm, left=2mm, rightrule=.15mm, opacityback=0]
 
 Box 1. The intraclass correlation coefficient.
 
@@ -324,13 +324,13 @@ specifies the interrelational dependencies between variables and
 imputation models (i.e., the set of predictors to be used for imputing
 each incomplete variable).
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, breakable, leftrule=.75mm, colback=white, bottomrule=.15mm, toprule=.15mm, left=2mm, rightrule=.15mm, opacityback=0]
 
 Box 2. The \texttt{methods}.
 
 \end{tcolorbox}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, breakable, leftrule=.75mm, colback=white, bottomrule=.15mm, toprule=.15mm, left=2mm, rightrule=.15mm, opacityback=0]
 
 Box 2. The predictor matrix.
 
@@ -364,7 +364,7 @@ R> dat <- popmis[, c("school", "popular", "sex")]
 R> plot_pattern(dat)
 \end{verbatim}
 
-\begin{figure}[H]
+\begin{figure}[t]
 
 {\centering \includegraphics{manuscript_files/figure-pdf/fig-pattern-1.pdf}
 
@@ -374,13 +374,48 @@ R> plot_pattern(dat)
 
 \end{figure}
 
+With the \texttt{ggmice} unction \texttt{plot\_pattern} we can visualize
+this.
+
+\begin{figure}
+
+\begin{minipage}[t]{0.50\linewidth}
+
+{\centering 
+
+\raisebox{-\height}{
+
+\includegraphics{manuscript_files/figure-pdf/unnamed-chunk-5-1.pdf}
+
+}
+
+}
+
+\end{minipage}%
+%
+\begin{minipage}[t]{0.50\linewidth}
+
+{\centering 
+
+\raisebox{-\height}{
+
+\includegraphics{manuscript_files/figure-pdf/unnamed-chunk-5-2.pdf}
+
+}
+
+}
+
+\end{minipage}%
+
+\end{figure}
+
 \begin{verbatim}
 R> plot_corr(dat)
 \end{verbatim}
 
-\begin{figure}[H]
+\begin{figure}[t]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-5-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-6-1.pdf}
 
 }
 
@@ -397,9 +432,9 @@ R> pred <- quickpred(dat)
 R> plot_pred(pred, method = meth)
 \end{verbatim}
 
-\begin{figure}[H]
+\begin{figure}[t]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-7-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-8-1.pdf}
 
 }
 
@@ -418,9 +453,9 @@ R> imp <- mice(
 R> plot_trace(imp)
 \end{verbatim}
 
-\begin{figure}[H]
+\begin{figure}[t]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-9-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-10-1.pdf}
 
 }
 
@@ -461,7 +496,7 @@ research and innovation programme under ReCoDID grant agreement No
 \section*{More technical details}\label{sec-techdetails}}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, breakable, leftrule=.75mm, colback=white, bottomrule=.15mm, toprule=.15mm, left=2mm, rightrule=.15mm, opacityback=0]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -493,7 +528,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, arc=.35mm, colback=white, left=2mm, toprule=.15mm, rightrule=.15mm, leftrule=.75mm, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, breakable, leftrule=.75mm, colback=white, bottomrule=.15mm, toprule=.15mm, left=2mm, rightrule=.15mm, opacityback=0]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
