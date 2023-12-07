@@ -5,6 +5,8 @@ format:
     jss-pdf:
         keep-tex: true
         fig-pos: 't'
+        fig-width: 7
+        fig-height: 3.5
     jss-html: default
 author:
   - name: Hanne I. Oberman
@@ -130,8 +132,14 @@ In this section, we demonstrate the workflow using three case studies.
 #| prompt: true
 #| warning: false
 #| message: false
+set.seed(123)
 library(mice)
 library(ggmice)
+library(ggplot2)
+library(miceadds)
+library(lme4)
+library(mitml)
+library(broom.mixed)
 ```
 
 ### Popularity data
@@ -143,8 +151,17 @@ data("popmis", package = "mice")
 
 ```{R}
 #| prompt: true
-dat <- popmis[, c("school", "popular", "sex")] 
+dat <- popmis[, c("school", "teachpop", "popular", "texp", "sex")] 
 ```
+
+```{R}
+#| fig-cap: "Polar axis plot"
+#| fig-alt: "A line plot on a polar axis"
+ggmice(dat, aes(popular, teachpop)) + 
+  geom_jitter()
+```
+
+With the `ggmice` unction `plot_pattern` we can visualize this. 
 
 ```{R}
 #| prompt: true
@@ -154,13 +171,12 @@ dat <- popmis[, c("school", "popular", "sex")]
 plot_pattern(dat)
 ```
 
-With the `ggmice` unction `plot_pattern` we can visualize this. 
 
-```{R}
+```{R, eval=FALSE}
 #| layout-ncol: 2
 #| echo: false
-plot_pattern(dat)
-plot_corr(dat)
+# plot_pattern(dat)
+# plot_corr(dat)
 ```
 
 
@@ -173,14 +189,34 @@ plot_corr(dat)
 ```{R}
 #| prompt: true
 meth <- make.method(dat)
+meth
 ```
 
 ```{R}
 #| prompt: true
 pred <- quickpred(dat)
+pred
+```
+
+Adjust the methods vector.
+```{R}
+#| prompt: true
+meth["popular"] <- "2l.pmm"
+```
+
+Adjust the predictor matrix.
+```{R}
+#| prompt: true
+pred["popular", "school"] <- -2
+pred["popular", "sex"] <- 2
+```
+
+Visualize the imputation methods and predictors.
+```{R}
 plot_pred(pred, method = meth)
 ```
 
+Impute the data.
 ```{R}
 #| prompt: true
 imp <- mice(
@@ -191,9 +227,47 @@ imp <- mice(
 )
 ```
 
+Evaluate the convergence.
 ```{R}
 #| prompt: true
 plot_trace(imp)
+```
+
+Evaluate the distribution of imputed values.
+```{R}
+ggmice(imp, aes(popular, group = .imp)) + 
+  geom_density() 
+```
+
+Evaluate the distribution of imputed values.
+```{R}
+ggmice(imp, aes(.imp, popular)) + 
+  geom_jitter(alpha = 0.05) +
+    geom_boxplot()
+```
+
+```{R}
+ggmice(imp, aes(popular, teachpop)) + 
+  geom_jitter() +
+  facet_wrap(~ .imp)
+```
+
+Analyze the imputed data.
+```{R}
+fit <- with(
+  imp,
+  lmer(teachpop ~ popular + texp + (1 | school))
+)
+```
+
+Pool the estimates.
+```{R}
+pool(fit)
+```
+
+Display results in table.
+```{R}
+testEstimates(as.mitml.result(fit), extra.pars = TRUE)
 ```
 
 ## Summary and discussion {#sec-summary}
