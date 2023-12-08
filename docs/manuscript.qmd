@@ -65,10 +65,8 @@ author:
     orcid: 0000-0002-1790-2719    
 abstract: |
   This tutorial illustrates the imputation of incomplete multilevel data with the [R]{.proglang} packackage [mice]{.pkg}. Our scope is only simple multilevel models, to show how imputation can yield less biased estimates from incomplete clustered data. More complex models can be accomodated, but are outside the scope of this paper. Incomplete multilevel data requires careful consideration of the missing data problem and analysis strategy. In this tutorial, we focus on a popular strategy for accommodating missingness in multilevel data: replacing the missing data with one or more plausible values, i.e., imputation.Imputation separates the missing data problem from the main analysis and the completed data can be analyzed as if it has been fully observed. This tutorial illustrates the imputation of incomplete multilevel data with the statistical programming language R. We aim to show how imputation can yield less biased estimates from incomplete clustered data. We provide practical guidelines and code snippets for different missing data situations, including non-ignorable missingness mechanisms. For brevity, we focus on multilevel imputation using chained equations with the R mice package and its adjacent packages.
-
 keywords: [missing data, multilevel, clustering, mice, R]
 keywords-formatted: [missing data, multilevel, clustering, "[mice]{.pkg}", "[R]{.proglang}"]
-
 bibliography: bibliography.bib  
 ---
 
@@ -82,20 +80,88 @@ bibliography: bibliography.bib
 5. this tutorial sets out to facilitate empirical researchers in accommodating both multilevel structures as well as missing data.
 6. we illustrate the use of the software by means of three case studies from the social and biomedical sciences.
 
+```{r}
+#| label: setup
+#| echo: false
+library(ggplot2)
+source("../docs/utils.R")
+```
+
 ### overview of software
 
-The popular [mice]{.pkg} package in [R]{.proglang} @R...
+The popular [mice]{.pkg} package in [R]{.proglang} @R
 
 ### scope 
+
+This papers serves as a tutorial for imputing incomplete multilevel data with [mice]{.pkg} in [R]{.proglang}. [mice]{.pkg} has become the de-facto standard for imputation by chained equations, which iteratively solves the missingness on a variable-by-variable basis. [mice]{.pkg} is known to yield valid inferences under many different missing data circumstances [@buur18].
+
+We provide practical guidelines and code snippets for different missing data situations, including non-ignorable mechanisms. For reasons of brevity, we focus on multilevel imputation by chained equations with [mice]{.pkg} exclusively; other imputation methods and packages [see e.g. @audi18 and @grun18] are outside the scope of this tutorial. Assumed knowledge includes basic familiarity with the [lme4]{.pkg} notation for multilevel models (see Table \ref{tab:mod}).
+
+We illustrate imputation of incomplete multilevel data using three case studies:
+
+- `popmis` from the [mice]{.pkg} package [simulated data on perceived popularity, $n = 2,000$ pupils across $N = 100$ schools with data that are MAR, @mice];
+- `impact` from the [metamisc]{.pkg} package [empirical data on traumatic brain injuries, $n = 11,022$ patients across $N = 15$ studies with data that are MAR, @metamisc];
+- `obesity` from the [micemd]{.pkg} package [simulated data on obesity, $n = 2,111$ patients across $N = 5$ regions with data that are MNAR].
+
+For each of these datasets, we discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. 
+
+This tutorial is dedicated to readers who are unfamiliar with multiple imputation. More experienced readers can skip the introduction (case study 1) and directly head to practical applications of multilevel imputation under MAR conditions (case study 2) or under MNAR conditions (case study 3). 
 
 
 ## Background {#sec-models}
 
 ### concepts in multilevel data
 
+Many datasets include individuals that are clustered together, for example in geographic regions, or even different studies. In the simplest case, individuals (e.g., students) are nested within a single cluster (e.g., school classes). More complex clustered structures may occur when there are multiple hierarchical levels (e.g., students in different schools or patients within hospitals within regions across countries), or when the clustering is non-nested (e.g., electronic health record data from diverse settings and populations within large databases). With clustered data we generally assume that individuals from the same cluster tend to be more similar than individuals from other clusters. In statistical terms, this implies that observations from the same cluster are not independent and may in fact be correlated. If this correlation is left unaddressed, estimates of *p* values, confidence intervals even model parameters are prone to bias  [@loca01]. Statistical methods for clustered data typically adopt hierarchical models that explicitly describe the grouping of observations. These models are also known as 'multilevel models', 'hierarchical models', 'mixed effect models', 'random effect models', and in the context of time-to-event data as 'frailty models'. Table \ref{tab:clus} provides an overview of some key concepts in multilevel modeling.
+
+
 ::: callout
-Box 1. The intraclass correlation coefficient.
+Box 1. The intraclass correlation coefficient. 
 :::
+
+```{R}
+#| echo: false
+concepts <-
+  data.frame(
+    Concept = c(
+      "Sample units",
+      "Cluster",
+      "Hierarchical data",
+      "Level-1",
+      "Level-2",
+      "Hierarchical model",
+      "Fixed effect",
+      "Random effect",
+      "Mixed effect",
+      "ICC",
+      "Stratified intercept"
+    ),
+    Details = c(
+      "Units of the population from which measurements are taken in a sample, e.g., students.",
+      "Variable that specify the cluster or agruppation, e.g., Classroom",
+      "Data are grouped into clusters at different levels, observations belonging to the same cluster are expected to share certain characteristics.",
+      "Variable that varies within a cluster, eg. Test score",
+      "Variable that does not vary within a cluster but between, e.g. teacher experience.",
+      "Model accounting for dependant observations relying on certain parameters ( within cluster) which in turn depend on other parameters (between cluster)" ,
+      "Effects that are constant across all sample units, e.g. something that researchers control for and can repeat, such as  a teaching strategy (tutoring after class)",
+      "Effects that are a source of random variation in the data, and whose levels are not fully sampled. e.g. test score tendency during academic year between students due to no controlled factors such as  genetic,family history",
+      "Includes fixed and random effects, e.g. the fixed effect would be the treatment effect of a drug and the random effect would be the ID of the hospital where the patient is treated. Multilevel models typically accommodate for variability by including a separate group mean for each cluster e.g random intercept on hospitals. In addition to random intercepts, multilevel models can also include random coefficients and heterogeneous residual error variances across clusters (see e.g. @gelm06, @hox17 and @jong21).",
+      "The variability due to clustering is often measured by means of the intraclass coefficient (ICC). The ICC can be seen as the percentage
+of variance that can be attributed to the cluster-level, where a high ICC would indicate that a lot of variability is due to the cluster structure.",
+""
+    )
+  )
+# concepts |>
+#   kable(
+#     booktabs = T,
+#     escape = F,
+#     caption = "Concepts in multilevel methods",
+#     col.names = c("Concept", "Details"),
+#     align = "l"
+#   ) |>
+#   column_spec(c(1), width = "3cm") |>
+#   column_spec(c(2), width = "12cm")
+```
 
 In [R]{.proglang}, multilevel models may be fitted using the package [lme4]{.pkg}. For linear mixed-effects models, the function 
 
@@ -103,7 +169,25 @@ In [R]{.proglang}, multilevel models may be fitted using the package [lme4]{.pkg
 lmer(formula, data, ...)
 ```
 
-### concepts in missing data
+### concepts in missing data 
+
+missing data mechanisms etc.
+
+As with any other dataset, clustered datasets may be impacted by missingness in much the same way. Several strategies can be used to handle missing data, including complete case analysis and imputation. We focus on the latter approach and discuss statistical methods for replacing the missing data with one or more plausible values. Imputation separates the missing data problem from the analysis and the completed data can be analyzed as if it were completely observed. It is generally recommended to impute the missing values more than once to preserve uncertainty due to missingness and to allow for valid inferences (c.f. Rubin 1976).
+
+With incomplete clustered datasets we can distinguish between two types of missing data: sporadic missingness and systematic missingness [@resc13]. Sporadic missingness arises when variables are missing for some but not all of the units in a cluster [@buur18; @jola18]. For example, it is possible that test results are missing for several students in one or more classes. When all observations are missing within one or more clusters, data are said to be systematically missing. Sporadic missingness is visualized in Figure XYZ. 
+
+```{R}
+#| echo: false
+plot_na()
+```
+
+Column $X_1$ in Figure 1 is completely observed, column $X_2$ is systematically missing in cluster 2, and column $X_3$ is sporadically missing. To analyze these incomplete data, we have to take the nature of the missingness and the cluster structure into account. For example, the sporadic missingness in $X_3$ could be easily amended if this would be a cluster-level variable (and thus constant within clusters). We could then just extrapolate the true (but missing) value of $X_3$ for unit 1 from unit 2, and the value for unit 4 from unit 3. If $X_3$ would instead be a unit-level variable (which may vary within clusters), we could not just recover the unobserved 'truth', but would need to use some kind of missing data method, or discard the incomplete units altogether (i.e., complete case analysis). Complete case analysis can however introduce bias in statistical inferences and lowers statistical power. Further, with the systematic missingness in $X_2$, it would be impossible to fit a multilevel model without accommodating the missingness in some way. Complete case analysis in that case would mean excluding the entire cluster from the analyses. The wrong choice of missing data handling method can thus be extremely harmful to the inferences.  
+
+Imputation of missing data requires consideration of the mechanism behind the missingness. Rubin proposed to distinguish between data that are missing completely at random (MCAR), data that are missing at random (MAR) and data that are missing not at random (MNAR; see Table \ref{tab:miss}). For each of these three missingness generating mechanisms, different imputation strategies are warranted (@yuce08 and @hox15). We here consider the general case that data are MAR, and expand on certain MNAR situations.
+
+
+### imputation with mice
 
 The [R]{.proglang} package [mice]{.pkg} provides a framework for imputing incomplete data on a variable-by-variable basis. The [mice]{.fct} function allows users to flexibly specify how many times and under what model the missing data should be imputed. This is reflected in the first four function arguments
 
@@ -118,7 +202,7 @@ Box 2. The `methods`.
 :::
 
 ::: callout
-Box 2. The predictor matrix.
+Box 3. The predictor matrix. The entries corresponding to the level-1 predictors are coded with a 3, indicating that both the original values as well as the cluster means of the predictor are included into the imputation model. The entry of 4 in the predictor matrix adds three variables to the imputation model for the imputation model predictor: the value of the predictor, the cluster means of the predictor and the random slopes of the predictor.
 :::
 
 
