@@ -269,6 +269,7 @@ In this section, we demonstrate the workflow using three case studies.
 #| message: false
 set.seed(123)         # for reproducibility
 library(lme4)         # for multilevel modeling
+library(nlme)         # for multilevel modeling
 library(mice)         # for imputation
 library(miceadds)     # for multilevel imputation methods
 library(micemd)       # for selection-model imputation methods
@@ -685,16 +686,17 @@ plot_pattern(Obesity)
 
 ```{r}
 #| prompt: true
-Obesity |> 
-  split(~Cluster) |>
-  lapply(plot_pattern)
+# Obesity |> 
+#   split(~Cluster) |>
+#   lapply(plot_pattern)
 ```
 
 We observe that the missing pattern is non-monotonic and quite similar across the clusters. However, regarding the weight variable, we notice that is systematically missing in cluster 3. In order to evaluate
 if we require a imputation method that accounts for clustering  we assess the Intraclass Correlation
 
-```{r obesity-icc, eval=TRUE}
-# Nulmodel <- lme4::lmer(BMI ~ 1 + (1|Cluster), data = Obesity)
+```{r}
+#| prompt: true
+Nulmodel <- lmer(BMI ~ 1 + (1|Cluster), data = Obesity)
 # performance::icc(Nulmodel)
 ```
 
@@ -709,39 +711,86 @@ It suggests using '2l.2stage.bin' for the FAV variable and '2l.2stage.norm' for 
 '2l.2stage.pmm'. For the BMI variable, we employ deterministic imputation.
 
 ```{r obesitymeth, eval=TRUE}
-# meth_mar <- micemd::find.defaultMethod(Obesity, ind.clust=1, I.small = 7,
-#                                ni.small = 100, prop.small = 0.4)
-# meth_mar["BMI"]<- "~ I(Weight / (Height)^2)"
-# meth_mar["Age"]<-"2l.2stage.pmm" 
+meth_mar <-
+  find.defaultMethod(
+    Obesity,
+    ind.clust = 1,
+    I.small = 7,
+    ni.small = 100,
+    prop.small = 0.4
+  )
+meth_mar["BMI"] <- "~ I(Weight / (Height)^2)"
+meth_mar["Age"] <- "2l.2stage.pmm"
 ```
 
 For these imputation models, it is necessary to specify the prediction matrix, with the cluster
 variable labelled as -2 and the predictor variable measured within clusters labelled as 2, encompassing all variables. We need to suprime the variable Time as this variable is not specified in the main model. We also  modify the relationship between BMI, weight and height in the prediction matrix to avoid circular predictions. Then we proceed to run the imputation model.
 ```{r obesity-predmar,out.width="70%", eval=TRUE}
-# pred_mar <- mice(Obesity, maxit = 0)$pred 
-# pred_mar[,"Cluster"] <- -2 # clustering variable
-# pred_mar[,"Time"] <- 0
-# pred_mar[pred_mar==1] <- 2
-# pred_mar[c("Height", "Weight"), "BMI"] <- 0
-# ggmice::plot_pred(pred_mar)
-# imp_mar <- mice::mice(data = Obesity, meth = meth_mar, pred = pred_mar,
-#                 m=10, seed = 123, printFlag = FALSE)
+pred_mar <- quickpred(Obesity)
+pred_mar[, "Cluster"] <- -2 
+pred_mar[, "Time"] <- 0
+pred_mar[pred_mar == 1] <- 2
+pred_mar[c("Height", "Weight"), "BMI"] <- 0
+plot_pred(pred_mar)
+imp_mar <-
+  mice(
+    data = Obesity,
+    method = meth_mar,
+    predictorMatrix = pred_mar,
+    printFlag = FALSE
+  )
 ```
 
 ```{r obesity-predmar1,eval=TRUE}
-# summary(complete(imp_mar,"long")$Weight)
+summary(complete(imp_mar,"long")$Weight)
 ```
 We are also contemplating the utilisation of the predictive mean matching (pmm) option, as the values imputed using a fully parametric method may be implausibly low for some patients.
 
 ```{r obesity-predmar_pmm, eval=TRUE}
-# meth_mar["Weight"]<-"2l.2stage.pmm" 
-# imp_mar_pmm <- mice(data = Obesity, meth = meth_mar, pred = pred_mar,
-#                     m=10, seed = 123, printFlag = FALSE)
+meth_mar["Weight"] <- "2l.2stage.pmm"
+imp_mar_pmm <- mice(
+  data = Obesity,
+  method = meth_mar,
+  predictorMatrix = pred_mar,
+  printFlag = FALSE
+)
 ```
 
 ```{r obesity-predmar_pmm1,eval=TRUE}
-# summary(complete(imp_mar_pmm,"long")$Weight)
-# ggmice::plot_trace(imp_mar_pmm, "Weight")
+summary(complete(imp_mar_pmm, "long")$Weight)
+plot_trace(imp_mar_pmm, "Weight")
+ggmice(imp_mar_pmm, aes(.imp, Weight)) + 
+  geom_jitter()
+```
+
+Analyze the imputed data.
+```{R}
+#| prompt: true
+#| warning: false
+# fit <- with(
+#     imp_mar_pmm,
+#     lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
+#     )
+fit <- with(
+    imp_mar_pmm,
+    lmer(BMI ~ Age + FamOb + Gender + (1 + Age | Cluster))
+    )
+est <- testEstimates(as.mitml.result(fit), extra.pars = TRUE)
+```
+
+Display results in table.
+```{r}
+#| prompt: true
+est$estimates |> 
+  round(3) |>
+  kable()
+```
+
+```{r}
+#| prompt: true
+est$extra.pars |> 
+  round(3) |>
+  kable()
 ```
 
 After confirming convergence, we proceed to save the results for future use.  We consider the possibility that patients may not have been selected randomly, which would then have led to a distribution for weight that does not reflect the weight in the population. It???s likely that an omitted variable, like self-esteem, could influence this selection. For instance, individuals with lower self-esteem might have higher weight values, impacting their willingness to provide honest information due to embarrassment.
@@ -762,58 +811,99 @@ To use information from both equations, we must adjust the prediction matrix. Th
 However, it is essential to distinguish which of these variables appear in each equation. In this framework, when a variable is shared between both equations, it is denoted as (2). Predictors exclusive to the outcome equation are indicated as (-4), while those exclusive to the selection equation are labelled as (-3). Consequently, the only alteration needed in the predictor matrix pertains to the variable 'Time'.
 
 ```{r obesity-predmnar, eval=TRUE}
-# pred_mnar <- pred_mar
-# pred_mnar["Weight","Time"]<- -3
-# ggmice::plot_pred(pred_mnar)
+pred_mnar <- pred_mar
+pred_mnar["Weight","Time"] <- -3
+plot_pred(pred_mnar)
 ```
 
 We also need to modify the method of the weight variable.
 
 ```{r obesity-predmnar1, eval=TRUE}
-# meth_mnar <- meth_mar
-# meth_mnar["Weight"]<- "3l.2stage.heckman"
+meth_mnar <- meth_mar
+meth_mnar["Weight"] <- "2l.2stage.heckman"
 ```
 Then we proceed to run the imputation model as before, after executing these imputation procedures, it is essential to assess convergence and the coherence of the imputed values.
 ```{r obesity-predmnar2,eval=TRUE}
-# imp_mnar<- mice(data = Obesity, meth = meth_mnar, pred = pred_mnar,
-#                 m=10, seed = 123, printFlag = FALSE)
-# summary(complete(imp_mnar,"long")$Weight)
+imp_mnar <- mice(
+  data = Obesity,
+  method = meth_mnar,
+  predictorMatrix = pred_mnar,
+  printFlag = FALSE
+)
+summary(complete(imp_mnar, "long")$Weight)
 ```
 
 Upon examining the weight variable, we noticed that the imputed range falls outside the realm of plausible values (as weight should be positive).
 
 ```{r obesity-predmnar3,eval=TRUE}
-# summary(complete(imp_mnar,"long")$Weight)
+summary(complete(imp_mnar, "long")$Weight)
 ```
 Consequently, as before we  use the 'pmm', option but this time for the Heckman imputation, this approach ensures that the imputed values remain within the range of observable values. We then run the imputation model but this time using the option of pmm, to assure that weight values are in the range of the observable data, this can be implemented by setting the pmm parameter to true.
 
 ```{r obesity-predmnarp, eval=TRUE}
-# imp_mnar_pmm <- mice(data = Obesity, meth = meth_mnar, pred = pred_mnar,
-#                      m=10, seed = 123, pmm = T,  printFlag = FALSE)
+imp_mnar_pmm <-
+  mice(
+    data = Obesity,
+    method = meth_mnar,
+    predictorMatrix = pred_mnar,
+    pmm = T,
+    printFlag = FALSE
+  )
 ```
 
-We check the convergency of the results
+We check the convergence of the results
 ```{r obesity-predmnarp1, eval=TRUE}
-# summary(complete(imp_mnar_pmm,"long")$Weight)
-# ggmice::plot_trace(imp_mar_pmm, "Weight")
+summary(complete(imp_mnar_pmm, "long")$Weight)
+plot_trace(imp_mar_pmm, "Weight")
 ```
 
 After this modification we proceed to compare the effects on the model. We
-run the analysis model on each of the completed datasets as well asthe dataset where the
+run the analysis model on each of the completed datasets as well as the dataset where the
 incomplete values are removed (Complete Case analysis, CC).
 
 ```{r models, eval=TRUE}
-# cc_rs<- with(setDT(Obesity)[complete.cases(Obesity),],
-#              lme( BMI ~ Age + FamOb + Gender, random=~1+Age|Cluster))
-# mar_rs <- with(imp_mar,lme( BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
-# mar_pmm_rs <- with(imp_mar_pmm,lme( BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
-# mnar_rs<- with(imp_mnar,lme(BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
-# mnar_pmm_rs<- with(imp_mnar_pmm, lme(BMI ~ Age + FamOb + Gender,random=~1+Age|Cluster))
-# list_models<-list(cc_rs,mar_rs,mar_pmm_rs,mnar_rs,mnar_pmm_rs)
+# cc_rs <- with(setDT(Obesity)[complete.cases(Obesity), ],
+#               lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age |
+#                     Cluster))
+mar_rs <- with(
+  imp_mar, 
+  lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
+  )
+mar_pmm_rs <- with(
+    imp_mar_pmm,
+    lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
+    )
+mnar_rs <- with(
+  imp_mnar, 
+  lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
+  )
+mnar_pmm_rs <- with(
+  imp_mnar_pmm,
+  lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
+  )
+# list_models <- list(cc_rs, mar_rs, mar_pmm_rs, mnar_rs, mnar_pmm_rs)
 # plot_models(list_models,
-#             mod_name = c("Complete case", "MAR","MAR_pmm", "MNAR", "MNAR_pmm"))
+#             mod_name = c("Complete case", "MAR", "MAR_pmm", "MNAR", "MNAR_pmm"))
 ```
 
+```{r}
+est <- testEstimates(as.mitml.result(mnar_pmm_rs), extra.pars = TRUE)
+```
+
+Display results in table.
+```{r}
+#| prompt: true
+est$estimates |> 
+  round(3) |>
+  kable()
+```
+
+```{r}
+#| prompt: true
+est$extra.pars |> 
+  round(3) |>
+  kable()
+```
 We note that there is minimal disparity in the age effect, FamObs, or  Gender across the various imputation models under consideration. An analysis of the intercept reveals that, under the MNAR assumption, a higher average BMI is anticipated compared to the MAR assumption.
 Nonetheless, with respect to precision of estimates, we notice that in general MNAR imputation leads to wider confidence intervals, in this case it does not have any influence on the final result but there could be cases where variation in the assumed missing mechanism could lead also to differences on significant test and therefore lead to contradictory conclusions.   
 
