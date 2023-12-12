@@ -368,7 +368,7 @@ and in the context of time-to-event data as `frailty models'. Table
 \ref{tab:clus} provides an overview of some key concepts in multilevel
 modeling.
 
-\begin{tcolorbox}[enhanced jigsaw, opacityback=0, arc=.35mm, colback=white, breakable, toprule=.15mm, bottomrule=.15mm, rightrule=.15mm, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, toprule=.15mm, rightrule=.15mm, arc=.35mm, left=2mm, leftrule=.75mm, colback=white, opacityback=0]
 
 Box 1. The intraclass correlation coefficient.
 
@@ -463,13 +463,13 @@ specifies the interrelational dependencies between variables and
 imputation models (i.e., the set of predictors to be used for imputing
 each incomplete variable).
 
-\begin{tcolorbox}[enhanced jigsaw, opacityback=0, arc=.35mm, colback=white, breakable, toprule=.15mm, bottomrule=.15mm, rightrule=.15mm, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, toprule=.15mm, rightrule=.15mm, arc=.35mm, left=2mm, leftrule=.75mm, colback=white, opacityback=0]
 
 Box 2. The \texttt{methods}.
 
 \end{tcolorbox}
 
-\begin{tcolorbox}[enhanced jigsaw, opacityback=0, arc=.35mm, colback=white, breakable, toprule=.15mm, bottomrule=.15mm, rightrule=.15mm, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, toprule=.15mm, rightrule=.15mm, arc=.35mm, left=2mm, leftrule=.75mm, colback=white, opacityback=0]
 
 Box 3. The predictor matrix. The entries corresponding to the level-1
 predictors are coded with a 3, indicating that both the original values
@@ -1331,8 +1331,18 @@ Mutate data to get the right data types for imputation (e.g.~integer for
 clustering variable).
 
 \begin{verbatim}
-R> dat <- dat |>
-+  mutate(name = as.integer(name))
+R> # dat <- mutate(
+R> #   dat,
+R> #   name = as.integer(name))
+\end{verbatim}
+
+This is necessary because otherwise PMM cannot be used for these factor
+variables.
+
+\begin{verbatim}
+R> dat <- mutate(
++  dat,
++  across(everything(), as.numeric))
 \end{verbatim}
 
 Create an initial methods vector for the incomplete variables
@@ -1344,7 +1354,7 @@ R> meth
 
 \begin{verbatim}
        name        type         age motor_score       pupil          ct 
-         ""          ""          ""          ""   "polyreg"   "polyreg" 
+         ""          ""          ""          ""       "pmm"       "pmm" 
      hypots        tsah         edh        mort 
       "pmm"       "pmm"       "pmm"          "" 
 \end{verbatim}
@@ -1352,8 +1362,9 @@ R> meth
 which should be adjusted to the appropriate \texttt{2l} methods.
 
 \begin{verbatim}
-R> meth[c("pupil", "ct")] <- "2l.pmm"
-R> meth[c("hypots", "tsah", "edh")] <- "2l.pmm"
+R> # meth[c("pupil", "ct")] <- "2l.pmm"
+R> # meth[c("hypots", "tsah", "edh")] <- "2l.pmm"
+R> meth[meth == "pmm"] <- "2l.pmm"
 \end{verbatim}
 
 Create an initial predictor matrix
@@ -1376,6 +1387,7 @@ imputation models
 
 \begin{verbatim}
 R> pred[, "mort"] <- 2
+R> # pred[pred == 1] <- 2
 \end{verbatim}
 
 the resulting predictor matrix is visualized with
@@ -1386,7 +1398,7 @@ R> plot_pred(pred, method = meth, rotate = TRUE)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-37-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-38-1.pdf}
 
 }
 
@@ -1395,31 +1407,137 @@ R> plot_pred(pred, method = meth, rotate = TRUE)
 Impute the incomplete data with
 
 \begin{verbatim}
-R> # imp <- mice(
-R> #   dat,
-R> #   method = meth,
-R> #   predictorMatrix = pred,
-R> #   printFlag = FALSE
-R> # )
+R> imp <- mice(
++  dat,
++  method = meth,
++  predictorMatrix = pred,
++  printFlag = FALSE
++)
 \end{verbatim}
 
 Evaluate the convergence of the algorithm
 
 \begin{verbatim}
-R> # plot_trace(imp)
+R> plot_trace(imp)
+\end{verbatim}
+
+\begin{figure}[h]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-40-1.pdf}
+
+}
+
+\end{figure}
+
+Evaluate the imputed values.
+
+\begin{verbatim}
+R> ggmice(imp, aes(.imp, pupil)) +
++  geom_jitter()
+\end{verbatim}
+
+\begin{figure}[h]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-41-1.pdf}
+
+}
+
+\end{figure}
+
+Convert the data back to factors.
+
+\begin{verbatim}
+long <- complete(imp, "long", include = TRUE)
+long <- mutate(long, across(c("motor_score", "pupil", "ct"), as.factor))
+imp <- as.mids(long)
 \end{verbatim}
 
 Analyze the imputed data:
 
 \begin{verbatim}
-R> # fit <- imp %>% 
-R> #   with(glmer(
-R> #     mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name),
-R> #     family = "binomial"
-R> #     )) 
+R> fit <- imp %>%
++  with(glmer(
++    mort ~ type + age + motor_score + pupil + ct + (1 | name),
++    family = "binomial"
++    ))
 \end{verbatim}
 
 The estimated effects after imputation are presented in Table XYZ.
+
+\begin{verbatim}
+R> est <- testEstimates(as.mitml.result(fit), extra.pars = TRUE)
+\end{verbatim}
+
+Display results in table.
+
+\begin{verbatim}
+R> est$estimates |> 
++  round(3) |>
++  kable()
+\end{verbatim}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1605}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1111}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1235}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0988}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1358}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.2222}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0741}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0741}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Estimate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Std.Error
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+t.value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+df
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+P(\textgreater\textbar t\textbar)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RIV
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+FMI
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+(Intercept) & -1.892 & 0.333 & -5.682 & 11445.455 & 0.000 & 0.019 &
+0.019 \\
+type & -0.346 & 0.178 & -1.948 & 686356.768 & 0.051 & 0.002 & 0.002 \\
+age & 0.032 & 0.002 & 19.564 & 2418.910 & 0.000 & 0.042 & 0.041 \\
+motor\_score2 & -0.575 & 0.070 & -8.226 & 71295.018 & 0.000 & 0.008 &
+0.008 \\
+motor\_score3 & -0.891 & 0.072 & -12.440 & 66712.189 & 0.000 & 0.008 &
+0.008 \\
+motor\_score4 & -1.276 & 0.074 & -17.305 & 18426.087 & 0.000 & 0.015 &
+0.015 \\
+pupil2 & 1.315 & 0.068 & 19.339 & 110.826 & 0.000 & 0.235 & 0.204 \\
+pupil3 & 0.657 & 0.075 & 8.745 & 423.463 & 0.000 & 0.108 & 0.101 \\
+ct2 & 0.747 & 0.084 & 8.884 & 41.781 & 0.000 & 0.448 & 0.340 \\
+ct3 & 0.766 & 0.090 & 8.535 & 12.103 & 0.000 & 1.352 & 0.631 \\
+\end{longtable}
+
+\begin{verbatim}
+R> est$extra.pars |> 
++  round(3) |>
++  kable()
+\end{verbatim}
+
+\begin{longtable}[]{@{}lr@{}}
+\toprule\noalign{}
+& Estimate \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Intercept\textasciitilde\textasciitilde Intercept\textbar name &
+0.082 \\
+\end{longtable}
 
 \hypertarget{obesity-data}{%
 \subsection{obesity data}\label{obesity-data}}
@@ -1474,20 +1592,93 @@ BMI_{ij}= (\beta_{o}+ b_{oj} ) + (\beta_{1}+ b_{oj})* Age_{ij} + \beta_{2}*FamOb
 We start by loading the data:
 
 \begin{verbatim}
-#data("data_heckman", package = "micemd")
-#dat <- data_heckman
+R> data(Obesity, package = "micemd")
 \end{verbatim}
 
 Now, let's begin by examining the missing patterns in the data by
 cluster:
 
 \begin{verbatim}
-# myplots <- lapply(1:5, function(i) {
-#   ggmice::plot_pattern(setDT(Obesity)[Cluster==i])+
-#   ggplot2::ggtitle(paste0("Cluster", i))
-#  })
-# ggarrange(myplots[[1]], myplots[[3]], nrow=1,common.legend = TRUE, legend="bottom")
+R> plot_pattern(Obesity)
 \end{verbatim}
+
+\begin{figure}[h]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-48-1.pdf}
+
+}
+
+\end{figure}
+
+\begin{verbatim}
+R> Obesity |> 
++  split(~Cluster) |>
++  lapply(plot_pattern)
+\end{verbatim}
+
+\begin{verbatim}
+$`1`
+\end{verbatim}
+
+\begin{figure}[h]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-49-1.pdf}
+
+}
+
+\end{figure}
+
+\begin{verbatim}
+
+$`2`
+\end{verbatim}
+
+\begin{figure}[h]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-49-2.pdf}
+
+}
+
+\end{figure}
+
+\begin{verbatim}
+
+$`3`
+\end{verbatim}
+
+\begin{figure}[h]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-49-3.pdf}
+
+}
+
+\end{figure}
+
+\begin{verbatim}
+
+$`4`
+\end{verbatim}
+
+\begin{figure}[h]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-49-4.pdf}
+
+}
+
+\end{figure}
+
+\begin{verbatim}
+
+$`5`
+\end{verbatim}
+
+\begin{figure}[h]
+
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-49-5.pdf}
+
+}
+
+\end{figure}
 
 We observe that the missing pattern is non-monotonic and quite similar
 across the clusters. However, regarding the weight variable, we notice
@@ -1768,7 +1959,7 @@ research and innovation programme under ReCoDID grant agreement No
 \section*{More technical details}\label{sec-techdetails}}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, opacityback=0, arc=.35mm, colback=white, breakable, toprule=.15mm, bottomrule=.15mm, rightrule=.15mm, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, toprule=.15mm, rightrule=.15mm, arc=.35mm, left=2mm, leftrule=.75mm, colback=white, opacityback=0]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -1800,7 +1991,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, opacityback=0, arc=.35mm, colback=white, breakable, toprule=.15mm, bottomrule=.15mm, rightrule=.15mm, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, breakable, toprule=.15mm, rightrule=.15mm, arc=.35mm, left=2mm, leftrule=.75mm, colback=white, opacityback=0]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}

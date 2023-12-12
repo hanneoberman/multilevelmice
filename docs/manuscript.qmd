@@ -529,8 +529,17 @@ dat <- select(dat, !hypox)
 Mutate data to get the right data types for imputation (e.g. integer for clustering variable).
 ```{r}
 #| prompt: true
-dat <- dat |>
-  mutate(name = as.integer(name))
+# dat <- mutate(
+#   dat,
+#   name = as.integer(name))
+```
+
+This is necessary because otherwise PMM cannot be used for these factor variables.
+```{r}
+#| prompt: true
+dat <- mutate(
+  dat,
+  across(everything(), as.numeric))
 ```
 
 Create an initial methods vector for the incomplete variables
@@ -543,8 +552,9 @@ meth
 which should be adjusted to the appropriate `2l` methods.
 ```{r}
 #| prompt: true
-meth[c("pupil", "ct")] <- "2l.pmm"
-meth[c("hypots", "tsah", "edh")] <- "2l.pmm"
+# meth[c("pupil", "ct")] <- "2l.pmm"
+# meth[c("hypots", "tsah", "edh")] <- "2l.pmm"
+meth[meth == "pmm"] <- "2l.pmm"
 ```
 
 Create an initial predictor matrix 
@@ -565,6 +575,7 @@ and the analysis-model outcome should be used as a predictor in all imputation m
 ```{r}
 #| prompt: true
 pred[, "mort"] <- 2
+# pred[pred == 1] <- 2
 ```
 
 the resulting predictor matrix is visualized with
@@ -577,30 +588,65 @@ plot_pred(pred, method = meth, rotate = TRUE)
 Impute the incomplete data with
 ```{r}
 #| prompt: true
-# imp <- mice(
-#   dat,
-#   method = meth,
-#   predictorMatrix = pred,
-#   printFlag = FALSE
-# )
+imp <- mice(
+  dat,
+  method = meth,
+  predictorMatrix = pred,
+  printFlag = FALSE
+)
 ```
 
 Evaluate the convergence of the algorithm
 ```{r}
 #| prompt: true
-# plot_trace(imp)
+plot_trace(imp)
+```
+
+Evaluate the imputed values.
+```{r}
+#| prompt: true
+ggmice(imp, aes(.imp, pupil)) +
+  geom_jitter()
+```
+
+Convert the data back to factors.
+```{r}
+long <- complete(imp, "long", include = TRUE)
+long <- mutate(long, across(c("motor_score", "pupil", "ct"), as.factor))
+imp <- as.mids(long)
 ```
 
 Analyze the imputed data:
 ```{r}
 #| prompt: true
-# fit <- imp %>% 
-#   with(glmer(
-#     mort ~ type + age + as.factor(motor_score) + pupil + ct + (1 | name),
-#     family = "binomial"
-#     )) 
+#| warning: false
+fit <- imp %>%
+  with(glmer(
+    mort ~ type + age + motor_score + pupil + ct + (1 | name),
+    family = "binomial"
+    ))
 ```
+
 The estimated effects after imputation are presented in Table XYZ.
+```{R}
+#| prompt: true
+est <- testEstimates(as.mitml.result(fit), extra.pars = TRUE)
+```
+
+Display results in table.
+```{r}
+#| prompt: true
+est$estimates |> 
+  round(3) |>
+  kable()
+```
+
+```{r}
+#| prompt: true
+est$extra.pars |> 
+  round(3) |>
+  kable()
+```
 
 ### obesity data
 
@@ -626,18 +672,22 @@ BMI_{ij}= (\beta_{o}+ b_{oj} ) + (\beta_{1}+ b_{oj})* Age_{ij} + \beta_{2}*FamOb
 
 We start by loading the data:
 ```{r}
-#data("data_heckman", package = "micemd")
-#dat <- data_heckman
+#| prompt: true
+data(Obesity, package = "micemd")
 ```
 
 Now, let's begin by examining the missing patterns in the data by cluster:
 
-```{r, dpi = 300,out.width="70%", fig.cap="Missing pattern", eval=TRUE}
-# myplots <- lapply(1:5, function(i) {
-#   ggmice::plot_pattern(setDT(Obesity)[Cluster==i])+
-#   ggplot2::ggtitle(paste0("Cluster", i))
-#  })
-# ggarrange(myplots[[1]], myplots[[3]], nrow=1,common.legend = TRUE, legend="bottom")
+```{r}
+#| prompt: true
+plot_pattern(Obesity)
+```
+
+```{r}
+#| prompt: true
+Obesity |> 
+  split(~Cluster) |>
+  lapply(plot_pattern)
 ```
 
 We observe that the missing pattern is non-monotonic and quite similar across the clusters. However, regarding the weight variable, we notice that is systematically missing in cluster 3. In order to evaluate
