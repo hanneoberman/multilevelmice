@@ -368,7 +368,7 @@ and in the context of time-to-event data as `frailty models'. Table
 \ref{tab:clus} provides an overview of some key concepts in multilevel
 modeling.
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, colback=white, opacityback=0, left=2mm, toprule=.15mm, bottomrule=.15mm, arc=.35mm, rightrule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
 
 Box 1. The intraclass correlation coefficient.
 
@@ -463,13 +463,13 @@ specifies the interrelational dependencies between variables and
 imputation models (i.e., the set of predictors to be used for imputing
 each incomplete variable).
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, colback=white, opacityback=0, left=2mm, toprule=.15mm, bottomrule=.15mm, arc=.35mm, rightrule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
 
 Box 2. The \texttt{methods}.
 
 \end{tcolorbox}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, colback=white, opacityback=0, left=2mm, toprule=.15mm, bottomrule=.15mm, arc=.35mm, rightrule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
 
 Box 3. The predictor matrix. The entries corresponding to the level-1
 predictors are coded with a 3, indicating that both the original values
@@ -531,91 +531,84 @@ impute cluster data.
 \subsection{Focus on the Main
 Analysis}\label{focus-on-the-main-analysis}}
 
-When imputing clustered data, we initially focus on the research
-question and the intended analysis, assuming the presence of
-non-incomplete values. This assessment sheds light on research
-hypotheses and the contemplated main(s) statistical model(s) and it
-provides insights into the data's structure (refer to the level table),
-variable types (e.g., confounders, auxiliary variables), and other
-considerations about variables relationships such as interactions or
-polynomial terms.
+When dealing with incomplete clustered data, start by looking at your
+research questions and planned analysis. Pretend there are no missing
+data at first. This will help you understand your research hypotheses,
+the main statistical model, and give you insights into your data's
+structure (refer to the level table), variable types (e.g., confounders,
+auxiliary variables), and other considerations such as variable
+relationships, interactions or polynomial terms.
 
 \hypertarget{exploration-of-available-data}{%
 \subsection{Exploration of Available
 Data}\label{exploration-of-available-data}}
 
-Next, it is necessary to explore the information available in the data.
-Exploring individual variables using tools such as histograms or QQ
-plots can help to delineate variable distributions and plausible ranges
-of values and also identify input errors or outliers. Evaluating
-interactions between predictors using scatter plots or conditional
-plots, assessing collinearity using VIF or correlations, can help to
-glimpse nonlinear relationships that may affect the original formulation
-of the main model. Further testing of assumptions related to the
-response variable, including variance (homogeneity using conditional box
-plots), independence (e.g., ACF, variograms) and response vs.~predictor
-relationships (conditional plots - x vs.~y), may serve to choose an
-imputation model more suitable to the data. In addition, the intraclass
-correlation coefficient (ICC) can be examined to assess cluster
-differences, aiding in the choice between the 2l and 1l methods for
-imputation.
+Now, explore what's in your data. Use simple tools like histograms and
+QQ plots to understand variable distributions, plausible range of values
+and identify errors or outliers. Check interactions between predictors
+with scatter plots, look for collinearity with VIF or correlations
+plots, this may also help you to identify non-considered relationships
+that may affect the main model. You might also consider to test
+assumptions related to your response variable such as variance
+homogeneity, independence between observations (eg. ACF, variagrams).
+This will help you choose an imputation model that suits your data. In
+addition, the intraclass correlation coefficient (ICC) can be examined
+to assess cluster differences, aiding in the choice between the 2l and
+1l methods for imputation.
 
-One can also explore missingness, specifically missing patterns at the
-cluster level to identify types of patterns (e.g., non-monotonic,
-systematic) to guide the selection of an appropriate imputation approach
-in terms of computational efficiency (e.g., simpler regression
-imputation versus FCS in univariate patterns). Similarly, these missing
-patterns can also be used to identify potential predictors in individual
-imputation models by means of inflow criteria (quantifying the
-connections between missing data in one variable and other observed
-variables) and outflow criteria (determining the connections between
-observed values in one variable and missing data in other variables).
-Although several packages exist for visualizing missing data, this
-tutorial focuses on the recently implemented ggmice package.
+Next, explore the missingness. Look at the
+\textbf{proportion of missing values} in the dataset variables. This
+helps find potential predictors and cut down on unnecessary variables in
+the imputation model. Doing this can lower the risk of multicollinearity
+or computational issues, especially with certain parametric imputation
+methods. You can also identify predictors for the imputation model by
+using inflow criteria to see connections between missing data in one
+variable and observed variables, and outflow criteria to identify
+connections between observed values in one variable and missing data in
+others.
+
+Check the missing patterns at cluster level, this can help you to select
+the most appropiated imputation approach in terms of computational
+efficiency (e.g., simpler regression imputation versus FCS in univariate
+patterns).
 
 \hypertarget{assess-estimation-procedure-robustness-to-missing-data}{%
 \subsection{Assess Estimation Procedure Robustness to Missing
 Data}\label{assess-estimation-procedure-robustness-to-missing-data}}
 
-Prior to implementing multiple imputation, it is critical to assess the
-robustness of the estimation model when confronted with missing data.
-There are scenarios in which specific Maximum Likelihood (ML) estimation
-methods outperform Multiple Imputation (MI) methods. For instance, when
-the response variable is the sole incomplete variable, mixed models
-demonstrate robustness to missing data under the Missing at Random (MAR)
-assumption and with a correct variance-covariance
-specification.\cite{Molenberghs_2007}. Furthermore, depending on the
-proportion of missingness (usually is \textless5\%), opting for a
-simpler complete case analysis might be sufficient.
+Before diving into imputation, make sure your estimation model can
+handle missing data. Sometimes, simpler methods like complete case
+analysis might be suffice, especially if your missingness is low
+(usually \textless5\%). There are scenarios in which specific Maximum
+Likelihood (ML) estimation methods outperform Multiple Imputation (MI)
+methods, for instance when the response variable is the sole incomplete
+variable, mixed models demonstrate robustness to missing data under the
+Missing at Random (MAR) assumption and with a correct
+variance-covariance specification.\cite{Molenberghs_2007}.
 
 \hypertarget{pre-imputation}{%
 \subsection{Pre-imputation}\label{pre-imputation}}
 
-Before proceeding with the imputation model, it is necessary to filter
-the dataset to include only the minimal variables required for the main
-model. If additional procedures are conducted during the analysis, it is
-essential to include variables associated with these procedures, such as
-confounders in the case of balancing techniques. Other relevant
-variables, like instrumental variables or auxiliary variables, may
-enhance parameter estimates even if not included in the main model, as
-they could be linked to the probability of missingness for some
-incomplete variables.
+Clean up your dataset before the imputation process. Keep initially the
+essential variables for your main model, but include extra variables if
+needed for specific procedures during analysis (e.g.~confounders on
+balancing procedures). Think about adding other useful variables, even
+if they're not in the main model, such as instrumental or auxiliary
+variables which might boost your parameter estimates, especially if
+they're associated to the probability of missingness for some incomplete
+variables.
 
-Furthermore, at the variable level, it is crucial to assess whether
-proxy variables should be considered or if deterministic imputation
-alone is adequate for imputing missing values. For instance, certain
-incomplete variables may not necessitate stochastic imputation methods
-like MICE. Instead, they can be effectively addressed through deductive
-imputation, where incomplete values are inferred from logical and
-deterministic relationships between variables. This approach is
-especially beneficial for variables that are functions of others, such
-as deriving a person's BMI from their weight and height. It also proves
-valuable for determining values for one-level variables from two-level
-ones, as seen in the context of Individual Participant Data (IPD). In
-such cases, incomplete information can be deduced from metadata, like
-inferring incomplete data about abortion in a country where abortion is
-illegal, or through cross-temporal or protocol-based deduction, such as
-imputing missing test values for deceased patients.
+Figure out if you can directly impute incomplete variables by just use
+deductive imputation. This involves inferring missing values based on
+logicallogical connections between variables. It's especially handy for
+variables that depend on each other, like calculating BMI from weight
+and height.
+
+Deductive imputation is also useful for getting values for level-1
+variables from level-2 ones, like in Individual Participant Data (IPD).
+In these situations, you can guess missing information from metadata or
+by using or through deduction based on time or protocols. For example,
+you could deduce missing test values for patients who have passed away.
 
 \hypertarget{setting-imputation-model}{%
 \subsection{Setting Imputation Model}\label{setting-imputation-model}}
@@ -623,56 +616,50 @@ imputing missing test values for deceased patients.
 \hypertarget{clustering-inclusion}{%
 \paragraph{Clustering Inclusion}\label{clustering-inclusion}}
 
-Various strategies can be employed in the imputation process to account
-for clustering, including the inclusion of a cluster indicator variable,
-conducting a separate imputation process for each cluster, or employing
-a simultaneous imputation method that considers clustering\cite{eddings}
+When it comes to handling clusters during the imputation process, you've
+got a few options. You can use a cluster indicator variable, run
+separate imputation for each cluster, or go for a simultaneous
+imputation method that takes clustering into account \cite{eddings}.
 
-The choice of strategy depends primarily on the assumptions made in the
-main analysis and the constraints imposed by the analyzed data.
-Concerning data restrictions when the analysis do not contemplate an
-hierarchical model (eg. descriptive way), if there are few clusters with
-many observations per cluster, the cluster indicator or imputation
-separated by groups may be appropriate \cite{graham2009}. Conversely, an
-imputation model that simultaneously imputes all clusters using a
-hierarchical model can be employed when there are more clusters or fewer
-observations per cluster \cite{Allison_2002}.
+Which strategy you choose depends on the assumptions in your main
+analysis and the limitations of your data. If your analysis do not use a
+hierarchical model (like a descriptive approach) and you have a small
+number of clusters with lots of observations in each, using a cluster
+indicator or separate imputation might be the way to go
+\cite{graham2009}. Conversely, if you have more clusters or fewer
+observations per cluster, you might want to try a simultaneous
+hierarchical imputation model \cite{Allison_2002}.
 
-In a hierarchical imputation model, correlations between observations
-within clusters are modeled by a random effect, allowing estimation even
-with a limited number of observations per cluster. Multiple imputation
-models based on hierarchical models have been proposed, each with
-different assumptions. \cite{audigier}
+In a hierarchical imputation model, random effects model the
+correlations between observations within clusters, making it possible to
+estimate even with a small number of observations per cluster. There are
+various proposed multiple imputation models based on hierarchical
+models, each with its own set of assumptions \cite{audigier}.
 
-In the particular case that the analysis contemplates the use of a
-hierarchical model (i.e.~main model), before choosing a particular
-strategy, it is crucial to verify if the assumptions of the imputation
-model align with those of the main analysis. For example, using the
-cluster indicator strategy may introduce bias estimates when the model
-is based on a hierarchical structure \cite{taljaard2008,speidel2018}.
-Even if an imputation strategy congruent with the main model is
-preferred, it is essential to assess its appropriateness for the data,
-considering that less complex imputation strategies may lead to unbiased
+If your analysis uses a hierarchical model, make sure the assumptions of
+your imputation model match up. For example, using a cluster indicator
+approach may lead to bias estimates if your model is based on a
+hierarchical structure \cite{taljaard2008,speidel2018}. Even if you
+prefer an imputation strategy that aligns with your main model, check if
+it suits your data; sometimes simpler strategies can give unbiased
 estimates in certain scenarios \cite{bailey2020}.
 
 \hypertarget{choice-of-individual-imputation-methods}{%
 \subsubsection{Choice of Individual Imputation
 Methods}\label{choice-of-individual-imputation-methods}}
 
-The initial step involves selecting the individual imputation model for
-each incomplete variable in the dataset. The mice package automatically
-proposes imputation methods based on the variable type for 1l variables.
-For 2l level variables, the micemd package's () function can be
-utilized. This function selects among the 2l imputation methods based on
-the size of the clusters and the proportion of missingness in each
-cluster.
+Start by choosing the imputation model for each incomplete variable in
+your dataset. The mice package suggests methods based on variable types
+for non-clustered variables, and for the cluster ones, you can use the
+micemd package's find.defaultMethod() function. This function selects
+from different 2l imputation methods based on cluster size and the
+proportion of missing data in each cluster.
 
-In addition to the package-defined imputation methods, users can specify
-custom methods using the ``I formula''. This flexibility allows for the
-calculation of derived variables internally or adjustments to imputation
-methods based on specific conditions, such as conditioning the
-imputation model on the level of an incomplete covariate (e.g.,
-pregnancy test on females).
+Besides the package-defined imputation methods, you can specify custom
+methods using the ``I formula''. This lets you calculate deterministic
+variables during the imputation or tweak imputation methods based on
+specific conditions, like conditioning the imputation model to the level
+of an incomplete covariate (e.g., a pregnancy test for females).
 
 \hypertarget{model-specification}{%
 \subsubsection{Model Specification}\label{model-specification}}
@@ -682,56 +669,102 @@ The imputation model must be congenial with the main model
 the main model make different assumptions, often due to the omission of
 a polynomial or interaction term or the use of transformed variables.
 
-The imputation model can include additional terms than the main model
-terms that do not lead to uncongeniality. For instance, it is advisable
-to include the outcome variable in the imputation model for prediction
-variables \cite{moons2006a}. In cases where the outcome is
+The imputation model can incorporate additional terms compared to the
+main model without causing compatibility issues. For instance, it's
+recommended to include the outcome variable in the imputation model for
+prediction variables \cite{moons2006a}. In cases where the outcome is
 time-to-event, the Nelson-Aalen estimate of the time to the event should
-be included as a covariate in the imputation model {[}REF{]}.
-Furthermore, the inclusion of auxiliary variables, even if not part of
-the main model, can be associated with the probability of missingness,
-enhancing the likelihood of satisfying the Missing at Random (MAR)
-assumption and improving estimation efficiency \cite{hardt2012a}.
+be added as a covariate in the imputation model {[}REF{]}. Additionally,
+including auxiliary variables, even if not part of the main model, can
+be linked to the probability of missingness, improving the likelihood of
+meeting the Missing at Random (MAR) assumption and enhancing estimation
+efficiency \cite{hardt2012a}.
 
-The specification of imputation models is done on a variable basis,
-either using a prediction matrix where the type of prediction variable
-should be specified accordingly (see table) or through a list of
-formulas in the formula parameter. The latter option proves useful in
-formulating imputation models with polynomial terms or interactions
-compared to the prediction matrix specification, which requires the
-inclusion of additional terms as Just Another Variable (JAV)
-\cite{buuren2018a}.
+Imputation models are specified on a variable basis, either using a
+prediction matrix in the pred parameter or through a list of formulas in
+the formula parameter. In the prediction matrix option, the type of each
+predictor variable is specified for each incomplete variable (see
+table).
 
-However, even when considering an interaction term, depending on the
-adapted individual imputation model, it has been suggested, for
-instance, for treatment interaction effects, to conduct separated
-imputation by treatment group \cite{zhang2023}. Additionally, there are
+\begin{align}
+y_{ij} =& (\beta_0 + b_{0_i})+ \beta_1x_{1_{ij}}+\beta_2x_{2_{i.}} \nonumber \\
++& (\beta_3 +  b_{3_i})x_{3_{ij}} \nonumber \\
++& \beta_4x_{4_{ij}} + \beta_{m4}\overline{x_{4_{i.}}}\nonumber \\
++& (\beta_5 +  b_{5_i})x_{5_{ij}} +\beta_{m5}\overline{x_{5_{i.}}}\nonumber \\
+\end{align}
+
+\begin{tabular}{ll}
+     \toprule
+Type & Definition \\
+  \midrule
+-2  & Cluster variable, in this case the one defined by j index  \\
+ 1  & Fixed variable, e.g., level-1  $x_{1_{ij}}$ or  level-2 $x_{2_{i.}}$ \\
+ 2  & Random variable, e.g., $x_{3_{ij}}$\\
+ 3  & *Fixed variable with cluster mean $x_{4_{ij}}$\\
+ 4  & *Random variable with cluster mean $x_{5_{ij}}$\\
+-3. & Random variable only included on selection model (Heckman model)\\
+-4. & Random variable only included on main model (Heckman model)\\
+      \bottomrule
+\end{tabular}
+
+\begin{itemize}
+\tightlist
+\item
+  3 and 4 type have been advised to used as the inclusion of the means
+  of the cluster is beneficial on FCS \cite{mistler2017}
+\end{itemize}
+
+Recipes have been proposed for imputing incomplete level-1 and level-2
+variables for hierarchical models \cite{buuren2018a} (\(\S\) 7.10),
+which can be convenient to follow when dealing with numerous variables
+(interaction terms at different levels) and models with many random
+effects that are prone to convergency problems due to overspecification
+in the imputation model. These rules were designed to ensure
+compatibility among the conditionally specified imputation models and
+congeniality between the imputation and the main model. However, they
+may not be applicable to all 2l imputation methods; for instance, the
+2l.2stage imputation methods of the micemd package only allow the
+inclusion of random predictor variables (2).
+
+On the other hand, the formula option is useful in specifying complex
+imputation models with polynomial terms or interactions and compared
+with the prediction matrix method do not requires the inclusion of
+additional terms as Just Another Variable (JAV)
+\cite{buuren2018a}(\(\S\) 6.4).
+
+For some interaction terms, it has been suggested, for instance, for
+treatment interaction effects, to conduct separate imputation by
+treatment group \cite{zhang2023}. Additionally, it can be used
 imputation models based on random forest or deep learning that can
-handle interaction and non-linear terms that do not require the explicit
-inclusion of the non-linear terms.
+handle interaction and non-linear terms without requiring the explicit
+specification of an imputation model.
 
 \hypertarget{post-imputation}{%
 \subsection{Post-Imputation}\label{post-imputation}}
 
 During the imputation process, certain issues may arise that halt the
-process. In hierarchical model imputations, many issues are linked to
-methods based on parametric hierarchical models, which may struggle to
-estimate a model midway through the process. In such cases, it is
-advisable to examine the imputation log file to identify variables with
-imputation issues. Subsequently, reducing the number of predictors in
-the imputation model could be explored, either by using functions like
-quickpred or by considering variable transformations, such as scaling.
-Adjusting the level of the hierarchical model (e.g., using a homogenous
-variance model or a 1l model) can also be beneficial. Additionally,
-checking the range of imputed variables is crucial, as excessively large
-imputed values for one predictor could lead to convergence issues in
-other variables. This can be mitigated by including post-processing
-specifications on problematic variables or by using imputation models
-like Predicted Mean Matching (PMM), ensuring imputed values align with
-the observable values. In certain cases, a separate imputation strategy
-may be considered. For instance, in analyses involving multiple
-endpoints, conducting separate imputation processes for each endpoint
-might be preferable to a unified imputation process.
+process. In hierarchical model imputations, many issues are related to
+over fitting the imputation model. To troubleshoot, it is recommended to
+inspect the imputation log file for variables causing problems. One
+approach to address this is to reduce the number of predictors, by using
+step by step the previous referred recepies or by using functions like
+quickpred. Another option is to consider variable transformations, such
+as scaling when model is invariant to linear transformations e.g.,
+random intercept models. Also adjusting the level of the hierarchical
+model (e.g., using a homogeneous variance imputation method or a 1l
+model) can also be beneficial.
+
+It is crucial to check the range of imputed variables, as excessively
+large imputed values for one predictor may trigger convergence issues in
+other variables. To tackle this, including post-processing
+specifications on problematic variables or utilizing imputation models
+like Predicted Mean Matching (PMM) can ensure that imputed values align
+with observable values.
+
+In some situations, adopting a separate imputation strategy might be
+worth considering. For example, in analyses involving multiple
+endpoints, conducting distinct imputation processes for each endpoint
+could be more effective than a unified imputation approach.
 
 \hypertarget{convergence-and-sensitivity-analysis}{%
 \subsection{Convergence and Sensitivity
@@ -817,6 +850,12 @@ score. This model can be expressed in \texttt{lme4} code as:
 \begin{verbatim}
 popular ~ 1 + sex + (1 | school)
 \end{verbatim}
+
+Given the \(j\)-th student belonging to the \(i\)-th school, the main
+model can be formulated as:
+
+\[ popular_{ij} = (\beta_0 + b_i) + \beta_1sex_{ij}+ \beta_2texp_{ij}+\epsilon_{ij}\]
+where \(\epsilon_{ij}\) corresponds to the error term.
 
 We load the data into the environment with
 
@@ -1254,6 +1293,18 @@ into the analysis model:
 \begin{verbatim}
 mort ~ type + age + motor_score + pupil + ct + (1 | name) 
 \end{verbatim}
+
+In this dataset all the variables are level-1 (patient), except by the
+level-2 (study) type variable. The analysis model for this dataset is a
+prediction model with \texttt{mort} as the outcome. In this tutorial
+we'll estimate the adjusted prognostic effect of \texttt{ct} on
+mortality outcomes. The estimand is the adjusted odds ratio for
+\texttt{ct}, after including \texttt{type}, \texttt{age}
+\texttt{motor\_score} and \texttt{pupil}. Therefore the main model for
+the \(i\)-th patient from the \(j\)-th study can be described as:
+
+\[ mort_{ij} = (\beta_0 + b_i) + \beta_1type_{.j}+ \beta_2age_{ij}+ \beta_3motorscore_{ij} + \beta_4pupil_{ij} + \beta_5ct_{ij}+\epsilon_{ij}\]
+where \(\epsilon_{ij}\) corresponds to the error term.
 
 Note that variables \texttt{hypots}, \texttt{hypox}, \texttt{tsah} and
 \texttt{edh} are not part of the analysis model, and may thus serve as
@@ -2163,7 +2214,7 @@ research and innovation programme under ReCoDID grant agreement No
 \section*{More technical details}\label{sec-techdetails}}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, colback=white, opacityback=0, left=2mm, toprule=.15mm, bottomrule=.15mm, arc=.35mm, rightrule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -2195,7 +2246,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, colback=white, opacityback=0, left=2mm, toprule=.15mm, bottomrule=.15mm, arc=.35mm, rightrule=.15mm, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
