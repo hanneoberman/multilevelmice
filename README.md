@@ -1,5 +1,5 @@
 # Imputation of Incomplete Multilevel Data with `mice`
 
-Tutorial paper on imputing incomplete multilevel data with `mice`. Including methods for ignorable and non-ignorable missingness.
+Tutorial paper on imputing incomplete multilevel data with `mice`, including methods for ignorable and non-ignorable missingness. The most recent version of the manuscript is located in the ` Manuscript` folder.
 
-Contributors: Johanna Munoz, Valentijn de Jong, Gerko Vink, Thomas Debray, and Hanne Oberman.
+Contributors: Johanna Muñoz, Valentijn de Jong, Gerko Vink, Thomas Debray, and Hanne Oberman.
