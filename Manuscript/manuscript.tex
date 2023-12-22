@@ -7,6 +7,7 @@
   article]{jss}
 
 \usepackage{amsmath,amssymb}
+\usepackage{lmodern}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
@@ -16,10 +17,6 @@
   \usepackage{unicode-math}
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
-\fi
-\usepackage{lmodern}
-\ifPDFTeX\else  
-    % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -75,13 +72,36 @@
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 \usepackage{orcidlink,thumbpdf,lmodern}
 
 \newcommand{\class}[1]{`\code{#1}'}
 \newcommand{\fct}[1]{\code{#1()}}
 \makeatletter
-\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\@ifpackageloaded{tcolorbox}{}{\usepackage[many]{tcolorbox}}
 \@ifpackageloaded{fontawesome5}{}{\usepackage{fontawesome5}}
 \definecolor{quarto-callout-color}{HTML}{909090}
 \definecolor{quarto-callout-note-color}{HTML}{0758E5}
@@ -138,6 +158,12 @@
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[many]{tcolorbox}}
+\makeatother
+\makeatletter
+\@ifundefined{shadecolor}{\definecolor{shadecolor}{rgb}{.97, .97, .97}}
 \makeatother
 \makeatletter
 \makeatother
@@ -247,6 +273,8 @@ Utrecht The Netherlands\\
 
 \begin{document}
 \maketitle
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, borderline west={3pt}{0pt}{shadecolor}, enhanced, boxrule=0pt, breakable, sharp corners, interior hidden]}{\end{tcolorbox}}\fi
+
 \hypertarget{sec-intro}{%
 \section{Introduction: Clustering and incomplete data}\label{sec-intro}}
 
@@ -368,7 +396,7 @@ and in the context of time-to-event data as `frailty models'. Table
 \ref{tab:clus} provides an overview of some key concepts in multilevel
 modeling.
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
 
 Box 1. The intraclass correlation coefficient.
 
@@ -463,13 +491,13 @@ specifies the interrelational dependencies between variables and
 imputation models (i.e., the set of predictors to be used for imputing
 each incomplete variable).
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
 
 Box 2. The \texttt{methods}.
 
 \end{tcolorbox}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
 
 Box 3. The predictor matrix. The entries corresponding to the level-1
 predictors are coded with a 3, indicating that both the original values
@@ -985,7 +1013,7 @@ t.test(dat$texp ~ is.na(dat$popular)) |>
   >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0840}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.2017}}
   >{\raggedright\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.1008}}@{}}
-\toprule\noalign{}
+\toprule()
 \begin{minipage}[b]{\linewidth}\raggedleft
 estimate
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
@@ -1007,12 +1035,11 @@ method
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 alternative
 \end{minipage} \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
 -0.2599581 & 14.15278 & 14.41274 & -0.8731291 & 0.3827095 & 1796.115 &
 -0.8438947 & 0.3239786 & Welch Two Sample t-test & two.sided \\
+\bottomrule()
 \end{longtable}
 
 Although there are no significant differences in the distribution of
@@ -1196,7 +1223,7 @@ R> est$estimates |>
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.2338}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0779}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0779}}@{}}
-\toprule\noalign{}
+\toprule()
 \begin{minipage}[b]{\linewidth}\raggedright
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 Estimate
@@ -1213,13 +1240,12 @@ RIV
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 FMI
 \end{minipage} \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
 (Intercept) & 3.599 & 0.181 & 19.924 & 246.857 & 0 & 0.146 & 0.134 \\
 texp & 0.092 & 0.012 & 7.760 & 107.369 & 0 & 0.239 & 0.208 \\
 sex & 0.852 & 0.039 & 21.592 & 27.501 & 0 & 0.616 & 0.422 \\
+\bottomrule()
 \end{longtable}
 
 \begin{verbatim}
@@ -1229,16 +1255,15 @@ R> est$extra.pars |>
 \end{verbatim}
 
 \begin{longtable}[]{@{}lr@{}}
-\toprule\noalign{}
+\toprule()
 & Estimate \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
 Intercept\textasciitilde\textasciitilde Intercept\textbar school &
 0.470 \\
 Residual\textasciitilde\textasciitilde Residual & 0.462 \\
 ICC\textbar school & 0.504 \\
+\bottomrule()
 \end{longtable}
 
 \hypertarget{impact-data}{%
@@ -1537,7 +1562,7 @@ R> est$estimates |>
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.2222}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0741}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0741}}@{}}
-\toprule\noalign{}
+\toprule()
 \begin{minipage}[b]{\linewidth}\raggedright
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 Estimate
@@ -1554,10 +1579,8 @@ RIV
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 FMI
 \end{minipage} \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
 (Intercept) & -1.892 & 0.333 & -5.682 & 11445.455 & 0.000 & 0.019 &
 0.019 \\
 type & -0.346 & 0.178 & -1.948 & 686356.768 & 0.051 & 0.002 & 0.002 \\
@@ -1572,6 +1595,7 @@ pupil2 & 1.315 & 0.068 & 19.339 & 110.826 & 0.000 & 0.235 & 0.204 \\
 pupil3 & 0.657 & 0.075 & 8.745 & 423.463 & 0.000 & 0.108 & 0.101 \\
 ct2 & 0.747 & 0.084 & 8.884 & 41.781 & 0.000 & 0.448 & 0.340 \\
 ct3 & 0.766 & 0.090 & 8.535 & 12.103 & 0.000 & 1.352 & 0.631 \\
+\bottomrule()
 \end{longtable}
 
 \begin{verbatim}
@@ -1581,14 +1605,13 @@ R> est$extra.pars |>
 \end{verbatim}
 
 \begin{longtable}[]{@{}lr@{}}
-\toprule\noalign{}
+\toprule()
 & Estimate \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
 Intercept\textasciitilde\textasciitilde Intercept\textbar name &
 0.082 \\
+\bottomrule()
 \end{longtable}
 
 \hypertarget{obesity-data}{%
@@ -1832,7 +1855,7 @@ R> est$estimates |>
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.2338}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0779}}
   >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0779}}@{}}
-\toprule\noalign{}
+\toprule()
 \begin{minipage}[b]{\linewidth}\raggedright
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 Estimate
@@ -1849,15 +1872,14 @@ RIV
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 FMI
 \end{minipage} \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
-(Intercept) & 28.445 & 2.262 & 12.578 & 158.191 & 0.000 & 0.189 &
-0.169 \\
-Age & 0.041 & 0.032 & 1.312 & 383.212 & 0.190 & 0.114 & 0.107 \\
-FamObyes & 0.000 & 0.316 & -0.001 & 207.642 & 0.999 & 0.161 & 0.147 \\
-GenderMale & -1.361 & 0.411 & -3.310 & 7.985 & 0.011 & 2.422 & 0.761 \\
+(Intercept) & 28.445 & 2.259 & 12.592 & 157.553 & 0.000 & 0.190 &
+0.170 \\
+Age & 0.041 & 0.032 & 1.311 & 388.953 & 0.191 & 0.113 & 0.106 \\
+FamObyes & 0.000 & 0.316 & -0.001 & 207.648 & 0.999 & 0.161 & 0.147 \\
+GenderMale & -1.361 & 0.411 & -3.310 & 7.986 & 0.011 & 2.421 & 0.761 \\
+\bottomrule()
 \end{longtable}
 
 \begin{verbatim}
@@ -1867,18 +1889,17 @@ R> est$extra.pars |>
 \end{verbatim}
 
 \begin{longtable}[]{@{}lr@{}}
-\toprule\noalign{}
+\toprule()
 & Estimate \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
 Intercept\textasciitilde\textasciitilde Intercept\textbar Cluster &
-19.862 \\
-Age\textasciitilde\textasciitilde Age\textbar Cluster & 0.002 \\
-Intercept\textasciitilde\textasciitilde Age\textbar Cluster & -0.067 \\
+19.805 \\
+Age\textasciitilde\textasciitilde Age\textbar Cluster & 0.003 \\
+Intercept\textasciitilde\textasciitilde Age\textbar Cluster & -0.069 \\
 Residual\textasciitilde\textasciitilde Residual & 26.010 \\
-ICC\textbar Cluster & 0.395 \\
+ICC\textbar Cluster & 0.394 \\
+\bottomrule()
 \end{longtable}
 
 After confirming convergence, we proceed to save the results for future
@@ -1978,7 +1999,7 @@ summary(complete(imp_mnar, "long")$Weight)
 
 \begin{verbatim}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  16.26   70.95   85.21   86.14  100.14  190.95 
+  16.31   72.14   86.97   87.68  102.43  190.44 
 \end{verbatim}
 
 Upon examining the weight variable, we noticed that the imputed range
@@ -1991,7 +2012,7 @@ summary(complete(imp_mnar, "long")$Weight)
 
 \begin{verbatim}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  16.26   70.95   85.21   86.14  100.14  190.95 
+  16.31   72.14   86.97   87.68  102.43  190.44 
 \end{verbatim}
 
 Consequently, as before we use the `pmm', option but this time for the
@@ -2020,7 +2041,7 @@ summary(complete(imp_mnar_pmm, "long")$Weight)
 
 \begin{verbatim}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  28.35   71.51   85.07   85.35   98.90  134.61 
+  28.35   71.87   85.58   86.51  100.15  134.61 
 \end{verbatim}
 
 \begin{verbatim}
@@ -2078,15 +2099,15 @@ R> est$estimates |>
 \end{verbatim}
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1558}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1169}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1299}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1039}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0909}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.2338}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0909}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0779}}@{}}
-\toprule\noalign{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1579}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1184}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1316}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1053}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0921}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.2368}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0789}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0789}}@{}}
+\toprule()
 \begin{minipage}[b]{\linewidth}\raggedright
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 Estimate
@@ -2103,15 +2124,14 @@ RIV
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 FMI
 \end{minipage} \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
-(Intercept) & 28.880 & 2.391 & 12.078 & 56.876 & 0.000 & 0.361 &
-0.290 \\
-Age & 0.050 & 0.037 & 1.343 & 19.874 & 0.194 & 0.814 & 0.497 \\
-FamObyes & -0.027 & 0.490 & -0.056 & 11.685 & 0.957 & 1.410 & 0.642 \\
-GenderMale & -1.484 & 0.804 & -1.846 & 4.813 & 0.126 & 10.318 & 0.934 \\
+(Intercept) & 29.199 & 2.766 & 10.555 & 55.483 & 0.000 & 0.367 &
+0.294 \\
+Age & 0.050 & 0.038 & 1.301 & 18.731 & 0.209 & 0.859 & 0.512 \\
+FamObyes & 0.016 & 0.445 & 0.036 & 15.910 & 0.972 & 1.006 & 0.554 \\
+GenderMale & -1.408 & 0.696 & -2.024 & 5.128 & 0.097 & 7.563 & 0.912 \\
+\bottomrule()
 \end{longtable}
 
 \begin{verbatim}
@@ -2121,18 +2141,17 @@ R> est$extra.pars |>
 \end{verbatim}
 
 \begin{longtable}[]{@{}lr@{}}
-\toprule\noalign{}
+\toprule()
 & Estimate \\
-\midrule\noalign{}
+\midrule()
 \endhead
-\bottomrule\noalign{}
-\endlastfoot
 Intercept\textasciitilde\textasciitilde Intercept\textbar Cluster &
-19.111 \\
-Age\textasciitilde\textasciitilde Age\textbar Cluster & 0.001 \\
-Intercept\textasciitilde\textasciitilde Age\textbar Cluster & -0.046 \\
-Residual\textasciitilde\textasciitilde Residual & 30.071 \\
-ICC\textbar Cluster & 0.372 \\
+26.114 \\
+Age\textasciitilde\textasciitilde Age\textbar Cluster & 0.002 \\
+Intercept\textasciitilde\textasciitilde Age\textbar Cluster & -0.088 \\
+Residual\textasciitilde\textasciitilde Residual & 29.741 \\
+ICC\textbar Cluster & 0.431 \\
+\bottomrule()
 \end{longtable}
 
 We note that there is minimal disparity in the age effect, FamObs, or
@@ -2205,8 +2224,9 @@ research and innovation programme under ReCoDID grant agreement No
 \section*{References}\label{references}}
 \addcontentsline{toc}{section}{References}
 
-\renewcommand{\bibsection}{}
-\bibliography{bibliography.bib}
+\hypertarget{refs}{}
+\begin{CSLReferences}{0}{0}
+\end{CSLReferences}
 
 \newpage{}
 
@@ -2214,7 +2234,7 @@ research and innovation programme under ReCoDID grant agreement No
 \section*{More technical details}\label{sec-techdetails}}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -2246,7 +2266,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, rightrule=.15mm, breakable, opacityback=0, bottomrule=.15mm, colback=white, leftrule=.75mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
@@ -2282,6 +2302,7 @@ following format.
 \end{tcolorbox}
 
 
+  \bibliography{bibliography.bib}
 
 
 \end{document}

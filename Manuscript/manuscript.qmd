@@ -87,6 +87,7 @@ In hierarchical datasets, clustering is a concern because the homoscedasticity i
 #| echo: false
 #| warning: false
 #| message: false
+set.seed(1)
 library(knitr)
 library(ggplot2)
 source("../Manuscript/utils.R")
