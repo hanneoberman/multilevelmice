@@ -112,7 +112,7 @@ We illustrate imputation of incomplete multilevel data using three case studies:
 
 For each of these datasets, we discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. 
 
-This tutorial is dedicated to readers who are unfamiliar with multiple imputation. More experienced readers can skip the introduction (case study 1) and directly head to practical applications of multilevel imputation under MAR conditions (case study 2) or under MNAR conditions (case study 3). 
+This tutorial is dedicated to readers who are unfamiliar with multiple imputation. More experienced readers can skip the remainder of the introduction section, background section and case study 1, and directly head to practical applications of multilevel imputation under MAR conditions (case study 2) or under MNAR conditions (case study 3). 
 
 
 ## Background {#sec-models}
