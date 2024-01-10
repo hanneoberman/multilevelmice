@@ -24,17 +24,17 @@ author:
   - name: Johanna Muñoz
     affiliations:
       - name: University Medical Center Utrecht
-        department: Julius Centre for Health Sciences and Primary Care
+        department: Julius Center for Health Sciences and Primary Care
         address: Universiteitsweg 100
         city: Utrecht
         country: The Netherlands
-        postal-code: 3584 CG
+        postal-code: 3584 CX
       - Journal of Statistical Software
     orcid: 0000-0002-2384-5415
   - name: Valentijn M.T. de Jong
     affiliations:
       - name: University Medical Center Utrecht
-        department: Julius Centre for Health Sciences and Primary Care
+        department: Julius Center for Health Sciences and Primary Care
         city: Utrecht
         country: The Netherlands
       - name: European Medicines Agency
@@ -46,7 +46,7 @@ author:
   - name: Gerko Vink
     affiliations:
       - name: University Medical Center Utrecht
-        department: Julius Centre for Health Sciences and Primary Care
+        department: Julius Center for Health Sciences and Primary Care
         address: Universiteitsweg 100
         city: Utrecht
         country: The Netherlands
@@ -56,11 +56,11 @@ author:
   - name: Thomas P.A. Debray
     affiliations:
       - name: University Medical Center Utrecht
-        department: Julius Centre for Health Sciences and Primary Care
+        department: Julius Center for Health Sciences and Primary Care
         address: Universiteitsweg 100
         city: Utrecht
         country: The Netherlands
-        postal-code: 3584 CG
+        postal-code: 3584 CX
       - Journal of Statistical Software
     orcid: 0000-0002-1790-2719    
 abstract: |
@@ -112,7 +112,7 @@ We illustrate imputation of incomplete multilevel data using three case studies:
 
 For each of these datasets, we discuss the nature of the missingness, choose one or more imputation models and evaluate the imputed data, but we will also highlight one specific aspect of the imputation workflow. 
 
-This tutorial is dedicated to readers who are unfamiliar with multiple imputation. More experienced readers can skip the introduction (case study 1) and directly head to practical applications of multilevel imputation under MAR conditions (case study 2) or under MNAR conditions (case study 3). 
+This tutorial is dedicated to readers who are unfamiliar with multiple imputation. More experienced readers can skip the background section and introduction (case study 1) and directly head to practical applications of multilevel imputation under MAR conditions (case study 2, @sec-impact) or under MNAR conditions (case study 3). 
 
 
 ## Background {#sec-models}
@@ -511,7 +511,7 @@ est$extra.pars |>
   kable()
 ```
 
-### IMPACT data
+### IMPACT data {#sec-impact}
 
 The second case study is the `impact` data from the \pkg{metamisc} package [empirical data on traumatic brain injuries, $n = 11,022$ units across $N = 15$ clusters, @metamisc].
 
@@ -968,11 +968,7 @@ This paper is dedicated to exploring the imputation process for incomplete datas
 The "Mice" and "mice"-based R packages offer a range of imputation methods tailored for hierarchical data, easily adaptable to the dataset's structure. Before proceeding with the analysis of the imputed dataset, it is essential to assess the convergence of the imputation method. This evaluation can reveal issues such as circular problems, the need for additional iterations, or challenges associated with the chosen imputation method.
 
 
-## Funding
 
-This project has received funding from the European Union's Horizon 2020 research and innovation programme under ReCoDID grant agreement No 825746.
-
-The views expressed in this paper are the personal views of the authors and may not be understood or quoted as being made on behalf of or reflecting the position of the regulatory agency/agencies or organizations with which the authors are employed/affiliated.
 
 ## Summary and discussion {#sec-summary}
 
@@ -983,6 +979,9 @@ What is missing from this manuscript...
 
 The results in this paper were obtained using [R]{.proglang}~4.3.0. [R]{.proglang} itself and all packages used are available from the Comprehensive [R]{.proglang} Archive Network (CRAN) at [https://CRAN.R-project.org/].
 
+## Disclaimer
+
+The views expressed in this paper are the personal views of the authors and may not be understood or quoted as being made on behalf of or reflecting the position of the regulatory agency/agencies or organizations with which the authors are employed/affiliated.
 
 ## Acknowledgments {.unnumbered}
 
