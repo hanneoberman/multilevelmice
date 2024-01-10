@@ -1,0 +1,28 @@
+Package: rr2
+Type: Package
+Title: R2s for Regression Models
+Version: 1.1.1
+Authors@R: c(
+    person("Anthony", "Ives", , "arives@wisc.edu", c("aut", "cre")),
+    person("Daijiang", "Li", , "daijianglee@gmail.com", role = "ctb"))
+Description: Three methods to calculate R2 for models with correlated errors, 
+    including Phylogenetic GLS, Phylogenetic Logistic Regression, Linear Mixed 
+    Models (LMMs), and Generalized Linear Mixed Models (GLMMs). See details in 
+    Ives 2018 <doi:10.1093/sysbio/syy060>.
+License: GPL-3
+Depends: R (>= 3.0), stats
+Encoding: UTF-8
+Imports: lme4, phylolm (>= 2.6.2), ape, utils, Matrix, nlme, phyr (>=
+        1.0.3)
+RoxygenNote: 7.2.3
+Suggests: testthat, mvtnorm
+URL: https://github.com/arives/rr2
+BugReports: https://github.com/arives/rr2/issues
+NeedsCompilation: no
+Packaged: 2023-08-21 13:34:14 UTC; arives
+Author: Anthony Ives [aut, cre],
+  Daijiang Li [ctb]
+Maintainer: Anthony Ives <arives@wisc.edu>
+Repository: CRAN
+Date/Publication: 2023-08-21 14:20:04 UTC
+Built: R 4.3.0; ; 2023-08-27 07:27:20 UTC; unix

@@ -273,7 +273,7 @@ Utrecht The Netherlands\\
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, borderline west={3pt}{0pt}{shadecolor}, enhanced, boxrule=0pt, breakable, sharp corners, interior hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, interior hidden, sharp corners, frame hidden, boxrule=0pt, breakable, enhanced]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-intro}{%
 \section{Introduction: Clustering and incomplete data}\label{sec-intro}}
@@ -318,10 +318,11 @@ estimates with smaller standard errors and inflated type I error.
 \hypertarget{overview-of-software}{%
 \subsection{overview of software}\label{overview-of-software}}
 
-The popular \pkg{mice} package in \proglang{R} \citet{R}
+The popular \pkg{mice} package in \proglang{R} \citet{R} TODO:
+\citet{Hanne}(Is this section relevant?)
 
 \hypertarget{scope}{%
-\subsection{scope}\label{scope}}
+\subsection{Scope}\label{scope}}
 
 This papers serves as a tutorial for imputing incomplete multilevel data
 with \pkg{mice} in \proglang{R}. \pkg{mice} has become the de-facto
@@ -371,7 +372,7 @@ imputation under MAR conditions (case study 2) or under MNAR conditions
 \section{Background}\label{sec-models}}
 
 \hypertarget{concepts-in-multilevel-data}{%
-\subsection{concepts in multilevel
+\subsection{Concepts in multilevel
 data}\label{concepts-in-multilevel-data}}
 
 Many datasets include individuals that are clustered together, for
@@ -393,24 +394,44 @@ hierarchical models that explicitly describe the grouping of
 observations. These models are also known as `multilevel models',
 `hierarchical models', `mixed effect models', `random effect models',
 and in the context of time-to-event data as `frailty models'. Table
-\ref{tab:clus} provides an overview of some key concepts in multilevel
+\ref{tab:clus0} provides an overview of some key concepts in multilevel
 modeling.
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
+\begin{table}
 
-Box 1. The intraclass correlation coefficient.
+\caption{Concepts in multilevel methods}
+\centering
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{12cm}}
+\toprule
+Concept & Details\\
+\midrule
+Sample units & Units of the population from which measurements are taken in a sample, e.g., students.\\
+Cluster & Variable that specify the cluster or agruppation, e.g., Classroom\\
+Hierarchical data & Data are grouped into clusters at different levels, observations belonging to the same cluster are expected to share certain characteristics.\\
+Level-1 & Variable that varies within a cluster, eg. Test score\\
+Level-2 & Variable that does not vary within a cluster but between, e.g. teacher experience.\\
+\addlinespace
+Hierarchical model & Model accounting for dependant observations relying on certain parameters ( within cluster) which in turn depend on other parameters (between cluster)\\
+Fixed effect & Effects that are constant across all sample units, e.g. something that researchers control for and can repeat, such as  a teaching strategy (tutoring after class)\\
+Random effect & Effects that are a source of random variation in the data, and whose levels are not fully sampled. e.g. test score tendency during academic year between students due to no controlled factors such as  genetic,family history\\
+Mixed effect & Includes fixed and random effects, e.g. the fixed effect would be the treatment effect of a drug and the random effect would be the ID of the hospital where the patient is treated. Multilevel models typically accommodate for variability by including a separate group mean for each cluster e.g random intercept on hospitals. In addition to random intercepts, multilevel models can also include random coefficients and heterogeneous residual error variances across clusters (see e.g. @gelm06, @hox17 and @jong21).\\
+ICC & The variability due to clustering is often measured by means of the intraclass coefficient (ICC). The ICC can be seen as the percentage
+of variance that can be attributed to the cluster-level, where a high ICC would indicate that a lot of variability is due to the cluster structure.\\
+\addlinespace
+Stratified intercept & \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\end{tcolorbox}
-
-In \proglang{R}, multilevel models may be fitted using the package
-\pkg{lme4}. For linear mixed-effects models, the function
+In \proglang{R}, multilevel models may be fitted using package such as
+\pkg{lme4} or \pkg{nlme}. For linear mixed-effects models, the function
 
 \begin{verbatim}
 lmer(formula, data, ...)
 \end{verbatim}
 
 \hypertarget{concepts-in-missing-data}{%
-\subsection{concepts in missing data}\label{concepts-in-missing-data}}
+\subsection{Concepts in missing data}\label{concepts-in-missing-data}}
 
 missing data mechanisms etc.
 
@@ -436,7 +457,7 @@ Sporadic missingness is visualized in Figure XYZ.
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-3-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-2-1.pdf}
 
 }
 
@@ -471,8 +492,36 @@ mechanisms, different imputation strategies are warranted
 (\citet{yuce08} and \citet{hox15}). We here consider the general case
 that data are MAR, and expand on certain MNAR situations.
 
+Table 2: Concepts in missing data methods
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.1739}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.8261}}@{}}
+\toprule()
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Concept}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Details}
+\end{minipage} \\
+\midrule()
+\endhead
+MCAR & Missing Completely At Random, where the probability to be missing
+is equal \\
+& across all data entries \\
+MAR & Missing At Random, where the probability to be missing depends on
+observed \\
+& information \\
+MNAR & Missing Not At Random (MNAR), where the probability to be
+missing \\
+& depends on unrecorded information, making the missingness
+non-ignorable \\
+& \citep{rubi76, meng94}. \\
+& \\
+\bottomrule()
+\end{longtable}
+
 \hypertarget{imputation-with-mice}{%
-\subsection{imputation with mice}\label{imputation-with-mice}}
+\subsection{Imputation with mice}\label{imputation-with-mice}}
 
 The \proglang{R} package \pkg{mice} provides a framework for imputing
 incomplete data on a variable-by-variable basis. The \fct{mice} function
@@ -491,13 +540,18 @@ specifies the interrelational dependencies between variables and
 imputation models (i.e., the set of predictors to be used for imputing
 each incomplete variable).
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, toprule=.15mm, colframe=quarto-callout-color-frame, rightrule=.15mm, bottomrule=.15mm, colback=white, breakable, opacityback=0, left=2mm]
 
 Box 2. The \texttt{methods}.
 
 \end{tcolorbox}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, toprule=.15mm, colframe=quarto-callout-color-frame, rightrule=.15mm, bottomrule=.15mm, colback=white, breakable, opacityback=0, left=2mm]
+
+TODO: @ Hanne i added a wide explanation about hte prediction matrix in
+the Model Specification subsection, so you can check it and consider to
+modify your box.. because i dont think is usefull to repeat information
+across the paper\ldots{}
 
 Box 3. The predictor matrix. The entries corresponding to the level-1
 predictors are coded with a 3, indicating that both the original values
@@ -518,9 +572,7 @@ There are different strategies that can be adopted in the imputation
 process that account for clustering: inclusion of cluster indicator
 variable, performing a separate imputation process for each cluster, or
 performing a simultaneous imputation process by using an imputation
-method that accounts for clustering.(Stata:
-https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/)
-TODO: replace ref.
+method that accounts for clustering.\cite{zotero-516}
 
 The selection of each strategy depends mainly on the assumptions in the
 main analysis and also on the restriction of the analyzed data.
@@ -612,7 +664,7 @@ Likelihood (ML) estimation methods outperform Multiple Imputation (MI)
 methods, for instance when the response variable is the sole incomplete
 variable, mixed models demonstrate robustness to missing data under the
 Missing at Random (MAR) assumption and with a correct
-variance-covariance specification.\cite{Molenberghs_2007}.
+variance-covariance specification.\cite{molenberghs2007}.
 
 \hypertarget{pre-imputation}{%
 \subsection{Pre-imputation}\label{pre-imputation}}
@@ -700,13 +752,13 @@ a polynomial or interaction term or the use of transformed variables.
 The imputation model can incorporate additional terms compared to the
 main model without causing compatibility issues. For instance, it's
 recommended to include the outcome variable in the imputation model for
-prediction variables \cite{moons2006a}. In cases where the outcome is
+prediction variables \cite{moons2006}. In cases where the outcome is
 time-to-event, the Nelson-Aalen estimate of the time to the event should
 be added as a covariate in the imputation model {[}REF{]}. Additionally,
 including auxiliary variables, even if not part of the main model, can
 be linked to the probability of missingness, improving the likelihood of
 meeting the Missing at Random (MAR) assumption and enhancing estimation
-efficiency \cite{hardt2012a}.
+efficiency \cite{hardt2012}.
 
 Imputation models are specified on a variable basis, either using a
 prediction matrix in the pred parameter or through a list of formulas in
@@ -743,8 +795,8 @@ Type & Definition \\
 \end{itemize}
 
 Recipes have been proposed for imputing incomplete level-1 and level-2
-variables for hierarchical models \cite{buuren2018a} (\(\S\) 7.10),
-which can be convenient to follow when dealing with numerous variables
+variables for hierarchical models \cite{buur18} (\(\S\) 7.10), which can
+be convenient to follow when dealing with numerous variables
 (interaction terms at different levels) and models with many random
 effects that are prone to convergency problems due to overspecification
 in the imputation model. These rules were designed to ensure
@@ -757,8 +809,8 @@ inclusion of random predictor variables (2).
 On the other hand, the formula option is useful in specifying complex
 imputation models with polynomial terms or interactions and compared
 with the prediction matrix method do not requires the inclusion of
-additional terms as Just Another Variable (JAV)
-\cite{buuren2018a}(\(\S\) 6.4).
+additional terms as Just Another Variable (JAV) \cite{buur18}(\(\S\)
+6.4).
 
 For some interaction terms, it has been suggested, for instance, for
 treatment interaction effects, to conduct separate imputation by
@@ -821,7 +873,7 @@ the value and the probability of missingness of the incomplete value
 (indirectly non-informative). Specifically, for the indirectly
 non-informative case in hierarchical datasets, imputation methods based
 on the Heckman method can be
-considered.\cite{hammon2020,hammon2022,munoz2023}
+considered.\cite{hammon2020,hammon2022,munoz2023b}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -922,7 +974,7 @@ ggmice(dat, aes(sex, popular)) +
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-8-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-7-1.pdf}
 
 }
 
@@ -963,7 +1015,7 @@ R> plot_corr(dat)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-10-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-9-1.pdf}
 
 }
 
@@ -987,7 +1039,7 @@ R> ggmice(dat, aes(texp)) +
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-11-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-10-1.pdf}
 
 }
 
@@ -1095,7 +1147,7 @@ plot_pred(pred, method = meth)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-17-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-16-1.pdf}
 
 }
 
@@ -1120,7 +1172,7 @@ R> plot_trace(imp)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-19-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-18-1.pdf}
 
 }
 
@@ -1136,7 +1188,7 @@ R> ggmice(imp, aes(popular, group = .imp)) +
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-20-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-19-1.pdf}
 
 }
 
@@ -1152,7 +1204,7 @@ R> ggmice(imp, aes(.imp, popular)) +
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-21-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-20-1.pdf}
 
 }
 
@@ -1166,7 +1218,7 @@ R> ggmice(imp, aes(sex, popular)) +
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-22-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-21-1.pdf}
 
 }
 
@@ -1357,7 +1409,7 @@ R> plot_pattern(dat, rotate = TRUE, npat = 10L)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-28-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-27-1.pdf}
 
 }
 
@@ -1383,7 +1435,7 @@ R> plot_corr(dat, rotate = TRUE)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-29-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-28-1.pdf}
 
 }
 
@@ -1475,7 +1527,7 @@ R> plot_pred(pred, method = meth, rotate = TRUE)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-38-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-37-1.pdf}
 
 }
 
@@ -1500,7 +1552,7 @@ R> plot_trace(imp)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-40-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-39-1.pdf}
 
 }
 
@@ -1515,7 +1567,7 @@ R> ggmice(imp, aes(.imp, pupil)) +
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-41-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-40-1.pdf}
 
 }
 
@@ -1581,20 +1633,20 @@ FMI
 \end{minipage} \\
 \midrule()
 \endhead
-(Intercept) & -1.892 & 0.333 & -5.682 & 11445.455 & 0.000 & 0.019 &
-0.019 \\
-type & -0.346 & 0.178 & -1.948 & 686356.768 & 0.051 & 0.002 & 0.002 \\
-age & 0.032 & 0.002 & 19.564 & 2418.910 & 0.000 & 0.042 & 0.041 \\
-motor\_score2 & -0.575 & 0.070 & -8.226 & 71295.018 & 0.000 & 0.008 &
-0.008 \\
-motor\_score3 & -0.891 & 0.072 & -12.440 & 66712.189 & 0.000 & 0.008 &
-0.008 \\
-motor\_score4 & -1.276 & 0.074 & -17.305 & 18426.087 & 0.000 & 0.015 &
-0.015 \\
-pupil2 & 1.315 & 0.068 & 19.339 & 110.826 & 0.000 & 0.235 & 0.204 \\
-pupil3 & 0.657 & 0.075 & 8.745 & 423.463 & 0.000 & 0.108 & 0.101 \\
-ct2 & 0.747 & 0.084 & 8.884 & 41.781 & 0.000 & 0.448 & 0.340 \\
-ct3 & 0.766 & 0.090 & 8.535 & 12.103 & 0.000 & 1.352 & 0.631 \\
+(Intercept) & -1.910 & 0.335 & -5.700 & 9617.768 & 0.000 & 0.021 &
+0.021 \\
+type & -0.347 & 0.179 & -1.941 & 256541.695 & 0.052 & 0.004 & 0.004 \\
+age & 0.032 & 0.002 & 19.550 & 1965.628 & 0.000 & 0.047 & 0.046 \\
+motor\_score2 & -0.576 & 0.070 & -8.195 & 14898.703 & 0.000 & 0.017 &
+0.017 \\
+motor\_score3 & -0.892 & 0.072 & -12.390 & 14760.294 & 0.000 & 0.017 &
+0.017 \\
+motor\_score4 & -1.272 & 0.074 & -17.203 & 10235.157 & 0.000 & 0.020 &
+0.020 \\
+pupil2 & 1.311 & 0.074 & 17.758 & 41.455 & 0.000 & 0.451 & 0.342 \\
+pupil3 & 0.661 & 0.077 & 8.533 & 165.867 & 0.000 & 0.184 & 0.165 \\
+ct2 & 0.783 & 0.075 & 10.461 & 264.558 & 0.000 & 0.140 & 0.130 \\
+ct3 & 0.786 & 0.095 & 8.280 & 10.443 & 0.000 & 1.624 & 0.676 \\
 \bottomrule()
 \end{longtable}
 
@@ -1610,12 +1662,12 @@ R> est$extra.pars |>
 \midrule()
 \endhead
 Intercept\textasciitilde\textasciitilde Intercept\textbar name &
-0.082 \\
+0.083 \\
 \bottomrule()
 \end{longtable}
 
 \hypertarget{obesity-data}{%
-\subsection{obesity data}\label{obesity-data}}
+\subsection{Obesity data}\label{obesity-data}}
 
 In this example, we demonstrate a multilevel imputation of random
 intercept and random slope model with a continuous response. We utilize
@@ -1679,7 +1731,7 @@ R> plot_pattern(Obesity)
 
 \begin{figure}[h]
 
-{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-48-1.pdf}
+{\centering \includegraphics{manuscript_files/figure-pdf/unnamed-chunk-47-1.pdf}
 
 }
 
@@ -1698,8 +1750,15 @@ require a imputation method that accounts for clustering we assess the
 Intraclass Correlation
 
 \begin{verbatim}
-R> Nulmodel <- lmer(BMI ~ 1 + (1|Cluster), data = Obesity)
-R> # performance::icc(Nulmodel)
+R> Nulmodel <- lme4::lmer(BMI ~ 1 + (1|Cluster), data = Obesity)
+R> performance::icc(Nulmodel)
+\end{verbatim}
+
+\begin{verbatim}
+# Intraclass Correlation Coefficient
+
+    Adjusted ICC: 0.362
+  Unadjusted ICC: 0.362
 \end{verbatim}
 
 Since the ICC is above 0.1 and as the main analysis will be use a mixed
@@ -1716,8 +1775,9 @@ cluster, and number of clusters.
 
 It suggests using `2l.2stage.bin' for the FAV variable and
 `2l.2stage.norm' for the age variable. However, after inspecting the age
-density plot, we consider modifying its method to `2l.2stage.pmm'. For
-the BMI variable, we employ deterministic imputation.
+and weight density plot, we consider modifying its method to
+`2l.2stage.pmm'. For the BMI variable, we employ deterministic
+imputation.
 
 \begin{verbatim}
 meth_mar <-
@@ -1730,6 +1790,7 @@ meth_mar <-
   )
 meth_mar["BMI"] <- "~ I(Weight / (Height)^2)"
 meth_mar["Age"] <- "2l.2stage.pmm"
+meth_mar["Weight"] <- "2l.2stage.pmm"
 \end{verbatim}
 
 For these imputation models, it is necessary to specify the prediction
@@ -1742,22 +1803,14 @@ predictions. Then we proceed to run the imputation model.
 
 \begin{verbatim}
 pred_mar <- quickpred(Obesity)
+pred_mar["Weight",] <- 2
+pred_mar["Weight","Weight"] <- 0
 pred_mar[, "Cluster"] <- -2 
 pred_mar[, "Time"] <- 0
 pred_mar[pred_mar == 1] <- 2
+
 pred_mar[c("Height", "Weight"), "BMI"] <- 0
-plot_pred(pred_mar)
-\end{verbatim}
-
-\begin{figure}[h]
-
-{\centering \includegraphics[width=0.7\textwidth,height=\textheight]{manuscript_files/figure-pdf/obesity-predmar-1.pdf}
-
-}
-
-\end{figure}
-
-\begin{verbatim}
+#plot_pred(pred_mar)
 imp_mar <-
   mice(
     data = Obesity,
@@ -1768,39 +1821,16 @@ imp_mar <-
 \end{verbatim}
 
 \begin{verbatim}
-summary(complete(imp_mar,"long")$Weight)
+summary(complete(imp_mar, "long")$Weight)
 \end{verbatim}
 
 \begin{verbatim}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  4.428  69.890  82.800  82.835  95.491 145.885 
-\end{verbatim}
-
-We are also contemplating the utilisation of the predictive mean
-matching (pmm) option, as the values imputed using a fully parametric
-method may be implausibly low for some patients.
-
-\begin{verbatim}
-meth_mar["Weight"] <- "2l.2stage.pmm"
-imp_mar_pmm <- mice(
-  data = Obesity,
-  method = meth_mar,
-  predictorMatrix = pred_mar,
-  printFlag = FALSE
-)
+  28.35   69.38   81.96   82.36   94.46  134.61 
 \end{verbatim}
 
 \begin{verbatim}
-summary(complete(imp_mar_pmm, "long")$Weight)
-\end{verbatim}
-
-\begin{verbatim}
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  28.35   71.04   83.65   83.87   95.66  134.61 
-\end{verbatim}
-
-\begin{verbatim}
-plot_trace(imp_mar_pmm, "Weight")
+plot_trace(imp_mar, "Weight")
 \end{verbatim}
 
 \begin{figure}[h]
@@ -1812,7 +1842,7 @@ plot_trace(imp_mar_pmm, "Weight")
 \end{figure}
 
 \begin{verbatim}
-ggmice(imp_mar_pmm, aes(.imp, Weight)) + 
+ggmice(imp_mar, aes(.imp, Weight)) + 
   geom_jitter()
 \end{verbatim}
 
@@ -1823,84 +1853,6 @@ ggmice(imp_mar_pmm, aes(.imp, Weight)) +
 }
 
 \end{figure}
-
-Analyze the imputed data.
-
-\begin{verbatim}
-R> # fit <- with(
-R> #     imp_mar_pmm,
-R> #     lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
-R> #     )
-R> fit <- with(
-+    imp_mar_pmm,
-+    lmer(BMI ~ Age + FamOb + Gender + (1 + Age | Cluster))
-+    )
-R> est <- testEstimates(as.mitml.result(fit), extra.pars = TRUE)
-\end{verbatim}
-
-Display results in table.
-
-\begin{verbatim}
-R> est$estimates |> 
-+  round(3) |>
-+  kable()
-\end{verbatim}
-
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1558}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1169}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1299}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1039}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1039}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.2338}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0779}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0779}}@{}}
-\toprule()
-\begin{minipage}[b]{\linewidth}\raggedright
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Estimate
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Std.Error
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-t.value
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-df
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-P(\textgreater\textbar t\textbar)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-RIV
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-FMI
-\end{minipage} \\
-\midrule()
-\endhead
-(Intercept) & 28.445 & 2.259 & 12.592 & 157.553 & 0.000 & 0.190 &
-0.170 \\
-Age & 0.041 & 0.032 & 1.311 & 388.953 & 0.191 & 0.113 & 0.106 \\
-FamObyes & 0.000 & 0.316 & -0.001 & 207.648 & 0.999 & 0.161 & 0.147 \\
-GenderMale & -1.361 & 0.411 & -3.310 & 7.986 & 0.011 & 2.421 & 0.761 \\
-\bottomrule()
-\end{longtable}
-
-\begin{verbatim}
-R> est$extra.pars |> 
-+  round(3) |>
-+  kable()
-\end{verbatim}
-
-\begin{longtable}[]{@{}lr@{}}
-\toprule()
-& Estimate \\
-\midrule()
-\endhead
-Intercept\textasciitilde\textasciitilde Intercept\textbar Cluster &
-19.805 \\
-Age\textasciitilde\textasciitilde Age\textbar Cluster & 0.003 \\
-Intercept\textasciitilde\textasciitilde Age\textbar Cluster & -0.069 \\
-Residual\textasciitilde\textasciitilde Residual & 26.010 \\
-ICC\textbar Cluster & 0.394 \\
-\bottomrule()
-\end{longtable}
 
 After confirming convergence, we proceed to save the results for future
 use. We consider the possibility that patients may not have been
@@ -1947,7 +1899,7 @@ time does not have any influence on the subject???s weight.
 These two equations are jointly estimated under the assumption that the
 error terms are interconnected with a bivariate normal distribution. For
 a more comprehensive understanding of the model and the exclusion
-restriction, see \cite{munoz2023a}.
+restriction, see \cite{munoz2023}.
 
 To use information from both equations, we must adjust the prediction
 matrix. The cluster variable remains specified as before (-2). In this
@@ -1983,47 +1935,13 @@ meth_mnar <- meth_mar
 meth_mnar["Weight"] <- "2l.2stage.heckman"
 \end{verbatim}
 
-Then we proceed to run the imputation model as before, after executing
-these imputation procedures, it is essential to assess convergence and
-the coherence of the imputed values.
+As before we use the `pmm', option but this time for the Heckman
+imputation, this approach ensures that the imputed values remain within
+the range of observable values. We then run the MNAR imputation model by
+setting the pmm parameter to true.
 
 \begin{verbatim}
-imp_mnar <- mice(
-  data = Obesity,
-  method = meth_mnar,
-  predictorMatrix = pred_mnar,
-  printFlag = FALSE
-)
-summary(complete(imp_mnar, "long")$Weight)
-\end{verbatim}
-
-\begin{verbatim}
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  16.31   72.14   86.97   87.68  102.43  190.44 
-\end{verbatim}
-
-Upon examining the weight variable, we noticed that the imputed range
-falls outside the realm of plausible values (as weight should be
-positive).
-
-\begin{verbatim}
-summary(complete(imp_mnar, "long")$Weight)
-\end{verbatim}
-
-\begin{verbatim}
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  16.31   72.14   86.97   87.68  102.43  190.44 
-\end{verbatim}
-
-Consequently, as before we use the `pmm', option but this time for the
-Heckman imputation, this approach ensures that the imputed values remain
-within the range of observable values. We then run the imputation model
-but this time using the option of pmm, to assure that weight values are
-in the range of the observable data, this can be implemented by setting
-the pmm parameter to true.
-
-\begin{verbatim}
-imp_mnar_pmm <-
+imp_mnar <-
   mice(
     data = Obesity,
     method = meth_mnar,
@@ -2036,16 +1954,16 @@ imp_mnar_pmm <-
 We check the convergence of the results
 
 \begin{verbatim}
-summary(complete(imp_mnar_pmm, "long")$Weight)
+summary(complete(imp_mnar, "long")$Weight)
 \end{verbatim}
 
 \begin{verbatim}
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  28.35   71.87   85.58   86.51  100.15  134.61 
+  28.35   67.39   82.57   81.71   96.04  134.61 
 \end{verbatim}
 
 \begin{verbatim}
-plot_trace(imp_mar_pmm, "Weight")
+plot_trace(imp_mar, "Weight")
 \end{verbatim}
 
 \begin{figure}[h]
@@ -2056,103 +1974,38 @@ plot_trace(imp_mar_pmm, "Weight")
 
 \end{figure}
 
-After this modification we proceed to compare the effects on the model.
-We run the analysis model on each of the completed datasets as well as
-the dataset where the incomplete values are removed (Complete Case
-analysis, CC).
+We proceed to compare the effects on the model. We run the analysis
+model on each of the completed datasets as well as the dataset where the
+incomplete values are removed (Complete Case analysis, CC).
+
+We proceed to fit the mixed model by using the complete case database
+and the imputed datasets (MAR,MNAR), and we compare the estimates of
+each dataset by using a plot (the plot function can be found in the
+appendix).
 
 \begin{verbatim}
-# cc_rs <- with(setDT(Obesity)[complete.cases(Obesity), ],
-#               lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age |
-#                     Cluster))
-mar_rs <- with(
-  imp_mar, 
-  lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
-  )
-mar_pmm_rs <- with(
-    imp_mar_pmm,
-    lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
-    )
-mnar_rs <- with(
-  imp_mnar, 
-  lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
-  )
-mnar_pmm_rs <- with(
-  imp_mnar_pmm,
-  lme(BMI ~ Age + FamOb + Gender, random =  ~ 1 + Age | Cluster)
-  )
-# list_models <- list(cc_rs, mar_rs, mar_pmm_rs, mnar_rs, mnar_pmm_rs)
-# plot_models(list_models,
-#             mod_name = c("Complete case", "MAR", "MAR_pmm", "MNAR", "MNAR_pmm"))
+# Save all datasets in a list
+list_data <- list(Obesity |> filter(complete.cases(Obesity)), # complete case
+                  imp_mar, # imputed under mar
+                  imp_mnar) # imputed under mnar
+
+# Run mixed models on each dataset
+list_models <- lapply(list_data, 
+                   FUN = function(x) 
+                     with(x,nlme::lme(BMI ~ Age + FamOb + Gender, 
+                                      random =  ~ 1 + Age | Cluster)))
+# Plot coefficients
+plot_models(list_models,
+             mod_name = c("Complete case", "MAR", "MNAR"))
 \end{verbatim}
 
-\begin{verbatim}
-est <- testEstimates(as.mitml.result(mnar_pmm_rs), extra.pars = TRUE)
-\end{verbatim}
+\begin{figure}[h]
 
-Display results in table.
+{\centering \includegraphics{manuscript_files/figure-pdf/models-1.pdf}
 
-\begin{verbatim}
-R> est$estimates |> 
-+  round(3) |>
-+  kable()
-\end{verbatim}
+}
 
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1579}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1184}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1316}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1053}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0921}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.2368}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0789}}
-  >{\raggedleft\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.0789}}@{}}
-\toprule()
-\begin{minipage}[b]{\linewidth}\raggedright
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Estimate
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Std.Error
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-t.value
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-df
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-P(\textgreater\textbar t\textbar)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-RIV
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-FMI
-\end{minipage} \\
-\midrule()
-\endhead
-(Intercept) & 29.199 & 2.766 & 10.555 & 55.483 & 0.000 & 0.367 &
-0.294 \\
-Age & 0.050 & 0.038 & 1.301 & 18.731 & 0.209 & 0.859 & 0.512 \\
-FamObyes & 0.016 & 0.445 & 0.036 & 15.910 & 0.972 & 1.006 & 0.554 \\
-GenderMale & -1.408 & 0.696 & -2.024 & 5.128 & 0.097 & 7.563 & 0.912 \\
-\bottomrule()
-\end{longtable}
-
-\begin{verbatim}
-R> est$extra.pars |> 
-+  round(3) |>
-+  kable()
-\end{verbatim}
-
-\begin{longtable}[]{@{}lr@{}}
-\toprule()
-& Estimate \\
-\midrule()
-\endhead
-Intercept\textasciitilde\textasciitilde Intercept\textbar Cluster &
-26.114 \\
-Age\textasciitilde\textasciitilde Age\textbar Cluster & 0.002 \\
-Intercept\textasciitilde\textasciitilde Age\textbar Cluster & -0.088 \\
-Residual\textasciitilde\textasciitilde Residual & 29.741 \\
-ICC\textbar Cluster & 0.431 \\
-\bottomrule()
-\end{longtable}
+\end{figure}
 
 We note that there is minimal disparity in the age effect, FamObs, or
 Gender across the various imputation models under consideration. An
@@ -2234,7 +2087,7 @@ research and innovation programme under ReCoDID grant agreement No
 \section*{More technical details}\label{sec-techdetails}}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, toprule=.15mm, colframe=quarto-callout-color-frame, rightrule=.15mm, bottomrule=.15mm, colback=white, breakable, opacityback=0, left=2mm]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -2266,7 +2119,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, toprule=.15mm, arc=.35mm, bottomrule=.15mm, leftrule=.75mm, colframe=quarto-callout-color-frame, opacityback=0, colback=white, rightrule=.15mm, left=2mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, toprule=.15mm, colframe=quarto-callout-color-frame, rightrule=.15mm, bottomrule=.15mm, colback=white, breakable, opacityback=0, left=2mm]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}

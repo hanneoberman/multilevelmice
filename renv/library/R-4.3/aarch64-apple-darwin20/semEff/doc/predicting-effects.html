@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Predicting Effects</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Predicting Effects</h1>
+
+
+
+<p><code>semEff</code> can be used to predict values for different types
+of effects in an SEM. For example, we may be interested in the
+predictions of an indirect effect of a variable vs. its direct effect,
+or we may simply wish to predict the total (combined) effect. Here we’ll
+use <a href="https://murphymv.github.io/semEff/reference/shipley.html">simulated
+data</a> from <span class="citation">Shipley (<a href="#ref-shipley2009" role="doc-biblioref">2009</a>)</span> on tree growth and survival for a
+single tree species to predict and plot a direct vs. indirect
+effect.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(c(&quot;semEff&quot;, &quot;ggplot2&quot;))</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(semEff)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
+<p>Let’s preview the data (n = 1900):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(shipley))</span></code></pre></div>
+<table style="width:100%;">
+<colgroup>
+<col width="7%" />
+<col width="7%" />
+<col width="13%" />
+<col width="7%" />
+<col width="13%" />
+<col width="13%" />
+<col width="13%" />
+<col width="15%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">site</th>
+<th align="right">tree</th>
+<th align="right">lat</th>
+<th align="right">year</th>
+<th align="right">Date</th>
+<th align="right">DD</th>
+<th align="right">Growth</th>
+<th align="right">Survival</th>
+<th align="right">Live</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">40.38063</td>
+<td align="right">1970</td>
+<td align="right">115.4956</td>
+<td align="right">160.5703</td>
+<td align="right">61.36852</td>
+<td align="right">0.9996238</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">40.38063</td>
+<td align="right">1970</td>
+<td align="right">118.4959</td>
+<td align="right">158.9896</td>
+<td align="right">43.77182</td>
+<td align="right">0.8433521</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">40.38063</td>
+<td align="right">1970</td>
+<td align="right">115.8836</td>
+<td align="right">159.9262</td>
+<td align="right">44.74663</td>
+<td align="right">0.9441110</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">40.38063</td>
+<td align="right">1970</td>
+<td align="right">110.9889</td>
+<td align="right">161.1282</td>
+<td align="right">48.20004</td>
+<td align="right">0.9568525</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">40.38063</td>
+<td align="right">1970</td>
+<td align="right">120.9946</td>
+<td align="right">157.3778</td>
+<td align="right">50.02237</td>
+<td align="right">0.9759584</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">40.38063</td>
+<td align="right">1972</td>
+<td align="right">114.2315</td>
+<td align="right">160.6120</td>
+<td align="right">56.29615</td>
+<td align="right">0.9983398</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>Tree measurements are taken for five individuals of the same species
+at 20 different sites every two years from 1970 to 2006 (repeated
+measures). The hypothesised SEM from <span class="citation">Shipley (<a href="#ref-shipley2009" role="doc-biblioref">2009</a>)</span> tests the
+indirect effect of site latitude on tree survival (0/1), via degree days
+to bud burst, date of first bud burst, and tree growth. This can be fit
+as a series of linear and generalised linear mixed models using the
+<code>lme4</code> package:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>shipley.sem <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">DD =</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(DD <span class="sc">~</span> lat <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> tree), <span class="at">data =</span> shipley),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Date =</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(Date <span class="sc">~</span> DD <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> tree), <span class="at">data =</span> shipley),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Growth =</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(Growth <span class="sc">~</span> Date <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> tree), <span class="at">data =</span> shipley),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Live =</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(Live <span class="sc">~</span> Growth <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> tree), <span class="at">data =</span> shipley, </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">family =</span> binomial)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>We can bootstrap estimates for these models:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>shipley.sem.boot <span class="ot">&lt;-</span> <span class="fu">bootEff</span>(shipley.sem, <span class="at">R =</span> <span class="dv">1000</span>, <span class="at">seed =</span> <span class="dv">13</span>, <span class="at">ran.eff =</span> <span class="st">&quot;site&quot;</span>)</span></code></pre></div>
+<p>And use the bootstrap samples to calculate effects and confidence
+intervals:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(shipley.sem.eff <span class="ot">&lt;-</span> <span class="fu">semEff</span>(shipley.sem.boot))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Piecewise SEM with:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   * 1 exogenous vs. 4 endogenous variable(s)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   * 4 direct vs. 6 indirect effect(s)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Variables:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Category   Predictor Mediator Response   Dir. Eff. Ind. Eff.  </span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           --------   --------- -------- --------   --------- ---------  </span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  lat    | Exog.    |     Y        N        N     |         -         - |</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  DD     | Endog.   |     Y        Y        Y     |         1         0 |</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Date   | Endog.   |     Y        Y        Y     |         1         1 |</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Growth | Endog.   |     Y        Y        Y     |         1         2 |</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Live   | Endog.   |     N        N        Y     |         1         3 |</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Use summary() for effects and confidence intervals for endogenous variables.</span></span></code></pre></div>
+<p>For this example, let’s compare the direct effects of <em>Date</em>
+(Julian date of first bud burst) vs. the indirect effects of <em>DD</em>
+(cumulative degree days to first bud burst, °C) on tree <em>Growth</em>
+(increase in stem diameter, mm):</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(shipley.sem.eff, <span class="st">&quot;Growth&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEM direct, summed indirect, total, and mediator effects:</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Growth (3/4):</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   Effect     Bias   Std. Err.   Lower CI Upper CI    </span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   ------   ------   ---------   -------- --------    </span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  DIRECT    Date |  0.382 |  0.011 |     0.058 |    0.293    0.515 | *</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                      </span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  INDIRECT  lat  |  0.165 |  0.001 |     0.048 |    0.086    0.281 | *</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            DD   | -0.240 | -0.007 |     0.042 |   -0.344   -0.181 | *</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                      </span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  TOTAL     lat  |  0.165 |  0.001 |     0.048 |    0.086    0.281 | *</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            DD   | -0.240 | -0.007 |     0.042 |   -0.344   -0.181 | *</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            Date |  0.382 |  0.011 |     0.058 |    0.293    0.515 | *</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                      </span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  MEDIATORS DD   |  0.165 |  0.001 |     0.048 |    0.086    0.281 | *</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            Date | -0.075 | -0.006 |     0.017 |   -0.109   -0.049 | *</span></span></code></pre></div>
+<p>We’ll extract the (total) effects of each variable to use for
+prediction:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tot <span class="ot">&lt;-</span> <span class="fu">getTotEff</span>(shipley.sem.eff, <span class="st">&quot;Growth&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>tot.b <span class="ot">&lt;-</span> <span class="fu">getTotEff</span>(shipley.sem.eff, <span class="st">&quot;Growth&quot;</span>, <span class="at">type =</span> <span class="st">&quot;boot&quot;</span>)</span></code></pre></div>
+<p>Now we can predict values for <em>Growth</em> using <a href="https://murphymv.github.io/semEff/reference/predEff.html"><code>predEff()</code></a>.
+We’ll need the model object, and we’ll generate 100 values of the
+predictors to predict from:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(shipley)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> shipley.sem<span class="sc">$</span>Growth</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">c</span>(<span class="st">&quot;Date&quot;</span>, <span class="st">&quot;DD&quot;</span>), <span class="cf">function</span>(i) {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">seq</span>(<span class="fu">min</span>(dat[i]), <span class="fu">max</span>(dat[i]), <span class="at">length =</span> <span class="dv">100</span>)); <span class="fu">names</span>(x) <span class="ot">&lt;-</span> i</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">predEff</span>(mod, <span class="at">newdata =</span> x, <span class="at">effects =</span> tot[i], <span class="at">eff.boot =</span> tot.b)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(x, f)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}, <span class="at">simplify =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p>OK let’s plot the predictions. We’ll use a custom plotting function
+which wraps <code>ggplot2::ggplot()</code>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plotFit <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, fit, <span class="at">x.lab =</span> <span class="cn">NULL</span>, <span class="at">y.lab =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> fit[[<span class="dv">1</span>]]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> fit<span class="sc">$</span>fit</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  ci.l <span class="ot">&lt;-</span> fit<span class="sc">$</span>ci.lower</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  ci.u <span class="ot">&lt;-</span> fit<span class="sc">$</span>ci.upper</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span> () <span class="sc">+</span> </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(x, y)) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(d, <span class="at">ymin =</span> ci.l, <span class="at">ymax =</span> ci.u, <span class="at">alpha =</span> <span class="st">&quot;0.15&quot;</span>), <span class="at">fill =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(d, f), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(x.lab) <span class="sc">+</span> </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(y.lab) <span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Effects of <em>Date</em> (direct):</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotFit</span>(<span class="at">x =</span> dat<span class="sc">$</span>Date, <span class="at">y =</span> dat<span class="sc">$</span>Growth, <span class="at">fit =</span> fit<span class="sc">$</span>Date, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">x.lab =</span> <span class="st">&quot;Julian Date of Bud Burst (direct effect)&quot;</span>, <span class="at">y.lab =</span> <span class="st">&quot;Stem Growth (mm)&quot;</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>Effects of <em>DD</em> (indirect, via <em>Date</em>):</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotFit</span>(<span class="at">x =</span> dat<span class="sc">$</span>DD, <span class="at">y =</span> dat<span class="sc">$</span>Growth, <span class="at">fit =</span> fit<span class="sc">$</span>DD, </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">x.lab =</span> <span class="st">&quot;Degree Days to Bud Burst (indirect effect)&quot;</span>, <span class="at">y.lab =</span> <span class="st">&quot;Stem Growth (mm)&quot;</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>We can see that the effects are in opposite directions: positive for
+<em>Date</em> (direct) and negative for <em>DD</em> (indirect). This is
+because trees at higher latitudes require fewer degree days to break
+buds (cooler climate), break buds later, and grow more in the growing
+season than trees at lower latitudes. Thus <em>DD</em> negatively
+affects <em>Growth</em> by reducing the <em>Date</em> to first bud
+burst. This is just a toy example from the SEM to illustrate contrasting
+effects of similar magnitude. <em>DD</em> in this case is acting as a
+proxy for latitude (high <em>DD</em> = low latitude).</p>
+<p>It’s also evident from the plots that there is a huge amount of
+scatter around the fits. This is due to the random effects (‘site’ and
+‘tree’) accounting for most variation in tree growth. We can get a rough
+breakdown of this using R-squared, here via <a href="https://murphymv.github.io/semEff/reference/R2.html"><code>R2()</code></a>
+(squared multiple correlation):</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">r2_marg =</span> <span class="fu">R2</span>(mod, <span class="at">re.form =</span> <span class="cn">NA</span>)[[<span class="dv">1</span>]],</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">r2_cond =</span> <span class="fu">R2</span>(mod)[[<span class="dv">1</span>]])</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    r2_marg    r2_cond </span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.04814953 0.79383672</span></span></code></pre></div>
+<p>Fixed (‘marginal’) effects account for only about 5% of variation,
+compared to almost 80% when adding all random effects (‘conditional’).
+We can also condition on individual random effects, showing that ‘tree’
+accounts for most random variation:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">r2_site =</span> <span class="fu">R2</span>(mod, <span class="at">re.form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> site)[[<span class="dv">1</span>]],</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">r2_tree =</span> <span class="fu">R2</span>(mod, <span class="at">re.form =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> tree)[[<span class="dv">1</span>]])</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   r2_site   r2_tree </span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.3081469 0.6068561</span></span></code></pre></div>
+<div id="references" class="section level4 unnumbered">
+<h4 class="unnumbered">References</h4>
+<div id="refs" class="references csl-bib-body hanging-indent" line-spacing="2">
+<div id="ref-shipley2009" class="csl-entry">
+Shipley, B. (2009). Confirmatory path analysis in a generalized
+multilevel context. <em>Ecology</em>, <em>90</em>(2), 363–368. <a href="https://doi.org/bqd43d">https://doi.org/bqd43d</a>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

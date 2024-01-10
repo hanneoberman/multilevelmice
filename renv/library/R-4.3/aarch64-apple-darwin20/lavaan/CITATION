@@ -1,0 +1,20 @@
+citHeader("To cite lavaan in publications use:")
+
+bibentry(
+  bibtype      = "Article",
+  title        = "{lavaan}: An {R} Package for Structural Equation Modeling",
+  author       = as.person("Yves Rosseel"),
+  journal      = "Journal of Statistical Software",
+  year         = "2012",
+  volume       = "48",
+  number       = "2",
+  pages        = "1--36",
+  doi          = "10.18637/jss.v048.i02",
+
+  textVersion  =
+  paste("Yves Rosseel (2012).",
+        "lavaan: An R Package for Structural Equation Modeling.",
+        "Journal of Statistical Software, 48(2), 1-36.",
+        "https://doi.org/10.18637/jss.v048.i02")
+)
+

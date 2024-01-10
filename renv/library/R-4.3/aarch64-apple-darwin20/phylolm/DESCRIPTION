@@ -1,0 +1,37 @@
+Package: phylolm
+Version: 2.6.2
+Date: 2020-06-18
+Title: Phylogenetic Linear Regression
+Authors@R: c(person("Lam Si Tung", "Ho", role=c("aut", "cre"), email="lamho86@gmail.com"),
+            person("Cecile", "Ane", role="aut"),
+			person("Robert", "Lachlan", role="ctb"),
+			person("Kelsey", "Tarpinian",role="ctb"),
+      person("Rachel", "Feldman",role="ctb"),
+      person("Qing", "Yu",role="ctb"),
+      person("Wouter", "van der Bijl",role="ctb"),
+      person("Joan", "Maspons",role="ctb"),
+      person("Rutger", "Vos",role="ctb"))
+Depends: R (>= 4.0), ape
+Imports: future.apply
+Description: Provides functions for fitting phylogenetic linear models and phylogenetic generalized linear models. The computation uses an algorithm that is linear in the number of tips in the tree. The package also provides functions for simulating continuous or binary traits along the tree. Other tools include functions to test the adequacy of a population tree.
+License: GPL (>= 2) | file LICENSE
+URL: https://github.com/lamho86/phylolm
+BugReports: https://github.com/lamho86/phylolm/issues
+Encoding: UTF-8
+Packaged: 2020-06-22 02:21:07 UTC; lamho
+NeedsCompilation: yes
+Suggests: testthat
+Author: Lam Si Tung Ho [aut, cre],
+  Cecile Ane [aut],
+  Robert Lachlan [ctb],
+  Kelsey Tarpinian [ctb],
+  Rachel Feldman [ctb],
+  Qing Yu [ctb],
+  Wouter van der Bijl [ctb],
+  Joan Maspons [ctb],
+  Rutger Vos [ctb]
+Maintainer: Lam Si Tung Ho <lamho86@gmail.com>
+Repository: CRAN
+Date/Publication: 2020-06-22 05:10:08 UTC
+Built: R 4.3.0; aarch64-apple-darwin20; 2023-04-06 13:23:41 UTC; unix
+Archs: phylolm.so.dSYM

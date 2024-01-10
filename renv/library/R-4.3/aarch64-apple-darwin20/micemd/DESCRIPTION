@@ -1,0 +1,23 @@
+Package: micemd
+Type: Package
+Title: Multiple Imputation by Chained Equations with Multilevel Data
+Version: 1.10.0
+Date: 2023-11-17
+Authors@R: c(person("Vincent","Audigier",email="vincent.audigier@cnam.fr",role=c("aut","cre"),comment="CNAM MSDMA team"),person("Matthieu","Resche-Rigon",email="matthieu.resche-rigon@u-paris.fr",role=c("aut"),comment="INSERM ECSTRA team"),person("Johanna","Munoz Avila",email="J.MunozAvila@umcutrecht.nl", role="ctb",comment="Julius Center Methods Group UMC, 2022"))
+Description: Addons for the 'mice' package to perform multiple imputation using chained equations with two-level data. Includes imputation methods dedicated to sporadically and systematically missing values. Imputation of continuous, binary or count variables are available. Following the recommendations of Audigier, V. et al (2018) <doi:10.1214/18-STS646>, the choice of the imputation method for each variable can be facilitated by a default choice tuned according to the structure of the incomplete dataset. Allows parallel calculation and overimputation for 'mice'.
+License: GPL-2 | GPL-3
+Depends: R (>= 3.5.0), mice (>= 2.42)
+Imports: Matrix, graphics, utils, stats, MASS, parallel, nlme, lme4,
+        mvmeta (>= 0.4.7), jomo (>= 2.6-3), mvtnorm, digest, abind,
+        GJRM (>= 0.2-6.4), mgcv, mixmeta, pbivnorm
+Suggests: VIM, ggplot2, data.table, broom.mixed
+RoxygenNote: 6.1.0
+NeedsCompilation: no
+Packaged: 2023-11-17 10:11:21 UTC; V. Audigier
+Author: Vincent Audigier [aut, cre] (CNAM MSDMA team),
+  Matthieu Resche-Rigon [aut] (INSERM ECSTRA team),
+  Johanna Munoz Avila [ctb] (Julius Center Methods Group UMC, 2022)
+Maintainer: Vincent Audigier <vincent.audigier@cnam.fr>
+Repository: CRAN
+Date/Publication: 2023-11-17 10:40:02 UTC
+Built: R 4.3.1; ; 2023-11-17 13:12:27 UTC; unix
