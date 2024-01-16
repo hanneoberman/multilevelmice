@@ -194,6 +194,7 @@ There are different strategies that can be adopted in the imputation process tha
 The selection of each strategy depends mainly on the assumptions in the main analysis and also on the restriction of the analyzed data. 
 
 <!-- I don't understand the following paragraph. What is meant with "is restricted in datasets..."? -->
+<!-- Also, this info is also mentioned in ##### Clustering Inclusion -->
 Regarding the restrictions imposed by the data, for instance, the use of cluster indicator variables is restricted in datasets where there are not many clusters and many observations per cluster (Graham, 2009). The last restriction is also required when imputations are performed on each cluster separately.  When this restriction cannot be achieved, one can use an imputation model that simultaneously imputes all clusters using a hierarchical model (Allison 2002).
 
 Under this hierarchical imputation model, observations within clusters are correlated and this correlation is modeled by a random effect so the hierarchical model can be estimated even when there are few observations per cluster. However, this strategy is best suited for balanced data (Grund, 2017) and when the number of clusters is adequate sufficient for the random effects model (Austin,2018).
@@ -235,9 +236,11 @@ Deductive imputation is also useful for getting values for level-1 variables fro
 
 When it comes to handling clusters during the imputation process, you've got a few options. You can use a cluster indicator variable, run separate imputation for each cluster, or go for a simultaneous imputation method that takes clustering into account \cite{eddings}.
 
+<!-- most of this subsection is also mentioned at the start of #sec-workflow -->
+
 Which strategy you choose depends on the assumptions in your main analysis and the limitations of your data. If your analysis do not use a hierarchical model (like a descriptive approach) and you have a small number of clusters with lots of observations in each, using a cluster indicator or separate imputation might be the way to go \cite{graham2009}. Conversely, if you have more clusters or fewer observations per cluster, you might want to try a simultaneous hierarchical imputation model \cite{Allison_2002}.
 
-In a hierarchical imputation model, random effects model the correlations between observations within clusters, making it possible to estimate even with a small number of observations per cluster. There are various proposed multiple imputation models based on hierarchical models, each with its own set of assumptions \cite{audigier}.
+In a hierarchical imputation model, random intercepts and random effects model the correlations between observations within clusters, making it possible to estimate even with a small number of observations per cluster. There are various proposed multiple imputation models based on hierarchical models, each with its own set of assumptions \cite{audigier}.
 
 If your analysis uses a hierarchical model, make sure the assumptions of your imputation model match up. For example, using a cluster indicator approach may lead to bias estimates if your model is based on a hierarchical structure \cite{taljaard2008,speidel2018}. Even if you prefer an imputation strategy that aligns with your main model, check if it suits your data; sometimes simpler strategies can give unbiased estimates in certain scenarios \cite{bailey2020}.
 
