@@ -1001,7 +1001,7 @@ This paper is dedicated to exploring the imputation process for incomplete datas
 
 The "Mice" and "mice"-based R packages offer a range of imputation methods tailored for hierarchical data, easily adaptable to the dataset's structure. Before proceeding with the analysis of the imputed dataset, it is essential to assess the convergence of the imputation method. This evaluation can reveal issues such as circular problems, the need for additional iterations, or challenges associated with the chosen imputation method.
 
-
+<!-- What is the difference between Mice and mice? is there a Mice package? -->
 
 
 ## Summary and discussion {#sec-summary}
