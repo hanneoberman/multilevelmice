@@ -730,6 +730,8 @@ est$extra.pars |>
 
 In this example, we demonstrate a multilevel imputation of random intercept and random slope model with a continuous response. We utilize the obesity dataset included in the `micemd`\@ package, a simulated dataset that emulates an electronic survey in which individuals are asked to provide information about their weight and consumption habits in different countries. We simulate data for 5 clusters so that the true values are known. We use the following variables from the dataset:
 
+<!-- What do you mean with "We simulate data for 5 clusters"? If this dataset is included in the package why do we need to simulate the data? -->
+
 -   **Cluster:** Region of the patients' healthcare provider (Cluster variable),
 -   **Gender:** Subjects' Gender (0=male, 1=female),
 -   **Age:** Subjects' age,
@@ -768,7 +770,9 @@ plot_pattern(Obesity)
 #   lapply(plot_pattern)
 ```
 
-We observe that the missing pattern is non-monotonic and quite similar across the clusters. However, regarding the weight variable, we notice that is systematically missing in cluster 3. In order to evaluate
+<!-- The sentence below ends after "In order to evaluate..."  -->
+
+We observe that the missing pattern is non-monotonic and quite similar across the clusters. However, regarding the weight variable, we notice that it is systematically missing in cluster 3. In order to evaluate
 if we require a imputation method that accounts for clustering  we assess the Intraclass Correlation
 
 ```{r}
@@ -777,12 +781,14 @@ Nulmodel <- lmer(BMI ~ 1 + (1|Cluster), data = Obesity)
 # performance::icc(Nulmodel)
 ```
 
-Since the ICC is above 0.1 and as the main analysis will be use a mixed model, we decide
+As the ICC is greater than 0.1 and as we will use a mixed model for the analysis, we decide
 to use two-level (2l) imputation methods. In this imputation process, we include all predictor
 variables from equation \ref{eqn:main} in the main model. However, since BMI is a composite of
 weight and height, we use deterministic imputation for these, which is described below.
 
 We use the **find.defaultMethodfunction** provided in the **micemd** package, which suggests an appropriate method for MAR variables based on the type of variable, number of observations in the cluster, and number of clusters.
+
+<!-- What is the FAV variable? -->
 
 It suggests using '2l.2stage.bin' for the FAV variable and '2l.2stage.norm' for the age variable. However, after inspecting the age density plot, we consider modifying its method to
 '2l.2stage.pmm'. For the BMI variable, we employ deterministic imputation.
@@ -799,6 +805,8 @@ meth_mar <-
 meth_mar["BMI"] <- "~ I(Weight / (Height)^2)"
 meth_mar["Age"] <- "2l.2stage.pmm"
 ```
+
+<!-- What is suprime (below)? Do you mean suppress? -->
 
 For these imputation models, it is necessary to specify the prediction matrix, with the cluster
 variable labelled as -2 and the predictor variable measured within clusters labelled as 2, encompassing all variables. We need to suprime the variable Time as this variable is not specified in the main model. We also  modify the relationship between BMI, weight and height in the prediction matrix to avoid circular predictions. Then we proceed to run the imputation model.
@@ -821,7 +829,7 @@ imp_mar <-
 ```{r obesity-predmar1,eval=TRUE}
 summary(complete(imp_mar,"long")$Weight)
 ```
-We are also contemplating the utilisation of the predictive mean matching (pmm) option, as the values imputed using a fully parametric method may be implausibly low for some patients.
+We also contemplate using the predictive mean matching (pmm) option, as the values imputed using a fully parametric method may be implausibly low for some patients.
 
 ```{r obesity-predmar_pmm, eval=TRUE}
 meth_mar["Weight"] <- "2l.2stage.pmm"
@@ -870,15 +878,16 @@ est$extra.pars |>
   kable()
 ```
 
-After confirming convergence, we proceed to save the results for future use.  We consider the possibility that patients may not have been selected randomly, which would then have led to a distribution for weight that does not reflect the weight in the population. It???s likely that an omitted variable, like self-esteem, could influence this selection. For instance, individuals with lower self-esteem might have higher weight values, impacting their willingness to provide honest information due to embarrassment.
+After confirming convergence, we proceed to save the results for future use.  We consider the possibility that patients may not have been selected randomly, which would then have led to a distribution for weight that does not reflect the weight in the population. It's likely that an omitted variable, like self-esteem, could influence this selection. For instance, individuals with lower self-esteem might have higher weight values, impacting their willingness to provide honest information due to embarrassment.
 
-To address this situation, two approaches have been proposed for dealing with Missing Not at Random (MNAR) data: pattern-mixed models and selection models. Within pattern-mixed models, methods like the delta method and more advanced ones like NARFS have been suggested. The selection model approach includes methods such as the Heckman model, which can be particularly useful in this case. Several methods, including those by \cite{galimard2018}, and the recently a Heckman method designed for two-level data, allow for variations in intercepts and exposure effects (random intercept and slope) \cite{munoz2023}.
+To address this situation where data are Missing Not At Random (MNAR), one approach is to apply the Heckman selection model. This method has recently been extended to allow for variations in intercepts and exposure effects (random intercept and slope) \cite{galimard2018, munoz2023}. This method involves specifying two equations: one for the outcome, describing the incomplete variable in terms of partially observed predictors (in this case, all variables from the main model), and the other for the selection model, explaining the probability of being observed based (R) on certain variables.
 
-To apply the **2l.2stage.heckman** method, the weight variable should be specified as '2l.2stage.heckman' found in the micemd package. Additionally, the prediction matrix needs modification because this method involves specifying two equations: one for the outcome, describing the incomplete variable in terms of partially observed predictors (in this case, all variables from the main model), and the other for the selection model, explaining the probability of being observed based (R) on certain variables.
+
+To apply the **2l.2stage.heckman** method, the weight variable should be specified as '2l.2stage.heckman' found in the micemd package. Additionally, the prediction matrix needs modification, as this model includes one submodel for the individuals' measured outcome, and one for the selection of individuals.
 For the outcome equation we consider the same imputation model that we used for
 the MAR case (main model).
  $$Weight_{ij}= \beta^O_{o} + \beta^O_{1}Age_{ij} + \beta^O_{2}FamOb_{ij}+ \beta^O_{3}Gender_{ij} + \epsilon^O_{ij}$$ 
-Regarding the selection equation, we include the same predictors as those in the main model, as well as a time variable. Here the time variable serves as a restriction exclusion variable specifically explaining the probability of being observed but not affecting the incomplete value (Weight). In this context, we assume that the time a user spends completing the survey serves as a proxy for the barriers they may encounter in survey completion, such as familiarity with the survey content or internet speed. These factors may lead the user to skip specific questions or even the entire survey. Also, we assume the time does not have any influence on the subject???s weight.
+Regarding the selection equation, we include the same predictors as those in the main model, as well as a time variable. Here the time variable serves as a restriction exclusion variable specifically explaining the probability of being observed but not affecting the incomplete value (Weight). In this context, we assume that the time a user spends completing the survey serves as a proxy for the barriers they may encounter in survey completion, such as familiarity with the survey content or internet speed. These factors may lead the user to skip specific questions or even the entire survey. Also, we assume the time does not have any influence on the subject's weight.
  $$R_{ij}= \beta^S_{o} + \beta^S_{1}Age_{ij} + \beta^S_{2}FamOb_{ij}+ \beta^S_{3}Gender_{ij} +\beta^S_{4}Time_{ij}+ \epsilon^S_{ij}$$ 
 
 These two equations are jointly estimated under the assumption that the error terms are interconnected with a bivariate normal distribution. For a more comprehensive understanding of the model and the exclusion restriction, see \cite{munoz2023a}.
@@ -910,12 +919,12 @@ imp_mnar <- mice(
 summary(complete(imp_mnar, "long")$Weight)
 ```
 
-Upon examining the weight variable, we noticed that the imputed range falls outside the realm of plausible values (as weight should be positive).
+Upon examining the weight variable, we noticed that the imputed range falls outside the realm of plausible values, as weight should be positive.
 
 ```{r obesity-predmnar3,eval=TRUE}
 summary(complete(imp_mnar, "long")$Weight)
 ```
-Consequently, as before we  use the 'pmm', option but this time for the Heckman imputation, this approach ensures that the imputed values remain within the range of observable values. We then run the imputation model but this time using the option of pmm, to assure that weight values are in the range of the observable data, this can be implemented by setting the pmm parameter to true.
+Consequently, as before, we  use the 'pmm' option, but this time for the Heckman imputation. The pmm approach ensures that the imputed values remain within the range of observable values. This can be implemented by setting the pmm parameter to true.
 
 ```{r obesity-predmnarp, eval=TRUE}
 imp_mnar_pmm <-
@@ -982,8 +991,9 @@ est$extra.pars |>
   kable()
 ```
 We note that there is minimal disparity in the age effect, FamObs, or  Gender across the various imputation models under consideration. An analysis of the intercept reveals that, under the MNAR assumption, a higher average BMI is anticipated compared to the MAR assumption.
-Nonetheless, with respect to precision of estimates, we notice that in general MNAR imputation leads to wider confidence intervals, in this case it does not have any influence on the final result but there could be cases where variation in the assumed missing mechanism could lead also to differences on significant test and therefore lead to contradictory conclusions.   
+Nonetheless, with respect to precision of the estimates, we notice that in general assuming MNAR leads to wider confidence intervals. In this case it does not have any influence on the final result but there could be cases where variation in the assumed missing mechanism could lead also to differences on the significance of a statistical test and therefore lead to contradictory conclusions.   
 
+<!-- Contradictory? Do you mean if the results from an imputation assuming MAR and one assuming MNAR disagree? -->
 
 
 ## Conclusion
