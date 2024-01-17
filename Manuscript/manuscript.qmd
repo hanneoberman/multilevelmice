@@ -246,7 +246,7 @@ If your analysis uses a hierarchical model, make sure the assumptions of your im
 
 
 #### Choice of Individual Imputation Methods
-Start by choosing the imputation model for each incomplete variable in your dataset. The mice package suggests methods based on variable types for non-clustered variables, and for the cluster ones, you can use the micemd package's find.defaultMethod() function. This function selects from different 2l imputation methods based on cluster size and the proportion of missing data in each cluster.
+Start by choosing the imputation model for each incomplete variable in your dataset. The mice package suggests methods based on variable types for non-clustered variables, and for the clustered ones you can use the micemd package's find.defaultMethod() function. This function selects from different 2l imputation methods based on cluster size and the proportion of missing data in each cluster.
 
 Besides the package-defined imputation methods, you can specify custom methods using the "I formula". This lets you calculate deterministic variables during the imputation or tweak imputation methods based on specific conditions, like conditioning the imputation model to the level of an incomplete covariate (e.g., a pregnancy test for females).
 
@@ -254,7 +254,7 @@ Besides the package-defined imputation methods, you can specify custom methods u
 
 The imputation model must be congenial with the main model \cite{meng1994}. Congeniality issues arise when the imputation model and the main model make different assumptions, often due to the omission of a polynomial or interaction term or the use of transformed variables.
 
-The imputation model can incorporate additional terms compared to the main model without causing compatibility issues. For instance, it's recommended to include the outcome variable in the imputation model for prediction variables \cite{moons2006a}. In cases where the outcome is time-to-event, the Nelson-Aalen estimate of the time to the event should be added as a covariate in the imputation model [REF]. Additionally, including auxiliary variables, even if not part of the main model, can be linked to the probability of missingness, improving the likelihood of meeting the Missing at Random (MAR) assumption and enhancing estimation efficiency \cite{hardt2012a}.
+The imputation model can incorporate additional terms compared to the main model without causing compatibility issues. For instance, it's recommended to include the outcome variable in the imputation model for prediction variables \cite{moons2006a}. In cases where the outcome is time-to-event, the Nelson-Aalen estimate of the time to the event should be added as a covariate in the imputation model, as well as the event indicator [REF: White IR, Royston P. Imputing missing covariate values for the Cox model. Stat Med. 2009 Jul 10;28(15):1982-98. Available from: doi.org/10.1002/sim.3618]. Additionally, including auxiliary variables, even if not part of the main model, can be linked to the probability of missingness, improving the likelihood of meeting the Missing at Random (MAR) assumption and enhancing estimation efficiency \cite{hardt2012a}.
 
 Imputation models are specified on a variable basis, either using a prediction matrix in the pred parameter or through a list of formulas in the formula parameter. In the prediction matrix option, the type of each predictor variable is specified for each incomplete variable (see table). 
 
@@ -280,19 +280,36 @@ Type & Definition \\
       \bottomrule
 \end{tabular}
 
-* 3 and 4 type have been advised to used as the inclusion of the means of the cluster is beneficial on FCS \cite{mistler2017}
+<!-- Can we reorder this table? It starts from -2, then -1 and 0 are missing, 1 to 4 and then again 2 negative numbers. What about the following?  -->
+
+\begin{tabular}{ll}
+     \toprule
+Type & Definition \\
+  \midrule
+ 1  & Fixed variable, e.g., level-1  $x_{1_{ij}}$ or  level-2 $x_{2_{i.}}$ \\
+ 2  & Random variable, e.g., $x_{3_{ij}}$\\
+ 3  & *Fixed variable with cluster mean $x_{4_{ij}}$\\
+ 4  & *Random variable with cluster mean $x_{5_{ij}}$\\
+  \midrule
+-2  & Cluster variable, in this case the one defined by j index  \\
+-3. & Random variable only included on selection model (Heckman model)\\
+-4. & Random variable only included on main model (Heckman model)\\
+      \bottomrule
+\end{tabular}
+
+* It has been advised to use variables of type 3 and 4, as the inclusion of the means of the cluster is beneficial on FCS \cite{mistler2017}.
 
 
-Recipes have been proposed for imputing incomplete level-1 and level-2 variables for hierarchical models \cite{buuren2018a} ($\S$ 7.10), which can be convenient to follow when dealing with numerous variables (interaction terms at different levels) and models with many random effects that are prone to convergency problems due to overspecification in the imputation model. These rules were designed to ensure compatibility among the conditionally specified imputation models and congeniality between the imputation and the main model. However, they may not be applicable to all 2l imputation methods; for instance, the 2l.2stage imputation methods of the micemd package only allow the inclusion of random predictor variables (2).
+Recipes have been proposed for imputing incomplete level-1 and level-2 variables for hierarchical models \cite{buuren2018a} ($\S$ 7.10), which can be convenient to follow when dealing with numerous variables (interaction terms at different levels) and models with many random effects that are prone to convergency problems due to overspecification in the imputation model. These rules were designed to ensure compatibility among the conditionally specified imputation models and congeniality between the imputation and the main model. However, they may not be applicable to all 2l imputation methods. For instance, the 2l.2stage imputation methods of the micemd package only allow the inclusion of random predictor variables (2).
 
 On the other hand, the formula option is useful in specifying complex imputation models with polynomial terms or interactions and compared with the prediction matrix method do not requires the inclusion of additional terms as Just Another Variable (JAV) \cite{buuren2018a}($\S$ 6.4).
 
-For some interaction terms, it has been suggested, for instance, for treatment interaction effects, to conduct separate imputation by treatment group \cite{zhang2023}. Additionally, it can be used imputation models based on random forest or deep learning that can handle interaction and non-linear terms without requiring the explicit specification of an imputation model. 
+For some interaction terms, including treatment interaction effects, it has been suggested to conduct separate imputation by treatment group \cite{zhang2023}. Additionally, one might apply random forest or deep learning methods, as these can handle interaction and non-linear terms without requiring the explicit specification of an imputation model. 
 
 
 ### Post-Imputation 
 
-During the imputation process, certain issues may arise that halt the process. In hierarchical model imputations, many issues are related to over fitting the imputation model. To troubleshoot, it is recommended to inspect the imputation log file for variables causing problems.  One approach to address this is to reduce the number of predictors, by using step by step the previous referred recepies or by using functions like quickpred. Another option is to consider variable transformations, such as scaling when model is invariant to linear transformations e.g., random intercept models.  Also adjusting the level of the hierarchical model (e.g., using a homogeneous variance imputation method or a 1l model) can also be beneficial. 
+During the imputation process, certain issues may arise that halt the process. In hierarchical model imputations, many issues are related to overfitting the imputation model. To troubleshoot, it is recommended to inspect the imputation log file for variables causing problems.  One approach to address this is to reduce the number of predictors, by applying the previous referred recepies step by step  or by using functions like quickpred. Another option is to consider variable transformations, such as scaling when the model is invariant to linear transformations e.g., random intercept models.  Also, adjusting the level of the hierarchical model (e.g., using a homogeneous variance imputation method or a 1l model) can also be beneficial. 
 
 It is crucial to check the range of imputed variables, as excessively large imputed values for one predictor may trigger convergence issues in other variables. To tackle this, including post-processing specifications on problematic variables or utilizing imputation models like Predicted Mean Matching (PMM) can ensure that imputed values align with observable values.
 
@@ -300,7 +317,7 @@ In some situations, adopting a separate imputation strategy might be worth consi
 
 ### Convergence and Sensitivity Analysis
 
-Before starting into the analysis of each imputed dataset, it is crucial to validate the convergence of the imputation process. This is commonly accomplished through trace plots that depict the mean and variance of the incomplete variables across iterations. These plots serve to uncover potential circular issues or the need for additional iterations. Additionally,  it is also important to verify that imputed values fall within a plausible range and also to check the distribution of imputed variables, ensuring that the imputed variable distribution aligns with the distribution of observed values (under the MAR assumption). An alternative approach involves assessing the prediction accuracy of the imputation method \cite{cai2023}.
+Before starting the analysis of each imputed dataset, it is crucial to validate the convergence of the imputation process. This is commonly accomplished through trace plots that depict the mean and variance of the incomplete variables across iterations. These plots serve to uncover potential circular issues or the need for additional iterations. Additionally,  it is also important to verify that imputed values fall within a plausible range and also to check the distribution of imputed variables, ensuring that the imputed variable distribution aligns with the distribution of observed values (under the MAR assumption). An alternative approach involves assessing the prediction accuracy of the imputation method \cite{cai2023}.
 
 While the majority of Multiple Imputation by Chained Equations (MICE) methods are based on Missing at Random (MAR) assumptions, field expert input may suggest that the Missing Not at Random (MNAR) mechanism could be plausible for certain variables. An MNAR variable is one in which the probability of missingness depends on an unobservable variable. This can occur when missingness is associated with the incomplete value itself (self-marking) or when there is an unobserved variable linked to both the value and the probability of missingness of the incomplete value (indirectly non-informative). Specifically, for the indirectly non-informative case in hierarchical datasets, imputation methods based on the Heckman method can be considered.\cite{hammon2020,hammon2022,munoz2023}
 
