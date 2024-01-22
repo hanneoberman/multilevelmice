@@ -64,11 +64,14 @@ author:
       - Journal of Statistical Software
     orcid: 0000-0002-1790-2719    
 abstract: |
-  This tutorial illustrates the imputation of incomplete multilevel data with the [R]{.proglang} packackage [mice]{.pkg}. Our scope is only simple multilevel models, to show how imputation can yield less biased estimates from incomplete clustered data. More complex models can be accomodated, but are outside the scope of this paper. Incomplete multilevel data requires careful consideration of the missing data problem and analysis strategy. In this tutorial, we focus on a popular strategy for accommodating missingness in multilevel data: replacing the missing data with one or more plausible values, i.e., imputation.Imputation separates the missing data problem from the main analysis and the completed data can be analyzed as if it has been fully observed. This tutorial illustrates the imputation of incomplete multilevel data with the statistical programming language R. We aim to show how imputation can yield less biased estimates from incomplete clustered data. We provide practical guidelines and code snippets for different missing data situations, including non-ignorable missingness mechanisms. For brevity, we focus on multilevel imputation using chained equations with the R mice package and its adjacent packages.
+  Incomplete multilevel data requires careful consideration of the missing data problem and analysis strategy, as it may introduce bias.  We focus on a popular strategy for accommodating missingness in multilevel data: replacing the missing data with one or more plausible values, i.e., imputation. Imputation separates the missing data problem from the main analysis and the completed data can be analyzed as if it has been fully observed. Our scope is multilevel models for incomplete clustered data, to show how imputation can yield less biased estimates. This tutorial illustrates the imputation of incomplete multilevel data with the [R]{.proglang} package [mice]{.pkg}. 
+  
+ We provide a background of missing data and multiple imputation, practical guidelines for different missing data situations, including non-ignorable missingness mechanisms. We apply the methods, and provide descriptions and code snippets for three case studies: data on 2000 pupils' popularity in 100 schools,  data on 11,002 patients across 15 studies on traumatic brain injuries with data Missing At Random, and 2,111 patients from 5 regions with data Missing Not At Random.
 keywords: [missing data, multilevel, clustering, mice, R]
 keywords-formatted: [missing data, multilevel, clustering, "[mice]{.pkg}", "[R]{.proglang}"]
 bibliography: bibliography.bib  
 ---
+
 
 ## Introduction: Clustering and incomplete data {#sec-intro}
 
