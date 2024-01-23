@@ -1,0 +1,67 @@
+Changes in Version 0.5-6
+    o add initial functionality for OpenMx models (credit to Mauricio Garnier-Villarreal)
+
+Changes in Versions 0.5-4 and 0.5-5
+    o fix bugs for lavaan models with missing data, where some rows of the data matrix
+      were fully missing
+
+Changes in Version 0.5-3
+    o simplify llcont() for mlogit models (credit to Yves Croissant)
+
+    o fix for AIC/BIC adjustments to test statistics (credit to Thomas Hielscher)
+
+    o handle sampling weights for mirt models, throw error for lavaan sampling weights
+
+Changes in Version 0.5-2
+    o new vuongtest() arguments ll1, ll2, score1, score2, vc1, vc2 for
+      sending in custom functions that obtain casewise log-likelihood,
+      scores, and vcovs from fitted models
+
+    o add packages to Suggests, fix a failing test
+
+Changes in Version 0.5-1
+    o llcont() for lavaan objects with fixed.x=TRUE is corrected
+
+Changes in Version 0.5
+
+    o include llcont() method for mirt objects (credit to Lennart Schneider)
+      and find mirt's estfun.AllModelClass()
+
+    o lavaan changes: allow for inclusion of completely missing 
+      cases and stop if missing = "listwise" or "pairwise"
+
+    o return error for lavaan models with fixed.x=TRUE (incorrect results)
+
+    o fix scaling issues in vcov associated with lm/glm/nls
+
+Changes in Version 0.4
+
+    o Update handling of missing data to conform to lavaan 0.5-21.
+
+    o Throw error in case lavaan model with robust SEs is sent in.
+
+Changes in Version 0.3
+
+    o Added "Getting started" vignette.
+
+    o Changes to conform to lavaan 0.5-20's handling of equality constraints.
+
+    o Fixed issue where print methods sometimes wrapped over lines.
+
+    o Fixed bug in llcont() for lavaan cases missing all data except
+      one variable.
+
+Changes in Version 0.2
+
+    o Added argument "nested" to vuongtest(), allowing the user
+      to specify whether or not candidate models are nested.  This
+      impacts the limiting distribution of the Vuong LRT.
+
+    o Added argument "adj" to vuongtest(), allowing the user
+      to obtain test statistics with AIC or BIC adjustments.
+
+    o print methods no longer display the full call of each model
+      (just the first line).
+
+    o BIC intervals added for objects of class hurdle, zeroinfl, 
+      mlogit (were missing because they didn't have an nobs method).

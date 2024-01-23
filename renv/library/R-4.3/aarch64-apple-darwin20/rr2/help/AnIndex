@@ -1,0 +1,11 @@
+rr2-package	rr2
+binaryPGLMM	binaryPGLMM
+inv.logit	inv.logit
+partialR2	partialR2
+partialR2adj	partialR2adj
+R2	R2
+R2_lik	R2_lik
+R2_pred	R2_pred
+R2_resid	R2_resid
+rr2	rr2
+transf_phy	transf_phy

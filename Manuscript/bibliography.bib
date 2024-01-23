@@ -1,106 +1,956 @@
-@book{CameronTrivedi2013,
-  author    = {A. Colin Cameron and Pravin K. Trivedi},
-  title     = {Regression Analysis of Count Data},
-  year      = {2013},
-  edition   = {2nd},
-  publisher = {Cambridge University Press},
-  address   = {Cambridge}
+@article{audigier,
+  title = {Comparison of Multiple Imputation Methods for Systematically and Sporadically Missing Multilevel Data},
+  author = {Audigier, V and White, I and Jolani, S and Debray, T and Quartagno, M and Carpenter, J},
+  pages = {20},
+  langid = {english}
 }
 
-@book{ChambersHastie1992,
-  editor    = {John M. Chambers and Trevor J. Hastie},
-  title     = {Statistical Models in S},
-  publisher = {Chapman \& Hall},
-  year      = {1992},
-  address   = {London}
+@article{bailey2020,
+  title = {Multiple Imputation by Predictive Mean Matching in Cluster-Randomized Trials},
+  author = {Bailey, Brittney E. and Andridge, Rebecca and Shoben, Abigail B.},
+  year = {2020},
+  month = dec,
+  journal = {BMC Medical Research Methodology},
+  volume = {20},
+  number = {1},
+  pages = {72},
+  issn = {1471-2288},
+  doi = {10.1186/s12874-020-00948-6},
+  urldate = {2023-12-11},
+  abstract = {Abstract                              Background                Random effects regression imputation has been recommended for multiple imputation (MI) in cluster randomized trials (CRTs) because it is congenial to analyses that use random effects regression. This method relies heavily on model assumptions and may not be robust to misspecification of the imputation model. MI by predictive mean matching (PMM) is a semiparametric alternative, but current software for multilevel data relies on imputation models that ignore clustering or use fixed effects for clusters. When used directly for imputation, these two models result in underestimation (ignoring clustering) or overestimation (fixed effects for clusters) of variance estimates.                                            Methods                We develop MI procedures based on PMM that leverage these opposing estimated biases in the variance estimates in one of three ways: weighting the distance metric (PMM-dist), weighting the average of the final imputed values from two PMM procedures (PMM-avg), or performing a weighted draw from the final imputed values from the two PMM procedures (PMM-draw). We use Monte-Carlo simulations to evaluate our newly proposed methods relative to established MI procedures, focusing on estimation of treatment group means and their variances after MI.                                            Results                The proposed PMM procedures reduce the bias in the MI variance estimator relative to established methods when the imputation model is correctly specified, and are generally more robust to model misspecification than even the random effects imputation methods.                                            Conclusions                The PMM-draw procedure in particular is a promising method for multiply imputing missing data from CRTs that can be readily implemented in existing statistical software.},
+  langid = {english}
 }
 
-@manual{Jackman2015,
-  title  = {pscl: Classes and Methods for R Developed in the Political Science Computational Laboratory, Stanford University},
-  author = {Simon Jackman},
-  year   = {2015},
-  note   = {R package version 1.4.9},
-  url    = {https://CRAN.R-project.org/package=pscl}
+@misc{broom.mixed,
+  title = {Broom.Mixed: {{Tidying Methods}} for {{Mixed Models}}},
+  shorttitle = {Broom.Mixed},
+  author = {Bolker [aut, Ben and {cre} and Robinson, David and Menne, Dieter and Gabry, Jonah and Buerkner, Paul and Hua, Christopher and Petry, William and Wiley, Joshua and Kennedy, Patrick and SE), Eduard Sz{\"o}cs (BASF and Patil, Indrajeet and {Arel-Bundock}, Vincent},
+  year = {2021},
+  month = jul,
+  urldate = {2022-03-01},
+  abstract = {Convert fitted objects from various R mixed-model packages into tidy data frames along the lines of the 'broom' package. The package provides three S3 generics for each model: tidy(), which summarizes a model's statistical findings such as coefficients of a regression; augment(), which adds columns to the original data such as predictions, residuals and cluster assignments; and glance(), which provides a one-row summary of model-level statistics.},
+  copyright = {GPL-3}
 }
 
-@article{Mullahy1986,
-  author  = {John Mullahy},
-  title   = {Specification and Testing of Some Modified Count Data Models},
-  year    = {1986},
-  journal = {Journal of Econometrics},
-  volume  = {33},
-  number  = {3},
-  pages   = {341--365},
-  doi     = {10.1016/0304-4076(86)90002-3}
+@book{buur18,
+  title = {Flexible Imputation of Missing Data},
+  author = {Van Buuren, Stef},
+  year = {2018},
+  publisher = {{Chapman and Hall/CRC}}
 }
 
-@book{McCullaghNelder1989,
-  author    = {Peter McCullagh and John A. Nelder},
-  title     = {Generalized Linear Models},
-  edition   = {2nd},
-  year      = {1989},
-  publisher = {Chapman \& Hall},
-  address   = {London},
-  doi       = {10.1007/978-1-4899-3242-6}
+@article{cai2023,
+  title = {Graphical and Numerical Diagnostic Tools to Assess Multiple Imputation Models by Posterior Predictive Checking},
+  author = {Cai, Mingyang and Van Buuren, Stef and Vink, Gerko},
+  year = {2023},
+  month = jun,
+  journal = {Heliyon},
+  volume = {9},
+  number = {6},
+  pages = {e17077},
+  issn = {24058440},
+  doi = {10.1016/j.heliyon.2023.e17077},
+  urldate = {2023-12-11},
+  langid = {english}
 }
 
-@manual{R,
-  title        = {R: {A} Language and Environment for Statistical Computing},
-  author       = {{R Core Team}},
-  organization = {R Foundation for Statistical Computing},
-  address      = {Vienna, Austria},
-  year         = {2017},
-  url          = {https://www.R-project.org/}
+@article{carpenter,
+  title = {Introduction to Handling Missing Data in Multilevel Modelling},
+  author = {Carpenter, James R},
+  langid = {english}
 }
 
-@article{StasinopoulosRigby2007,
-  author  = {D. Mikis Stasinopoulos and Robert A. Rigby},
-  title   = {Generalized Additive Models for Location Scale and Shape ({GAMLSS}) in R},
+@article{carpenter2021a,
+  title = {Missing Data: {{A}} Statistical Framework for Practice},
+  shorttitle = {Missing Data},
+  author = {Carpenter, James R. and Smuk, Melanie},
+  year = {2021},
+  month = jun,
+  journal = {Biometrical Journal. Biometrische Zeitschrift},
+  volume = {63},
+  number = {5},
+  pages = {915--947},
+  issn = {1521-4036},
+  doi = {10.1002/bimj.202000196},
+  abstract = {Missing data are ubiquitous in medical research, yet there is still uncertainty over when restricting to the complete records is likely to be acceptable, when more complex methods (e.g. maximum likelihood, multiple imputation and Bayesian methods) should be used, how they relate to each other and the role of sensitivity analysis. This article seeks to address both applied practitioners and researchers interested in a more formal explanation of some of the results. For practitioners, the framework, illustrative examples and code should equip them with a practical approach to address the issues raised by missing data (particularly using multiple imputation), alongside an overview of how the various approaches in the literature relate. In particular, we describe how multiple imputation can be readily used for sensitivity analyses, which are still infrequently performed. For those interested in more formal derivations, we give outline arguments for key results, use simple examples to show how methods relate, and references for full details. The ideas are illustrated with a cohort study, a multi-centre case control study and a randomised clinical~trial.},
+  langid = {english},
+  pmid = {33624862},
+  keywords = {Bayes Theorem,Case-Control Studies,Cohort Studies,complete records,{Data Interpretation, Statistical},Humans,missing data,multiple imputation,sensitivity analysis,Uncertainty}
+}
+
+@incollection{debr21,
+  title = {Dealing with {{Missing Data}} in an {{IPD Meta-Analysis}}},
+  booktitle = {Individual {{Participant Data Meta-Analysis}}},
+  author = {Debray, Thomas P.A. and Snell, Kym I.E. and Quartagno, Matteo and Jolani, Shahab and Moons, Karel G.M. and Riley, Richard D.},
+  year = {2021},
+  pages = {499--524},
+  publisher = {{John Wiley \& Sons, Ltd}},
+  doi = {10.1002/9781119333784.ch18},
+  urldate = {2021-10-05},
+  abstract = {This chapter provides an overview of different methods for dealing with missing data in an individual participant data (IPD) meta-analysis. It highlights the specific challenges of dealing with missing data in an IPD meta-analysis context, including how to preserve the clustering of participants within primary studies, whilst allowing for potential between-study heterogeneity. The describes the various types of missing data that can occur in an IPD meta-analysis project, and the strategies, statistical approaches and software to deal with each. It focuses on dealing with missing data in the context of IPD meta-analyses of observational studies, for example for examining prognostic factors or developing prediction models. A number of prognostic factors (`predictors') are known to be associated with the incidence of preeclampsia; for example, a woman has a higher risk if she had pre-eclampsia in a previous pregnancy, or if there is a family history of pre-eclampsia, diabetes, or renal disease.},
+  chapter = {18},
+  isbn = {978-1-119-33378-4},
+  langid = {english},
+  keywords = {individual participant data meta-analysis,missing data,prediction models,pregnancy,prognostic factors,statistical approaches,statistical software}
+}
+
+@article{drec15,
+  title = {Multiple {{Imputation}} of {{Multilevel Missing Data}}{\textemdash}{{Rigor Versus Simplicity}}},
+  author = {Drechsler, J{\"o}rg},
+  year = {2015},
+  month = feb,
+  journal = {Journal of Educational and Behavioral Statistics},
+  volume = {40},
+  number = {1},
+  pages = {69--95},
+  publisher = {{American Educational Research Association}},
+  issn = {1076-9986},
+  doi = {10.3102/1076998614563393},
+  urldate = {2022-01-28},
+  abstract = {Multiple imputation is widely accepted as the method of choice to address item-nonresponse in surveys. However, research on imputation strategies for the hierarchical structures that are typically found in the data in educational contexts is still limited. While a multilevel imputation model should be preferred from a theoretical point of view if the analysis model of interest is also a multilevel model, many practitioners prefer a fixed effects imputation model with dummies for the clusters since these models are easy to set up with standard imputation software. In this article, we theoretically and empirically evaluate the impacts of this simplified approach. We illustrate that the cluster effects that are often of central interest in educational research can be biased if a fixed effects imputation model is used. We show that the potential bias depends on three quantities: the amount of missingness, the intraclass correlation, and the cluster size. We argue that the bias for the random effects can be substantial while the bias for the fixed effects will be negligible in most real-data situations. We further illustrate this with an application using data from the German National Educational Panel Survey.},
+  langid = {english},
+  keywords = {fixed effects,Imputation,missing data,multilevel,random effects}
+}
+
+@misc{eddings,
+  title = {{{FAQ}}: {{Accounting}} for Clustering with Mi Impute | {{Stata}}},
+  shorttitle = {Accounting for Clustering with Mi Impute},
+  author = {Eddings, Wesley and Marchenko, Yulia},
+  journal = {STATA FAQ},
+  urldate = {2023-12-11},
+  abstract = {How can I account for clustering when creating imputations with mi impute?},
+  howpublished = {https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/},
+  langid = {english}
+}
+
+@article{ende16,
+  title = {Multilevel Multiple Imputation: {{A}} Review and Evaluation of Joint Modeling and Chained Equations Imputation},
+  shorttitle = {Multilevel Multiple Imputation},
+  author = {Enders, Craig K. and Mistler, Stephen A. and Keller, Brian T.},
+  year = {2016},
+  month = jun,
+  journal = {Psychological Methods},
+  volume = {21},
+  number = {2},
+  pages = {222--240},
+  issn = {1939-1463},
+  doi = {10.1037/met0000063},
+  abstract = {Although missing data methods have advanced in recent years, methodologists have devoted less attention to multilevel data structures where observations at level-1 are nested within higher-order organizational units at level-2 (e.g., individuals within neighborhoods; repeated measures nested within individuals; students nested within classrooms). Joint modeling and chained equations imputation are the principal imputation frameworks for single-level data, and both have multilevel counterparts. These approaches differ algorithmically and in their functionality; both are appropriate for simple random intercept analyses with normally distributed data, but they differ beyond that. The purpose of this paper is to describe multilevel imputation strategies and evaluate their performance in a variety of common analysis models. Using multiple imputation theory and computer simulations, we derive 4 major conclusions: (a) joint modeling and chained equations imputation are appropriate for random intercept analyses; (b) the joint model is superior for analyses that posit different within- and between-cluster associations (e.g., a multilevel regression model that includes a level-1 predictor and its cluster means, a multilevel structural equation model with different path values at level-1 and level-2); (c) chained equations imputation provides a dramatic improvement over joint modeling in random slope analyses; and (d) a latent variable formulation for categorical variables is quite effective. We use a real data analysis to demonstrate multilevel imputation, and we suggest a number of avenues for future research. (PsycINFO Database Record},
+  langid = {english},
+  pmid = {26690775},
+  keywords = {Computer Simulation,Humans,Multilevel Analysis,Research Design}
+}
+
+@article{ende18,
+  title = {A Fully Conditional Specification Approach to Multilevel Imputation of Categorical and Continuous Variables.},
+  author = {Enders, Craig K. and Keller, Brian T. and Levy, Roy},
+  year = {2018},
+  month = jun,
+  journal = {Psychological Methods},
+  volume = {23},
+  number = {2},
+  pages = {298--317},
+  issn = {1939-1463, 1082-989X},
+  doi = {10.1037/met0000148},
+  urldate = {2019-09-19},
+  abstract = {Specialized imputation routines for multilevel data are widely available in software packages, but these methods are generally not equipped to handle a wide range of complexities that are typical of behavioral science data. In particular, existing imputation schemes differ in their ability to handle random slopes, categorical variables, differential relations at level-1 and level-2, and incomplete level-2 variables. Given the limitations of existing imputation tools, the purpose of this manuscript is to describe a flexible imputation approach that can accommodate a diverse set of two-level analysis problems that includes any of the aforementioned features. The procedure employs a fully conditional specification (also known as chained equations) approach with a latent variable formulation for handling incomplete categorical variables. Computer simulations suggest that the proposed procedure works quite well, with trivial biases in most cases. We provide a software program that implements the imputation strategy, and we use an artificial data set to illustrate its use.},
+  langid = {english},
+  pmid = {28557466},
+  keywords = {Behavioral Research,{Data Interpretation, Statistical},Humans,{Models, Statistical},Multilevel Analysis}
+}
+
+@incollection{fish25,
+  title = {Statistical {{Methods}} for {{Research Workers}}},
+  booktitle = {Breakthroughs in {{Statistics}}: {{Methodology}} and {{Distribution}}},
+  author = {Fisher, R. A.},
+  editor = {Kotz, Samuel and Johnson, Norman L.},
+  year = {1925},
+  series = {Springer {{Series}} in {{Statistics}}},
+  pages = {66--70},
+  publisher = {{Springer}},
+  address = {{New York, NY}},
+  doi = {10.1007/978-1-4612-4380-9_6},
+  urldate = {2022-02-08},
+  abstract = {The prime object of this book is to put into the hands of research workers, and especially of biologists, the means of applying statistical tests accurately to numerical data accumulated in their own laboratories or available in the literature.},
+  isbn = {978-1-4612-4380-9},
+  langid = {english},
+  keywords = {Manure Plot,Manurial Response,Manurial Treatment,Rothamsted Experimental Station,Total Yield}
+}
+
+@article{galimard2018,
+  title = {Heckman Imputation Models for Binary or Continuous {{MNAR}} Outcomes and {{MAR}} Predictors},
+  author = {Galimard, Jacques-Emmanuel and Chevret, Sylvie and Curis, Emmanuel and {Resche-Rigon}, Matthieu},
+  year = {2018},
+  month = dec,
+  journal = {BMC Medical Research Methodology},
+  volume = {18},
+  number = {1},
+  pages = {90},
+  issn = {1471-2288},
+  doi = {10.1186/s12874-018-0547-1},
+  urldate = {2023-12-11},
+  langid = {english}
+}
+
+@article{garcia-patos2020,
+  title = {Multiple {{Imputation}} in {{Multilevel Models}}. {{A Revision}} of the {{Current Software}} and {{Usage Examples}} for {{Researchers}}},
+  author = {{Garc{\'i}a-Patos}, Pablo and Olmos, Ricardo},
+  year = {2020},
+  journal = {The Spanish Journal of Psychology},
+  volume = {23},
+  pages = {e46},
+  issn = {1138-7416, 1988-2904},
+  doi = {10.1017/SJP.2020.48},
+  urldate = {2023-09-27},
+  abstract = {Abstract             Although modern lines for dealing with missing data are well established from the 1970s, today there is a challenge when researchers encounter this problem in multilevel models. First, there is a variety of existing software to handle missing data based on multiple imputation (MI), currently pointed out by experts as the most promising strategy. Second, the two principal paradigms of MI are joint modelling (JM) and fully conditional specification (FCS), one more complication because they are not equally useful depending on the combination of multilevel model and the estimated parameters affected by missing data. Technical literature do not contribute to ease the number of decisions that researcher has to do. Given these inconveniences, the present paper has three objectives. (1) To present a thorough revision of the most recently developed software and functions about multiple imputation in multilevel models. (2) We derive a set of suggestions, recommendations, and guides for helping researchers to handle missing data. We list a number of key questions to consider when analyzing multilevel models. (3) Finally, based on the previous relevant questions, we present two detailed examples using the recommended R packages to be easy for the researcher applying multiple imputation in multilevel models.},
+  langid = {english}
+}
+
+@book{gelm06,
+  title = {Data {{Analysis Using Regression}} and {{Multilevel}}/{{Hierarchical Models}}},
+  author = {Gelman, Andrew and Hill, Jennifer},
+  year = {2006},
+  month = dec,
+  publisher = {{Cambridge University Press}},
+  abstract = {Data Analysis Using Regression and Multilevel/Hierarchical Models, first published in 2007, is a comprehensive manual for the applied researcher who wants to perform data analysis using linear and nonlinear regression and multilevel models. The book introduces a wide variety of models, whilst at the same time instructing the reader in how to fit these models using available software packages. The book illustrates the concepts by working through scores of real data examples that have arisen from the authors' own applied research, with programming codes provided for each one. Topics covered include causal inference, including regression, poststratification, matching, regression discontinuity, and instrumental variables, as well as multilevel logistic regression and missing-data imputation. Practical tips regarding building, fitting, and understanding are provided throughout.},
+  googlebooks = {c9xLKzZWoZ4C},
+  isbn = {978-1-139-46093-4},
+  langid = {english},
+  keywords = {Mathematics / Probability \& Statistics / General,Political Science / General,{Psychology / Assessment, Testing \& Measurement},Social Science / Research}
+}
+
+@misc{GJRM,
+  title = {{{GJRM}}: {{Generalised Joint Regression Modelling}}},
+  shorttitle = {{{GJRM}}},
+  author = {Radice, Giampiero Marra {and} Rosalba},
+  year = {2021},
+  month = oct,
+  urldate = {2022-03-01},
+  abstract = {Routines for fitting various joint (and univariate) regression models, with several types of covariate effects, in the presence of equations' errors association, endogeneity, non-random sample selection or partial observability.},
+  copyright = {GPL-2 | GPL-3 [expanded from: GPL ({$\geq$} 2)]}
+}
+
+@article{graham2009,
+  ids = {grahamMissingDataAnalysis2009a},
+  title = {Missing {{Data Analysis}}: {{Making It Work}} in the {{Real World}}},
+  shorttitle = {Missing {{Data Analysis}}},
+  author = {Graham, John W.},
+  year = {2009},
+  month = jan,
+  journal = {Annual Review of Psychology},
+  volume = {60},
+  number = {1},
+  pages = {549--576},
+  issn = {0066-4308, 1545-2085},
+  doi = {10.1146/annurev.psych.58.110405.085530},
+  urldate = {2023-05-03},
+  abstract = {This review presents a practical summary of the missing data literature, including a sketch of missing data theory and descriptions of normal-model multiple imputation (MI) and maximum likelihood methods. Practical missing data analysis issues are discussed, most notably the inclusion of auxiliary variables for improving power and reducing bias. Solutions are given for missing data challenges such as handling longitudinal, categorical, and clustered data with normal-model MI; including interactions in the missing data model; and handling large numbers of variables. The discussion of attrition and nonignorable missingness emphasizes the need for longitudinal diagnostics and for reducing the uncertainty about the missing data mechanism under attrition. Strategies suggested for reducing attrition bias include using auxiliary variables, collecting follow-up data on a sample of those initially missing, and collecting data on intent to drop out. Suggestions are given for moving forward with research on missing data and attrition.},
+  langid = {english},
+  pmid = {18652544},
+  keywords = {Cluster Analysis,Data Collection,{Data Interpretation, Statistical},Humans,Likelihood Functions,Longitudinal Studies,{Models, Statistical},Psychometrics,Research Design}
+}
+
+@article{grun18,
+  ids = {grundMultipleImputationMissing2018},
+  title = {Multiple {{Imputation}} of {{Missing Data}} for {{Multilevel Models}}: {{Simulations}} and {{Recommendations}}},
+  shorttitle = {Multiple {{Imputation}} of {{Missing Data}} for {{Multilevel Models}}},
+  author = {Grund, Simon and L{\"u}dtke, Oliver and Robitzsch, Alexander},
+  year = {2018},
+  month = jan,
+  journal = {Organizational Research Methods},
+  volume = {21},
+  number = {1},
+  pages = {111--149},
+  publisher = {{SAGE Publications Inc}},
+  issn = {1094-4281},
+  doi = {10.1177/1094428117703686},
+  urldate = {2021-10-18},
+  abstract = {Multiple imputation (MI) is one of the principled methods for dealing with missing data. In addition, multilevel models have become a standard tool for analyzing the nested data structures that result when lower level units (e.g., employees) are nested within higher level collectives (e.g., work groups). When applying MI to multilevel data, it is important that the imputation model takes the multilevel structure into account. In the present paper, based on theoretical arguments and computer simulations, we provide guidance using MI in the context of several classes of multilevel models, including models with random intercepts, random slopes, cross-level interactions (CLIs), and missing data in categorical and group-level variables. Our findings suggest that, oftentimes, several approaches to MI provide an effective treatment of missing data in multilevel research. Yet we also note that the current implementations of MI still have room for improvement when handling missing data in explanatory variables in models with random slopes and CLIs. We identify areas for future research and provide recommendations for research practice along with a number of step-by-step examples for the statistical software R.},
+  langid = {english},
+  keywords = {cross-level interactions,missing data,multilevel,multiple imputation,random coefficients model,random intercept model,random slopes}
+}
+
+@incollection{grund2019,
+  title = {Missing Data in Multilevel Research.},
+  booktitle = {The Handbook of Multilevel Theory, Measurement, and Analysis.},
+  author = {Grund, Simon and L{\"u}dtke, Oliver and Robitzsch, Alexander},
+  editor = {Humphrey, Stephen E. and LeBreton, James M.},
+  year = {2019},
+  pages = {365--386},
+  publisher = {{American Psychological Association}},
+  address = {{Washington}},
+  doi = {10.1037/0000115-017},
+  urldate = {2022-12-16},
+  isbn = {978-1-4338-3001-3 978-1-4338-3009-9},
+  langid = {english}
+}
+
+@article{hammon2020,
+  title = {Multiple Imputation of Binary Multilevel Missing Not at Random Data},
+  author = {Hammon, Angelina and Zinn, Sabine},
+  year = {2020},
+  month = jun,
+  journal = {Journal of the Royal Statistical Society: Series C (Applied Statistics)},
+  volume = {69},
+  number = {3},
+  pages = {547--564},
+  issn = {0035-9254, 1467-9876},
+  doi = {10.1111/rssc.12401},
+  urldate = {2022-12-16},
+  langid = {english}
+}
+
+@article{hammon2022,
+  title = {Multiple Imputation of Ordinal Missing Not at Random Data},
+  author = {Hammon, Angelina},
+  year = {2022},
+  month = aug,
+  journal = {AStA Advances in Statistical Analysis},
+  issn = {1863-818X},
+  doi = {10.1007/s10182-022-00461-9},
+  urldate = {2022-11-15},
+  abstract = {We introduce a selection model-based imputation approach to be used within the Fully Conditional Specification (FCS) framework for the Multiple Imputation (MI) of incomplete ordinal variables that are supposed to be Missing Not at Random (MNAR). Thereby, we generalise previous work on this topic which involved binary single-level and multilevel data to ordinal variables. We apply an ordered probit model with sample selection as base of our imputation algorithm. The applied model involves two equations that are modelled jointly where the first one describes the missing-data mechanism and the second one specifies the variable to be imputed. In addition, we develop a version for hierarchical data by incorporating random intercept terms in both equations. To fit this multilevel imputation model we use quadrature techniques. Two simulation studies validate the overall good performance of our single-level and multilevel imputation methods. In addition, we show its applicability to empirical data by applying it to a common research topic in educational science using data of the National Educational Panel Study (NEPS) and conducting a short sensitivity analysis. Our approach is designed to be used within the R software package mice which makes it easy to access and apply.},
+  langid = {english},
+  keywords = {Fully conditional specification,Missingness not at random,Multilevel data,Multiple imputation,Ordinal data,Selection model}
+}
+
+@article{hardt2012,
+  title = {Auxiliary Variables in Multiple Imputation in Regression with Missing {{X}}: A Warning against Including Too Many in Small Sample Research},
+  shorttitle = {Auxiliary Variables in Multiple Imputation in Regression with Missing {{X}}},
+  author = {Hardt, Jochen and Herke, Max and Leonhart, Rainer},
+  year = {2012},
+  month = dec,
+  journal = {BMC Medical Research Methodology},
+  volume = {12},
+  number = {1},
+  pages = {184},
+  issn = {1471-2288},
+  doi = {10.1186/1471-2288-12-184},
+  urldate = {2023-12-11},
+  langid = {english}
+}
+
+@book{heymansandeekhout2019,
+  title = {Chapter7 {{Multiple Imputation}} Models for {{Multilevel}} Data | {{Book}}\_{{MI}}.Knit},
+  author = {{Heymans {and} Eekhout}},
+  year = {2019},
+  urldate = {2022-01-28}
+}
+
+@incollection{hox15,
+  title = {Incomplete {{Multilevel Data}}: {{Problems}} and Solutions},
+  shorttitle = {Incomplete {{Multilevel Data}}},
+  booktitle = {Advances in Multilevel Modeling for Educational Research: Addressing Practical Issues Found in Real-World Applications},
+  author = {Hox, J. and {van Buuren}, S. and Jolani, Shahab},
+  editor = {Harring, J.R. and Staplecton, L.M. and Beretvas, S.N.},
+  year = {2015},
+  series = {{{CILVR Series}} on {{Latent Variable Methodology}}},
+  pages = {39--62},
+  publisher = {{Information Age Publishing Inc.}},
+  address = {{Charlotte, NC}},
+  urldate = {2021-10-18},
+  isbn = {978-1-68123-328-4}
+}
+
+@book{hox17,
+  title = {Multilevel {{Analysis}}: {{Techniques}} and {{Applications}}, {{Third Edition}}},
+  shorttitle = {Multilevel {{Analysis}}},
+  author = {Hox, Joop J. and Moerbeek, Mirjam and van de Schoot, Rens},
+  year = {2017},
+  month = sep,
+  publisher = {{Routledge}},
+  abstract = {Applauded for its clarity, this accessible introduction helps readers apply multilevel techniques to their research. The book also includes advanced extensions, making it useful as both an introduction for students and as a reference for researchers. Basic models and examples are discussed in nontechnical terms with an emphasis on understanding the methodological and statistical issues involved in using these models. The estimation and interpretation of multilevel models is demonstrated using realistic examples from various disciplines including psychology, education, public health, and sociology. Readers are introduced to a general framework on multilevel modeling which covers both observed and latent variables in the same model, while most other books focus on observed variables. In addition, Bayesian estimation is introduced and applied using accessible software.},
+  googlebooks = {iLD\_DwAAQBAJ},
+  isbn = {978-1-317-30868-3},
+  langid = {english},
+  keywords = {Education / Statistics,Psychology / Statistics,Social Science / Statistics}
+}
+
+@book{hox2002,
+  title = {Multilevel Analysis: Techniques and Applications},
+  shorttitle = {Multilevel Analysis},
+  author = {Hox, J. J.},
+  year = {2002},
+  series = {Quantitative Methodology Series},
+  publisher = {{Lawrence Erlbaum Associates}},
+  address = {{Mahwah, N.J}},
+  isbn = {978-0-8058-3218-1 978-0-8058-3219-8},
+  langid = {english},
+  lccn = {HA29 .H783 2002},
+  keywords = {Analysis of variance,Regression analysis,Social sciences,Statistical methods}
+}
+
+@article{huque2020,
+  title = {Multiple Imputation Methods for Handling Incomplete Longitudinal and Clustered Data Where the Target Analysis Is a Linear Mixed Effects Model},
+  author = {Huque, Md Hamidul and {Moreno-Betancur}, Margarita and Quartagno, Matteo and Simpson, Julie A. and Carlin, John B. and Lee, Katherine J.},
+  year = {2020},
+  journal = {Biometrical Journal},
+  volume = {62},
+  number = {2},
+  pages = {444--466},
+  issn = {1521-4036},
+  doi = {10.1002/bimj.201900051},
+  urldate = {2023-05-15},
+  abstract = {Multiple imputation (MI) is increasingly popular for handling multivariate missing data. Two general approaches are available in standard computer packages: MI based on the posterior distribution of incomplete variables under a multivariate (joint) model, and fully conditional specification (FCS), which imputes missing values using univariate conditional distributions for each incomplete variable given all the others, cycling iteratively through the univariate imputation models. In the context of longitudinal or clustered data, it is not clear whether these approaches result in consistent estimates of regression coefficient and variance component parameters when the analysis model of interest is a linear mixed effects model (LMM) that includes both random intercepts and slopes with either covariates or both covariates and outcome contain missing information. In the current paper, we compared the performance of seven different MI methods for handling missing values in longitudinal and clustered data in the context of fitting LMMs with both random intercepts and slopes. We study the theoretical compatibility between specific imputation models fitted under each of these approaches and the LMM, and also conduct simulation studies in both the longitudinal and clustered data settings. Simulations were motivated by analyses of the association between body mass index (BMI) and quality of life (QoL) in the Longitudinal Study of Australian Children (LSAC). Our findings showed that the relative performance of MI methods vary according to whether the incomplete covariate has fixed or random effects and whether there is missingnesss in the outcome variable. We showed that compatible imputation and analysis models resulted in consistent estimation of both regression parameters and variance components via simulation. We illustrate our findings with the analysis of LSAC data.},
+  langid = {english},
+  keywords = {clustered data,fully conditional specification,joint modeling,missing data,multiple imputation,repeated measurement}
+}
+
+@article{jadhav2019,
+  title = {Comparison of {{Performance}} of {{Data Imputation Methods}} for {{Numeric Dataset}}},
+  author = {Jadhav, Anil and Pramod, Dhanya and Ramanathan, Krishnan},
+  year = {2019},
+  month = aug,
+  journal = {Applied Artificial Intelligence},
+  volume = {33},
+  number = {10},
+  pages = {913--933},
+  publisher = {{Taylor \& Francis}},
+  issn = {0883-9514},
+  doi = {10.1080/08839514.2019.1637138},
+  urldate = {2022-03-05},
+  abstract = {Missing data is common problem faced by researchers and data scientists. Therefore, it is required to handle them appropriately in order to get better and accurate results of data analysis. Objective of this research paper is to provide better understanding of data missingness mechanism, data imputation methods, and to assess performance of the widely used data imputation methods for numeric dataset. It will help practitioners and data scientists to select appropriate method of data imputation for numeric dataset while performing data mining task. In this paper, we comprehensively compare seven data imputation methods namely mean imputation, median imputation, kNN imputation, predictive mean matching, Bayesian Linear Regression (norm), Linear Regression, non-Bayesian (norm.nob), and random sample. We have used five different numeric datasets obtained from UCI machine learning repository for analyzing and comparing performance of the data imputation methods. Performance of the data imputation methods is assessed using Normalized Root Mean Square Error (RMSE) method. The results of analysis show that kNN imputation method outperforms the other methods. It has also been found that performance of the data imputation method is independent of the dataset and percentage of missing values in the dataset.}
+}
+
+@article{jola18,
+  title = {Hierarchical Imputation of Systematically and Sporadically Missing Data: {{An}} Approximate {{Bayesian}} Approach Using Chained Equations},
+  shorttitle = {Hierarchical Imputation of Systematically and Sporadically Missing Data},
+  author = {Jolani, Shahab},
+  year = {2018},
+  month = mar,
+  journal = {Biometrical Journal. Biometrische Zeitschrift},
+  volume = {60},
+  number = {2},
+  pages = {333--351},
+  issn = {1521-4036},
+  doi = {10.1002/bimj.201600220},
+  abstract = {In health and medical sciences, multiple imputation (MI) is now becoming popular to obtain valid inferences in the presence of missing data. However, MI of clustered data such as multicenter studies and individual participant data meta-analysis requires advanced imputation routines that preserve the hierarchical structure of data. In clustered data, a specific challenge is the presence of systematically missing data, when a variable is completely missing in some clusters, and sporadically missing data, when it is partly missing in some clusters. Unfortunately, little is known about how to perform MI when both types of missing data occur simultaneously. We develop a new class of hierarchical imputation approach based on chained equations methodology that simultaneously imputes systematically and sporadically missing data while allowing for arbitrary patterns of missingness among them. Here, we use a random effect imputation model and adopt a simplification over fully Bayesian techniques such as Gibbs sampler to directly obtain draws of parameters within each step of the chained equations. We justify through theoretical arguments and extensive simulation studies that the proposed imputation methodology has good statistical properties in terms of bias and coverage rates of parameter estimates. An illustration is given in a case study with eight individual participant datasets.},
+  langid = {english},
+  pmid = {28990686},
+  keywords = {Bayes Theorem,Biometry,conditional imputation,Female,Glomerular Filtration Rate,Humans,Male,multilevel imputation,multiple imputation by chained equations (MICE),Prognosis,Renal Insufficiency,sequential regression imputation,Software}
+}
+
+@article{jomo,
+  title = {Jomo: {{A Flexible Package}} for {{Two-level Joint Modelling Multiple Imputation}}},
+  shorttitle = {Jomo},
+  author = {Quartagno, Matteo and Grund, Simon and Carpenter, James},
+  year = {2019},
+  journal = {The R Journal},
+  volume = {11},
+  number = {2},
+  pages = {205--228},
+  issn = {2073-4859},
+  urldate = {2022-02-02},
+  langid = {english}
+}
+
+@article{jong21,
+  ids = {dejongDevelopingMoreGeneralizable2021a},
+  title = {Developing More Generalizable Prediction Models from Pooled Studies and Large Clustered Data Sets},
+  author = {{de Jong}, Valentijn M. T. and Moons, Karel G. M. and Eijkemans, Marinus J. C. and Riley, Richard D. and Debray, Thomas P. A.},
+  year = {2021},
+  journal = {Statistics in Medicine},
+  volume = {40},
+  number = {15},
+  pages = {3533--3559},
+  issn = {1097-0258},
+  doi = {10.1002/sim.8981},
+  urldate = {2021-11-01},
+  abstract = {Prediction models often yield inaccurate predictions for new individuals. Large data sets from pooled studies or electronic healthcare records may alleviate this with an increased sample size and variability in sample characteristics. However, existing strategies for prediction model development generally do not account for heterogeneity in predictor-outcome associations between different settings and populations. This limits the generalizability of developed models (even from large, combined, clustered data sets) and necessitates local revisions. We aim to develop methodology for producing prediction models that require less tailoring to different settings and populations. We adopt internal-external cross-validation to assess and reduce heterogeneity in models' predictive performance during the development. We propose a predictor selection algorithm that optimizes the (weighted) average performance while minimizing its variability across the hold-out clusters (or studies). Predictors are added iteratively until the estimated generalizability is optimized. We illustrate this by developing a model for predicting the risk of atrial fibrillation and updating an existing one for diagnosing deep vein thrombosis, using individual participant data from 20 cohorts (N = 10 873) and 11 diagnostic studies (N = 10 014), respectively. Meta-analysis of calibration and discrimination performance in each hold-out cluster shows that trade-offs between average and heterogeneity of performance occurred. Our methodology enables the assessment of heterogeneity of prediction model performance during model development in multiple or clustered data sets, thereby informing researchers on predictor selection to improve the generalizability to different settings and populations, and reduce the need for model tailoring. Our methodology has been implemented in the R package metamisc.},
+  langid = {english},
+  keywords = {heterogeneity,individual participant data,internal-external cross-validation,prediction}
+}
+
+@misc{lme4,
+  title = {Lme4: {{Linear Mixed-Effects Models}} Using '{{Eigen}}' and {{S4}}},
+  shorttitle = {Lme4},
+  author = {Bates, Douglas and Maechler, Martin and Bolker [aut, Ben and {cre} and Walker, Steven and Christensen, Rune Haubo Bojesen and Singmann, Henrik and Dai, Bin and Scheipl, Fabian and Grothendieck, Gabor and Green, Peter and Fox, John and Bauer, Alexander and copyright on {simulate.formula)}, Pavel N. Krivitsky (shared},
+  year = {2022},
+  month = feb,
+  urldate = {2022-03-01},
+  abstract = {Fit linear and generalized linear mixed-effects models. The models and their components are represented using S4 classes and methods. The core computational algorithms are implemented using the 'Eigen' C++ library for numerical linear algebra and 'RcppEigen' "glue".},
+  copyright = {GPL-2 | GPL-3 [expanded from: GPL ({$\geq$} 2)]},
+  keywords = {Econometrics,Environmetrics,OfficialStatistics,Psychometrics,SocialSciences,SpatioTemporal}
+}
+
+@article{loca01,
+  title = {Adjustments for Center in Multicenter Studies: An Overview},
+  shorttitle = {Adjustments for Center in Multicenter Studies},
+  author = {Localio, A. R. and Berlin, J. A. and Ten Have, T. R. and Kimmel, S. E.},
+  year = {2001},
+  month = jul,
+  journal = {Annals of Internal Medicine},
+  volume = {135},
+  number = {2},
+  pages = {112--123},
+  issn = {0003-4819},
+  doi = {10.7326/0003-4819-135-2-200107170-00012},
+  abstract = {Increasingly, investigators rely on multicenter or multigroup studies to demonstrate effectiveness and generalizability. Authors too often overlook the analytic challenges in these study designs: the correlation of outcomes and exposures among patients within centers, confounding of associations by center, and effect modification of treatment or exposure across center. Correlation or clustering, resulting from the similarity of outcomes among patients within a center, requires an adjustment to confidence intervals and P values, especially in observational studies and in randomized multicenter studies in which treatment is allocated by center rather than by individual patient. Multicenter designs also warrant testing and adjustment for the potential bias of confounding by center, and for the presence of effect modification or interaction by center. This paper uses examples from the recent biomedical literature to highlight the issues and analytic options.},
+  langid = {english},
+  pmid = {11453711},
+  keywords = {Bias,Confidence Intervals,{Confounding Factors, Epidemiologic},{Data Interpretation, Statistical},Humans,Multicenter Studies as Topic,Randomized Controlled Trials as Topic,Research Design}
+}
+
+@article{meng1994,
+  title = {Multiple-{{Imputation Inferences}} with {{Uncongenial Sources}} of {{Input}}},
+  author = {Meng, Xiao-Li},
+  year = {1994},
+  month = nov,
+  journal = {Statistical Science},
+  volume = {9},
+  number = {4},
+  issn = {0883-4237},
+  doi = {10.1214/ss/1177010269},
+  urldate = {2023-12-08}
+}
+
+@misc{metamisc,
+  title = {Metamisc: {{Meta-Analysis}} of {{Diagnosis}} and {{Prognosis Research Studies}}},
+  shorttitle = {Metamisc},
+  author = {Debray, Thomas and de Jong, Valentijn},
+  year = {2021},
+  month = sep,
+  urldate = {2022-03-01},
+  abstract = {Facilitate frequentist and Bayesian meta-analysis of diagnosis and prognosis research studies. It includes functions to summarize multiple estimates of prediction model discrimination and calibration performance (Debray et al., 2019) {$<$}doi:10.1177/0962280218785504{$>$}. It also includes functions to evaluate funnel plot asymmetry (Debray et al., 2018) {$<$}doi:10.1002/jrsm.1266{$>$}. Finally, the package provides functions for developing multivariable prediction models from datasets with clustering (de Jong et al., 2021) {$<$}doi:10.1002/sim.8981{$>$}.},
+  copyright = {GPL-3},
+  keywords = {MetaAnalysis}
+}
+
+@misc{mice,
+  title = {Mice: {{Multivariate Imputation}} by {{Chained Equations}}},
+  shorttitle = {Mice},
+  author = {van Buuren, Stef and {Groothuis-Oudshoorn}, Karin},
+  year = {2021},
+  month = nov,
+  urldate = {2022-03-01},
+  abstract = {Multiple imputation using Fully Conditional Specification (FCS) implemented by the MICE algorithm as described in Van Buuren and Groothuis-Oudshoorn (2011) {$<$}doi:10.18637/jss.v045.i03{$>$}. Each variable has its own imputation model. Built-in imputation models are provided for continuous data (predictive mean matching, normal), binary data (logistic regression), unordered categorical data (polytomous logistic regression) and ordered categorical data (proportional odds). MICE can also impute continuous two-level data (normal model, pan, second-level variables). Passive imputation can be used to maintain consistency between variables. Various diagnostic plots are available to inspect the quality of the imputations.},
+  collaborator = {Vink, Gerko and Schouten, Rianne and Robitzsch, Alexander and Rockenschaub, Patrick and Doove, Lisa and Jolani, Shahab and {Moreno-Betancur}, Margarita and White, Ian and Gaffert, Philipp and Meinfelder, Florian and Gray, Bernie and {Arel-Bundock}, Vincent and Cai, Mingyang and Volker, Thom and Costantini, Edoardo and van Lissa, Caspar},
+  copyright = {GPL-2 | GPL-3},
+  keywords = {MissingData,Multivariate,OfficialStatistics,SocialSciences}
+}
+
+@misc{miceadds,
+  title = {Miceadds: {{Some Additional Multiple Imputation Functions}}, {{Especially}} for 'Mice'},
+  shorttitle = {Miceadds},
+  author = {{Robitzsch ({$<$}https://orcid.org/0000-0002-8226-3132{$>$})}, Alexander and {Grund ({$<$}https://orcid.org/0000-0002-1290-8986{$>$})}, Simon and Henke, Thorsten},
+  year = {2021},
+  month = jan,
+  urldate = {2022-03-01},
+  abstract = {Contains functions for multiple imputation which complements existing functionality in R. In particular, several imputation methods for the mice package (van Buuren \& Groothuis-Oudshoorn, 2011, {$<$}doi:10.18637/jss.v045.i03{$>$}) are included. Main features of the miceadds package include plausible value imputation (Mislevy, 1991, {$<$}doi:10.1007/BF02294457{$>$}), multilevel imputation for variables at any level or with any number of hierarchical and non-hierarchical levels (Grund, Luedtke \& Robitzsch, 2018, {$<$}doi:10.1177/1094428117703686{$>$}; van Buuren, 2018, Ch.7, {$<$}doi:10.1201/9780429492259{$>$}), imputation using partial least squares (PLS) for high dimensional predictors (Robitzsch, Pham \& Yanagida, 2016), nested multiple imputation (Rubin, 2003, {$<$}doi:10.1111/1467-9574.00217{$>$}), substantive model compatible imputation (Bartlett et al., 2015, {$<$}doi:10.1177/0962280214521348{$>$}), and features for the generation of synthetic datasets (Reiter, 2005, {$<$}doi:10.1111/j.1467-985X.2004.00343.x{$>$}; Nowok, Raab, \& Dibben, 2016, {$<$}doi:10.18637/jss.v074.i11{$>$}).},
+  copyright = {GPL-2 | GPL-3 [expanded from: GPL ({$\geq$} 2)]},
+  keywords = {MissingData}
+}
+
+@article{mistler2017,
+  title = {A {{Comparison}} of {{Joint Model}} and {{Fully Conditional Specification Imputation}} for {{Multilevel Missing Data}}},
+  author = {Mistler, Stephen A. and Enders, Craig K.},
+  year = {2017},
+  month = aug,
+  journal = {Journal of Educational and Behavioral Statistics},
+  volume = {42},
+  number = {4},
+  pages = {432--466},
+  issn = {1076-9986, 1935-1054},
+  doi = {10.3102/1076998617690869},
+  urldate = {2023-12-12},
+  abstract = {Multiple imputation methods can generally be divided into two broad frameworks: joint model (JM) imputation and fully conditional specification (FCS) imputation. JM draws missing values simultaneously for all incomplete variables using a multivariate distribution, whereas FCS imputes variables one at a time from a series of univariate conditional distributions. In single-level multivariate normal data, these two approaches have been shown to be equivalent, but less is known about their similarities and differences with multilevel data. This study examined four multilevel multiple imputation approaches: JM approaches proposed by Schafer and Yucel and Asparouhov and Muth{\'e}n and FCS methods described by van Buuren and Carpenter and Kenward. Analytic work and computer simulations showed that Asparouhov and Muth{\'e}n and Carpenter and Kenward methods are most flexible, as they produce imputations that preserve distinct within- and between-cluster covariance structures. As such, these approaches are applicable to random intercept models that posit level-specific relations among variables (e.g., contextual effects analyses, multilevel structural equation models). In contrast, methods from Schafer and Yucel and van Buuren are more restrictive and impose implicit equality constraints on functions of the within- and between-cluster covariance matrices. The analytic work and simulations underscore the conclusion that researchers should not expect to obtain the same results from alternative imputation routines. Rather, it is important to choose an imputation method that partitions variation in a manner that is consistent with the analysis model of interest. A real data analysis example illustrates the various approaches.},
+  langid = {english}
+}
+
+@book{molenberghs2007,
+  title = {Missing {{Data}} in {{Clinical Studies}}},
+  author = {Molenberghs, Geert and Kenward, Michael G.},
+  year = {2007},
+  month = mar,
+  edition = {1},
+  publisher = {{Wiley}},
+  doi = {10.1002/9780470510445},
+  urldate = {2024-01-10},
+  isbn = {978-0-470-84981-1 978-0-470-51044-5},
+  langid = {english}
+}
+
+@article{moons2006,
+  title = {Using the Outcome for Imputation of Missing Predictor Values Was Preferred},
+  author = {Moons, Karel G.M. and Donders, Rogier A.R.T. and Stijnen, Theo and Harrell, Frank E.},
+  year = {2006},
+  month = oct,
+  journal = {Journal of Clinical Epidemiology},
+  volume = {59},
+  number = {10},
+  pages = {1092--1101},
+  issn = {08954356},
+  doi = {10.1016/j.jclinepi.2006.01.009},
+  urldate = {2023-12-11},
+  langid = {english}
+}
+
+@article{munoz2023,
+  title = {Dealing with Missing Data Using the {{Heckman}} Selection Model: Methods Primer for Epidemiologists},
+  shorttitle = {Dealing with Missing Data Using the {{Heckman}} Selection Model},
+  author = {Mu{\~n}oz, Johanna and Hufstedler, Heather and Gustafson, Paul and B{\"a}rnighausen, Till and De Jong, Valentijn M T and Debray, Thomas P A},
+  year = {2023},
+  month = feb,
+  journal = {International Journal of Epidemiology},
+  volume = {52},
+  number = {1},
+  pages = {5--13},
+  issn = {0300-5771, 1464-3685},
+  doi = {10.1093/ije/dyac237},
+  urldate = {2023-12-12},
+  langid = {english}
+}
+
+@article{munoz2023b,
+  title = {Multiple Imputation of Incomplete Multilevel Data Using {{Heckman}} Selection Models},
+  author = {Mu{\~n}oz, Johanna and Efthimiou, Orestis and Audigier, Vincent and De Jong, Valentijn M. T. and Debray, Thomas P. A.},
+  year = {2023},
+  month = dec,
+  journal = {Statistics in Medicine},
+  pages = {sim.9965},
+  issn = {0277-6715, 1097-0258},
+  doi = {10.1002/sim.9965},
+  urldate = {2023-12-12},
+  abstract = {Missing data is a common problem in medical research, and is commonly addressed using multiple imputation. Although traditional imputation methods allow for valid statistical inference when data are missing at random (MAR), their implementation is problematic when the presence of missingness depends on unobserved variables, that is, the data are missing not at random (MNAR). Unfortunately, this MNAR situation is rather common, in observational studies, registries and other sources of real-world data. While several imputation methods have been proposed for addressing individual studies when data are MNAR, their application and validity in large datasets with multilevel structure remains unclear. We therefore explored the consequence of MNAR data in hierarchical data in-depth, and proposed a novel multilevel imputation method for common missing patterns in clustered datasets. This method is based on the principles of Heckman selection models and adopts a two-stage meta-analysis approach to impute binary and continuous variables that may be outcomes or predictors and that are systematically or sporadically missing. After evaluating the proposed imputation model in simulated scenarios, we illustrate it use in a cross-sectional community survey to estimate the prevalence of malaria parasitemia in children aged 2-10 years in five regions in Uganda.},
+  langid = {english}
+}
+
+@article{paananen2020,
+  title = {Group {{Heterogeneity Assessment}} for {{Multilevel Models}}},
+  author = {Paananen, Topi and Catalina, Alejandro and B{\"u}rkner, Paul-Christian and Vehtari, Aki},
+  year = {2020},
+  month = may,
+  journal = {arXiv:2005.02773 [stat]},
+  eprint = {2005.02773},
+  primaryclass = {stat},
+  urldate = {2021-11-04},
+  abstract = {Many data sets contain an inherent multilevel structure, for example, because of repeated measurements of the same observational units. Taking this structure into account is critical for the accuracy and calibration of any statistical analysis performed on such data. However, the large number of possible model configurations hinders the use of multilevel models in practice. In this work, we propose a flexible framework for efficiently assessing differences between the levels of given grouping variables in the data. The assessed group heterogeneity is valuable in choosing the relevant group coefficients to consider in a multilevel model. Our empirical evaluations demonstrate that the framework can reliably identify relevant multilevel components in both simulated and real data sets.},
+  archiveprefix = {arxiv},
+  keywords = {Statistics - Computation,Statistics - Machine Learning,Statistics - Methodology}
+}
+
+@article{reit06,
+  title = {The Importance of Modeling the Sampling Design in Multiple Imputation for Missing Data},
+  author = {Reiter, Jerome P. and Raghunathan, T. and Kinney, Satkartar K.},
+  year = {2006},
+  journal = {undefined},
+  urldate = {2022-01-28},
+  abstract = {The~theory of multiple~imputation~for missing data~requires that imputations~be~made~conditional on~the~sampling design. However, most standard software packages for performing model\-based multiple imputation assume simple random samples, leading many practitioners~not to account for complex~sample~design~features, such~as~stratification and~clustering, in~their imputations. Theory predicts~that analyses~of such~multiply\-imputed~data~sets~can~yield~biased~estimates from the design\-based perspective. In~this article, we~illustrate~through~simulation that (i) the~bias~can be severe~when the design features~are~related~to the~survey variables~of interest, and~(ii) the~bias~can~be~reduced~by controlling for the~design~features in~the~imputation~models. The~simulations~also illustrate that conditioning on~irrelevant design~features~in~the~imputation models~can~yield~conservative~inferences, provided~that the~models~include~other relevant predictors. These~results~suggest a prescription~for imputers: the~safest course of action is to include~design~variables~in~the~specification~of imputation~models. Using real data, we demonstrate~a~simple~approach~for incorporating complex~design~features~that can~be~used~with some~of the standard software packages for creating multiple imputations.},
+  langid = {english}
+}
+
+@article{rubi76,
+  ids = {rubin1976inference},
+  title = {Inference and {{Missing Data}}},
+  author = {Rubin, Donald B.},
+  year = {1976},
+  journal = {Biometrika},
+  volume = {63},
+  number = {3},
+  pages = {581--592},
+  publisher = {{Biometrika Trust}},
+  doi = {10.2307/2335739},
+  urldate = {2020-04-03},
+  abstract = {When making sampling distribution inferences about the parameter of the data, {\texttheta}, it is appropriate to ignore the process that causes missing data if the missing data are `missing at random' and the observed data are `observed at random', but these inferences are generally conditional on the observed pattern of missing data. When making direct-likelihood or Bayesian inferences about {\texttheta}, it is appropriate to ignore the process that causes missing data if the missing data are missing at random and the parameter of the missing data process is `distinct' from {\texttheta}. These conditions are the weakest general conditions under which ignoring the process that causes missing data always leads to correct inferences.},
+  date-added = {2016-01-31 19:05:50 +0000},
+  date-modified = {2016-01-31 19:05:50 +0000}
+}
+
+@book{scha97,
+  title = {Analysis of Incomplete Multivariate Data},
+  author = {Schafer, Joseph L},
+  year = {1997},
+  publisher = {{Chapman and Hall/CRC}}
+}
+
+@article{speidel2018,
+  title = {Biases in Multilevel Analyses Caused by Cluster-Specific Fixed-Effects Imputation},
+  author = {Speidel, Matthias and Drechsler, J{\"o}rg and Sakshaug, Joseph W.},
+  year = {2018},
+  month = oct,
+  journal = {Behavior Research Methods},
+  volume = {50},
+  number = {5},
+  pages = {1824--1840},
+  issn = {1554-3528},
+  doi = {10.3758/s13428-017-0951-1},
+  urldate = {2023-12-11},
+  langid = {english}
+}
+
+@article{speidel2020,
+  title = {The {{R Package}} Hmi: {{A Convenient Tool}} for {{Hierarchical Multiple Imputation}} and {{Beyond}}},
+  shorttitle = {The {{R Package}} Hmi},
+  author = {Speidel, Matthias and Drechsler, J{\"o}rg and Jolani, Shahab},
+  year = {2020},
+  month = oct,
   journal = {Journal of Statistical Software},
-  year    = {2007},
-  volume  = {23},
-  number  = {7},
-  pages   = {1--46},
-  doi     = {10.18637/jss.v023.i07}
+  volume = {95},
+  pages = {1--48},
+  issn = {1548-7660},
+  doi = {10.18637/jss.v095.i09},
+  urldate = {2023-04-17},
+  abstract = {Applications of multiple imputation have long outgrown the traditional context of dealing with item nonresponse in cross-sectional data sets. Nowadays multiple imputation is also applied to impute missing values in hierarchical data sets, address confidentiality concerns, combine data from different sources, or correct measurement errors in surveys. However, software developments did not keep up with these recent extensions. Most imputation software can only deal with item nonresponse in cross-sectional settings and extensions for hierarchical data  -  if available at all  -  are typically limited in scope. Furthermore, to our knowledge no software is currently available for dealing with measurement error using multiple imputation approaches. The R package hmi tries to close some of these gaps. It offers multiple imputation routines in hierarchical settings for many variable types (for example, nominal, ordinal, or continuous variables). It also provides imputation routines for interval data and handles a common measurement error problem in survey data: biased inferences due to implicit rounding of the reported values. The user-friendly setup which only requires the data and optionally the specification of the analysis model of interest makes the package especially attractive for users less familiar with the peculiarities of multiple imputation. The compatibility with the popular mice package (Van Buuren and Groothuis-Oudshoorn 2011) ensures that the rich set of analysis and diagnostic tools and post-imputation functions available in mice can be used easily, once the data have been imputed.},
+  copyright = {Copyright (c) 2020 Matthias Speidel, J{\"o}rg Drechsler, Shahab Jolani},
+  langid = {english},
+  keywords = {heaping,hierarchical data,measurement error,multilevel models,multiple imputation,R}
 }
 
-@book{VenablesRipley2002,
-  author    = {William N. Venables and Brian D. Ripley},
-  title     = {Modern Applied Statistics with S},
-  edition   = {4th},
-  year      = {2002},
-  pages     = {495},
-  publisher = {Springer-Verlag},
-  address   = {New York},
-  doi       = {10.1007/978-0-387-21706-2}
+@misc{sportisse2020,
+  title = {Estimation and Imputation in {{Probabilistic Principal Component Analysis}} with {{Missing Not At Random}} Data},
+  author = {Sportisse, Aude and Boyer, Claire and Josse, Julie},
+  year = {2020},
+  month = jun,
+  number = {arXiv:1906.02493},
+  eprint = {1906.02493},
+  primaryclass = {math, stat},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.1906.02493},
+  urldate = {2023-01-25},
+  abstract = {Missing Not At Random (MNAR) values lead to significant biases in the data, since the probability of missingness depends on the unobserved values.They are ''not ignorable'' in the sense that they often require defining a model for the missing data mechanism, which makes inference or imputation tasks more complex. Furthermore, this implies a strong {\textbackslash}textit\{a priori\} on the parametric form of the distribution.However, some works have obtained guarantees on the estimation of parameters in the presence of MNAR data, without specifying the distribution of missing data {\textbackslash}citep\{mohan2018estimation, tang2003analysis\}. This is very useful in practice, but is limited to simple cases such as self-masked MNAR values in data generated according to linear regression models.We continue this line of research, but extend it to a more general MNAR mechanism, in a more general model of the probabilistic principal component analysis (PPCA), {\textbackslash}textit\{i.e.\}, a low-rank model with random effects. We prove identifiability of the PPCA parameters. We then propose an estimation of the loading coefficients and a data imputation method. They are based on estimators of means, variances and covariances of missing variables, for which consistency is discussed. These estimators have the great advantage of being calculated using only the observed data, leveraging the underlying low-rank structure of the data. We illustrate the relevance of the method with numerical experiments on synthetic data and also on real data collected from a medical register.},
+  archiveprefix = {arxiv},
+  keywords = {Mathematics - Statistics Theory}
 }
 
-@book{Wood2006,
-  author    = {Simon N. Wood},
-  title     = {Generalized Additive Models: An Introduction with R},
-  year      = {2006},
-  publisher = {Chapman \& Hall/CRC},
-  address   = {Boca Raton}
+@misc{sportisse2020a,
+  title = {Imputation and Low-Rank Estimation with {{Missing Not At Random}} Data},
+  author = {Sportisse, Aude and Boyer, Claire and Josse, Julie},
+  year = {2020},
+  month = jan,
+  number = {arXiv:1812.11409},
+  eprint = {1812.11409},
+  primaryclass = {cs, stat},
+  publisher = {{arXiv}},
+  doi = {10.48550/arXiv.1812.11409},
+  urldate = {2023-01-25},
+  abstract = {Missing values challenge data analysis because many supervised and unsupervised learning methods cannot be applied directly to incomplete data. Matrix completion based on low-rank assumptions are very powerful solution for dealing with missing values. However, existing methods do not consider the case of informative missing values which are widely encountered in practice. This paper proposes matrix completion methods to recover Missing Not At Random (MNAR) data. Our first contribution is to suggest a model-based estimation strategy by modelling the missing mechanism distribution. An EM algorithm is then implemented, involving a Fast Iterative Soft-Thresholding Algorithm (FISTA). Our second contribution is to suggest a computationally efficient surrogate estimation by implicitly taking into account the joint distribution of the data and the missing mechanism: the data matrix is concatenated with the mask coding for the missing values; a low-rank structure for exponential family is assumed on this new matrix, in order to encode links between variables and missing mechanisms. The methodology that has the great advantage of handling different missing value mechanisms is robust to model specification errors.The performances of our methods are assessed on the real data collected from a trauma registry (TraumaBase ) containing clinical information about over twenty thousand severely traumatized patients in France. The aim is then to predict if the doctors should administrate tranexomic acid to patients with traumatic brain injury, that would limit excessive bleeding.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning}
 }
 
-@article{Yee2009,
-  author  = {Thomas W. Yee},
-  title   = {The VGAM Package for Categorical Data Analysis},
-  journal = {Journal of Statistical Software},
-  year    = {2010},
-  volume  = {32},
-  number  = {10},
-  pages   = {1--34},
-  doi     = {10.18637/jss.v032.i10}
+@article{steyerberg2008a,
+  title = {Predicting {{Outcome}} after {{Traumatic Brain Injury}}: {{Development}} and {{International Validation}} of {{Prognostic Scores Based}} on {{Admission Characteristics}}},
+  shorttitle = {Predicting {{Outcome}} after {{Traumatic Brain Injury}}},
+  author = {Steyerberg, Ewout W. and Mushkudiani, Nino and Perel, Pablo and Butcher, Isabella and Lu, Juan and McHugh, Gillian S. and Murray, Gordon D. and Marmarou, Anthony and Roberts, Ian and Habbema, J. Dik F. and Maas, Andrew I. R.},
+  year = {2008},
+  month = aug,
+  journal = {PLOS Medicine},
+  volume = {5},
+  number = {8},
+  pages = {e165},
+  publisher = {{Public Library of Science}},
+  issn = {1549-1676},
+  doi = {10.1371/journal.pmed.0050165},
+  urldate = {2021-11-01},
+  abstract = {Background Traumatic brain injury (TBI) is a leading cause of death and disability. A reliable prediction of outcome on admission is of great clinical relevance. We aimed to develop prognostic models with readily available traditional and novel predictors. Methods and Findings Prospectively collected individual patient data were analyzed from 11 studies. We considered predictors available at admission in logistic regression models to predict mortality and unfavorable outcome according to the Glasgow Outcome Scale at 6 mo after injury. Prognostic models were developed in 8,509 patients with severe or moderate TBI, with cross-validation by omission of each of the 11 studies in turn. External validation was on 6,681 patients from the recent Medical Research Council Corticosteroid Randomisation after Significant Head Injury (MRC CRASH) trial. We found that the strongest predictors of outcome were age, motor score, pupillary reactivity, and CT characteristics, including the presence of traumatic subarachnoid hemorrhage. A prognostic model that combined age, motor score, and pupillary reactivity had an area under the receiver operating characteristic curve (AUC) between 0.66 and 0.84 at cross-validation. This performance could be improved (AUC increased by approximately 0.05) by considering CT characteristics, secondary insults (hypotension and hypoxia), and laboratory parameters (glucose and hemoglobin). External validation confirmed that the discriminative ability of the model was adequate (AUC 0.80). Outcomes were systematically worse than predicted, but less so in 1,588 patients who were from high-income countries in the CRASH trial. Conclusions Prognostic models using baseline characteristics provide adequate discrimination between patients with good and poor 6 mo outcomes after TBI, especially if CT and laboratory findings are considered in addition to traditional predictors. The model predictions may support clinical practice and research, including the design and analysis of randomized controlled trials.},
+  langid = {english},
+  keywords = {Computed axial tomography,Glucose,Head injury,Hypotension,Hypoxia,Motor reactions,Randomized controlled trials,Traumatic brain injury}
 }
 
-@article{ZeileisKleiberJackman2008,
-  author  = {Achim Zeileis and Christian Kleiber and Simon Jackman},
-  title   = {Regression Models for Count Data in R},
-  journal = {Journal of Statistical Software},
-  year    = {2008},
-  volume  = {27},
-  number  = {8},
-  pages   = {1--25},
-  doi     = {10.18637/jss.v027.i08}
+@article{steyerberg2019,
+  title = {Assessment of Heterogeneity in an Individual Participant Data Meta-Analysis of Prediction Models: {{An}} Overview and Illustration},
+  shorttitle = {Assessment of Heterogeneity in an Individual Participant Data Meta-Analysis of Prediction Models},
+  author = {Steyerberg, Ewout W. and Nieboer, Daan and Debray, Thomas P.A. and {van Houwelingen}, Hans C.},
+  year = {2019},
+  journal = {Statistics in Medicine},
+  volume = {38},
+  number = {22},
+  pages = {4290--4309},
+  issn = {1097-0258},
+  doi = {10.1002/sim.8296},
+  urldate = {2022-02-11},
+  abstract = {Clinical prediction models aim to provide estimates of absolute risk for a diagnostic or prognostic endpoint. Such models may be derived from data from various studies in the context of a meta-analysis. We describe and propose approaches for assessing heterogeneity in predictor effects and predictions arising from models based on data from different sources. These methods are illustrated in a case study with patients suffering from traumatic brain injury, where we aim to predict 6-month mortality based on individual patient data using meta-analytic techniques (15 studies, n = 11 022 patients). The insights into various aspects of heterogeneity are important to develop better models and understand problems with the transportability of absolute risk predictions.},
+  langid = {english},
+  keywords = {heterogeneity,meta-analysis,prediction,regression modeling}
+}
+
+@article{taljaard2008,
+  title = {Imputation {{Strategies}} for {{Missing Continuous Outcomes}} in {{Cluster Randomized Trials}}},
+  author = {Taljaard, Monica and Donner, Allan and Klar, Neil},
+  year = {2008},
+  journal = {Biometrical Journal},
+  volume = {50},
+  number = {3},
+  pages = {329--345},
+  issn = {1521-4036},
+  doi = {10.1002/bimj.200710423},
+  urldate = {2022-01-28},
+  abstract = {In cluster randomized trials, intact social units such as schools, worksites or medical practices {\textendash} rather than individuals themselves {\textendash} are randomly allocated to intervention and control conditions, while the outcomes of interest are then observed on individuals within each cluster. Such trials are becoming increasingly common in the fields of health promotion and health services research. Attrition is a common occurrence in randomized trials, and a standard approach for dealing with the resulting missing values is imputation. We consider imputation strategies for missing continuous outcomes, focusing on trials with a completely randomized design in which fixed cohorts from each cluster are enrolled prior to random assignment. We compare five different imputation strategies with respect to Type I and Type II error rates of the adjusted two-sample t -test for the intervention effect. Cluster mean imputation is compared with multiple imputation, using either within-cluster data or data pooled across clusters in each intervention group. In the case of pooling across clusters, we distinguish between standard multiple imputation procedures which do not account for intracluster correlation and a specialized procedure which does account for intracluster correlation but is not yet available in standard statistical software packages. A simulation study is used to evaluate the influence of cluster size, number of clusters, degree of intracluster correlation, and variability among cluster follow-up rates. We show that cluster mean imputation yields valid inferences and given its simplicity, may be an attractive option in some large community intervention trials which are subject to individual-level attrition only; however, it may yield less powerful inferences than alternative procedures which pool across clusters especially when the cluster sizes are small and cluster follow-up rates are highly variable. When pooling across clusters, the imputation procedure should generally take intracluster correlation into account to obtain valid inferences; however, as long as the intracluster correlation coefficient is small, we show that standard multiple imputation procedures may yield acceptable type I error rates; moreover, these procedures may yield more powerful inferences than a specialized procedure, especially when the number of available clusters is small. Within-cluster multiple imputation is shown to be the least powerful among the procedures considered. ({\textcopyright} 2008 WILEY-VCH Verlag GmbH \& Co. KGaA, Weinheim)},
+  langid = {english},
+  keywords = {Adjusted two-sample t -test,Attrition,Community intervention trial,Intracluster correlation,Mean imputation,Multiple imputation}
+}
+
+@misc{team2023,
+  title = {Micemd: {{Multiple Imputation}} by {{Chained Equations}} with {{Multilevel Data}}},
+  shorttitle = {Micemd},
+  author = {{team)}, Vincent Audigier (CNAM MSDMA and {team)}, Matthieu Resche-Rigon (INSERM ECSTRA and UMC, Johanna Munoz Avila (Julius Center Methods Group and {2022)}},
+  year = {2023},
+  month = jun,
+  urldate = {2023-10-05},
+  abstract = {Addons for the 'mice' package to perform multiple imputation using chained equations with two-level data. Includes imputation methods dedicated to sporadically and systematically missing values. Imputation of continuous, binary or count variables are available. Following the recommendations of Audigier, V. et al (2018) {$<$}doi:10.1214/18-STS646{$>$}, the choice of the imputation method for each variable can be facilitated by a default choice tuned according to the structure of the incomplete dataset. Allows parallel calculation and overimputation for 'mice'.},
+  copyright = {GPL-2 | GPL-3},
+  keywords = {MissingData}
+}
+
+@article{vink,
+  title = {Partitioned {{Predictive Mean Matching}} as a {{Multilevel Imputation Technique}}},
+  author = {Vink, Gerko and Lazendic, Goran},
+  abstract = {Large scale assessment data often has a multilevel structure. When dealing with missing values, such structures need to be taken into account to prevent underestimation of the intraclass correlation. We evaluate predictive mean matching (PMM) as a multilevel imputation technique and compare it to other imputation approaches for multilevel data. We propose partitioned predictive mean matching (PPMM) as an extension to the PMM algorithm to divide the big data multilevel problem into manageable parts that can be solved by standard predictive mean matching. We show that PPMM can be a very effective imputation approach for large multilevel datasets and that both PPMM and PMM yield plausible inference for continuous, ordered categorical, or even dichotomous multilevel data. We conclude that both the performance of PMM and PPMM is often comparable to dedicated methods for multilevel data.},
+  langid = {english}
+}
+
+@article{wijesuriya2022,
+  title = {Multiple Imputation Approaches for Handling Incomplete Three-Level Data with Time-Varying Cluster-Memberships},
+  author = {Wijesuriya, Rushani and {Moreno-Betancur}, Margarita and Carlin, John and De Silva, Anurika Priyanjali and Lee, Katherine Jane},
+  year = {2022},
+  journal = {Statistics in Medicine},
+  volume = {41},
+  number = {22},
+  pages = {4385--4402},
+  issn = {1097-0258},
+  doi = {10.1002/sim.9515},
+  urldate = {2023-04-17},
+  abstract = {Three-level data arising from repeated measures on individuals clustered within higher-level units are common in medical research. A complexity arises when individuals change clusters over time, resulting in a cross-classified data structure. Missing values in these studies are commonly handled via multiple imputation (MI). If the three-level, cross-classified structure is modeled in the analysis, it also needs to be accommodated in the imputation model to ensure valid results. While incomplete three-level data can be handled using various approaches within MI, the performance of these in the cross-classified data setting remains unclear. We conducted simulations under a range of scenarios to compare these approaches in the context of an acute-effects cross-classified random effects substantive model, which models the time-varying cluster membership via simple additive random effects. The simulation study was based on a case study in a longitudinal cohort of students clustered within schools. We evaluated methods that ignore the time-varying cluster memberships by taking the first or most common cluster for each individual; pragmatic extensions of single- and two-level MI approaches within the joint modeling (JM) and the fully conditional specification (FCS) frameworks, using dummy indicators (DI) and/or imputing repeated measures in wide format to account for the cross-classified structure; and a three-level FCS MI approach developed specifically for cross-classified data. Results indicated that the FCS implementations performed well in terms of bias and precision while JM approaches performed poorly. Under both frameworks approaches using the DI extension should be used with caution in the presence of sparse data.},
+  langid = {english},
+  keywords = {clustered data,cross-classified data,missing data,multiple imputation,three-level data,time-varying cluster memberships}
+}
+
+@article{yuce08,
+  title = {Multiple Imputation Inference for Multivariate Multilevel Continuous Data with Ignorable Non-Response},
+  author = {Yucel, Recai M},
+  year = {2008},
+  month = jul,
+  journal = {Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences},
+  volume = {366},
+  number = {1874},
+  pages = {2389--2403},
+  publisher = {{Royal Society}},
+  doi = {10.1098/rsta.2008.0038},
+  urldate = {2021-11-01},
+  abstract = {Methods specifically targeting missing values in a wide spectrum of statistical analyses are now part of serious statistical thinking due to many advances in computational statistics and increased awareness among sophisticated consumers of statistics. Despite many advances in both theory and applied methods for missing data, missing-data methods in multilevel applications lack equal development. In this paper, I consider a popular inferential tool via multiple imputation in multilevel applications with missing values. I specifically consider missing values occurring arbitrarily at any level of observational units. I use Bayesian arguments for drawing multiple imputations from the underlying (posterior) predictive distribution of missing data. Multivariate extensions of well-known mixed-effects models form the basis for simulating the posterior predictive distribution, hence creating the multiple imputations. The discussion of these topics is demonstrated in an application assessing correlates to unmet need for mental health care among children with special health care needs.},
+  keywords = {complex sample surveys,imputation,item non-response,linear mixed-effects models,longitudinal designs,missing data}
+}
+
+@article{yucel2011,
+  title = {Random-Covariances and Mixed-Effects Models for Imputing Multivariate Multilevel Continuous Data},
+  author = {Yucel, Recai M.},
+  year = {2011},
+  month = aug,
+  journal = {Statistical modelling},
+  volume = {11},
+  number = {4},
+  pages = {351--370},
+  issn = {1471-082X},
+  doi = {10.1177/1471082X1001100404},
+  urldate = {2022-01-28},
+  abstract = {Principled techniques for incomplete-data problems are increasingly part of mainstream statistical practice. Among many proposed techniques so far, inference by multiple imputation (MI) has emerged as one of the most popular. While many strategies leading to inference by MI are available in cross-sectional settings, the same richness does not exist in multilevel applications. The limited methods available for multilevel applications rely on the multivariate adaptations of mixed-effects models. This approach preserves the mean structure across clusters and incorporates distinct variance components into the imputation process. In this paper, I add to these methods by considering a random covariance structure and develop computational algorithms. The attraction of this new imputation modeling strategy is to correctly reflect the mean and variance structure of the joint distribution of the data, and allow the covariances differ across the clusters. Using Markov Chain Monte Carlo techniques, a predictive distribution of missing data given observed data is simulated leading to creation of multiple imputations. To circumvent the large sample size requirement to support independent covariance estimates for the level-1 error term, I consider distributional impositions mimicking random-effects distributions assigned a priori. These techniques are illustrated in an example exploring relationships between victimization and individual and contextual level factors that raise the risk of violent crime.},
+  pmcid = {PMC3263314},
+  pmid = {22271079}
+}
+
+@article{zhang2023,
+  title = {Should Multiple Imputation Be Stratified by Exposure Group When Estimating Causal Effects via Outcome Regression in Observational Studies?},
+  author = {Zhang, Jiaxin and Dashti, S. Ghazaleh and Carlin, John B. and Lee, Katherine J. and {Moreno-Betancur}, Margarita},
+  year = {2023},
+  month = feb,
+  journal = {BMC Medical Research Methodology},
+  volume = {23},
+  number = {1},
+  pages = {42},
+  issn = {1471-2288},
+  doi = {10.1186/s12874-023-01843-6},
+  urldate = {2023-04-17},
+  abstract = {Despite recent advances in causal inference methods, outcome regression remains the most widely used approach for estimating causal effects in epidemiological studies with a single-point exposure and outcome. Missing data are common in these studies, and complete-case analysis (CCA) and multiple imputation (MI) are two frequently used methods for handling them. In randomised controlled trials (RCTs), it has been shown that MI should be conducted separately by treatment group. In observational studies, causal inference is now understood as the task of emulating an RCT, which raises the question of whether MI should be conducted by exposure group in such studies.},
+  keywords = {Causal inference,Missing data,Multiple imputation,Observational study,Outcome regression,Target trial}
+}
+
+@misc{zotero-304,
+  title = {Full Article: {{Imputation}} of {{Mixed Data With Multilevel Singular Value Decomposition}}},
+  urldate = {2023-01-25},
+  howpublished = {https://www-tandfonline-com.proxy.library.uu.nl/doi/full/10.1080/10618600.2019.1585261}
+}
+
+@misc{zotero-310,
+  title = {Multiple Imputation of Ordinal Missing Not at Random Data | {{SpringerLink}}},
+  urldate = {2022-12-16},
+  howpublished = {https://link.springer.com/article/10.1007/s10182-022-00461-9}
+}
+
+@misc{zotero-312,
+  title = {Missing Data: {{A}} Statistical Framework for Practice - {{Carpenter}} - 2021 - {{Biometrical Journal}} - {{Wiley Online Library}}},
+  urldate = {2022-12-16},
+  howpublished = {https://onlinelibrary.wiley.com/doi/10.1002/bimj.202000196}
+}
+
+@misc{zotero-314,
+  title = {Multiple Imputation of Ordinal Missing Not at Random Data | {{SpringerLink}}},
+  urldate = {2022-12-16},
+  howpublished = {https://link.springer.com/article/10.1007/s10182-022-00461-9}
+}
+
+@misc{zotero-316,
+  title = {Missing Data: {{A}} Statistical Framework for Practice - {{PubMed}}},
+  urldate = {2022-11-16},
+  howpublished = {https://pubmed.ncbi.nlm.nih.gov/33624862/}
+}
+
+@misc{zotero-327,
+  title = {Multiple {{Imputation}} of {{Missing Data}} for {{Multilevel Models}}: {{Simulations}} and {{Recommendations}} - {{Simon Grund}}, {{Oliver L{\"u}dtke}}, {{Alexander Robitzsch}}, 2018},
+  urldate = {2022-02-08},
+  howpublished = {https://journals-sagepub-com.proxy.library.uu.nl/doi/full/10.1177/1094428117703686}
+}
+
+@misc{zotero-328,
+  title = {Individual {{Participant Data Meta-Analysis}}: {{A Handbook}} for {{Healthcare Research}} | {{Wiley}}},
+  shorttitle = {Individual {{Participant Data Meta-Analysis}}},
+  journal = {Wiley.com},
+  urldate = {2022-02-02},
+  abstract = {Individual Participant Data Meta-Analysis: A Handbook for Healthcare Research provides a comprehensive introduction to the fundamental principles and methods that healthcare researchers need when considering, conducting or using individual participant data (IPD) meta-analysis projects. Written and edited by researchers with substantial experience in the field, the book details key concepts and practical guidance for each stage of an IPD meta-analysis project, alongside illustrated examples and summary learning points. Split into five parts, the book chapters take the reader through the journey from initiating and planning IPD projects to obtaining, checking, and meta-analysing IPD, and appraising and reporting findings. The book initially focuses on the synthesis of IPD from randomised trials to evaluate treatment effects, including the evaluation of participant-level effect modifiers (treatment-covariate interactions). Detailed extension is then made to specialist topics such as diagnostic test accuracy, prognostic factors, risk prediction models, and advanced statistical topics such as multivariate and network meta-analysis, power calculations, and missing data. Intended for a broad audience, the book will enable the reader to: Understand the advantages of the IPD approach and decide when it is needed over a conventional systematic review Recognise the scope, resources and challenges of IPD meta-analysis projects Appreciate the importance of a multi-disciplinary project team and close collaboration with the original study investigators Understand how to obtain, check, manage and harmonise IPD from multiple studies Examine risk of bias (quality) of IPD and minimise potential biases throughout the project Understand fundamental statistical methods for IPD meta-analysis, including two-stage and one-stage approaches (and their differences), and statistical software to implement them Clearly report and disseminate IPD meta-analyses to inform policy, practice and future research Critically appraise existing IPD meta-analysis projects Address specialist topics such as effect modification, multiple correlated outcomes, multiple treatment comparisons, non-linear relationships, test accuracy at multiple thresholds, multiple imputation, and developing and validating clinical prediction models Detailed examples and case studies are provided throughout.},
+  howpublished = {https://www.wiley.com/en-gb/Individual+Participant+Data+Meta+Analysis\%3A+A+Handbook+for+Healthcare+Research-p-9781119333753},
+  langid = {british}
+}
+
+@misc{zotero-335,
+  ids = {RandomEffectsLongitudinala},
+  title = {R - {{Random Effects}} in {{Longitudinal Multilevel Imputation Models Using MICE}}},
+  journal = {Stack Overflow},
+  urldate = {2022-01-28},
+  howpublished = {https://stackoverflow.com/questions/47950304/random-effects-in-longitudinal-multilevel-imputation-models-using-mice}
+}
+
+@misc{zotero-341,
+  title = {Home Page for the Book, "{{Applied Regression}} and {{Multilevel Models}}"},
+  urldate = {2021-11-04},
+  howpublished = {http://stat.columbia.edu/{\textasciitilde}gelman/armm/}
+}
+
+@misc{zotero-344,
+  title = {Johamunoz/{{Heckman-IPDMA}}: {{IPDMA}} Imputation via {{Heckman}} Models},
+  shorttitle = {Johamunoz/{{Heckman-IPDMA}}},
+  journal = {GitHub},
+  urldate = {2021-10-18},
+  abstract = {IPDMA imputation via Heckman models. Contribute to johamunoz/Heckman-IPDMA development by creating an account on GitHub.},
+  howpublished = {https://github.com/johamunoz/Heckman-IPDMA},
+  langid = {english}
+}
+
+@misc{zotero-350,
+  title = {Practicals {$\cdot$} {{EP16}}: {{Missing Values}} in {{Clinical Research}}},
+  urldate = {2021-10-18},
+  howpublished = {https://nerler.github.io/EP16\_Multiple\_Imputation/practical/}
+}
+
+@misc{zotero-353,
+  title = {Mice: {{Imputing}} Multi-Level Data},
+  urldate = {2021-10-05},
+  howpublished = {https://www.gerkovink.com/miceVignettes/Multi\_level/Multi\_level\_data.html}
+}
+
+@misc{zotero-516,
+  title = {{{FAQ}}: {{Accounting}} for Clustering with Mi Impute | {{Stata}}},
+  shorttitle = {{{FAQ}}},
+  urldate = {2024-01-10},
+  abstract = {How can I account for clustering when creating imputations with mi impute?},
+  howpublished = {https://www.stata.com/support/faqs/statistics/clustering-and-mi-impute/},
+  langid = {english}
 }

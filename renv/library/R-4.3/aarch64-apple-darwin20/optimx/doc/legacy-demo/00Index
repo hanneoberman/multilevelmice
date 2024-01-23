@@ -1,0 +1,17 @@
+brown_test       Test optimx on the Brown function
+brown_testRV       Test optimx on the Brown function (Ravi Varadhan)
+broydt_test       Test optimx on a variant of the Broyden tridiagonal function
+chen_test       Test optimx on the Chen function
+chenlog_test       Test optimx on the Chen function (log-transformed parameters)
+cyq_test      Test Rvmmin on a the Fletcher Chebyquad problem of differen sizes
+froth_test       Test optimx on the Freudenstein and Roth function
+genrose_test      Test Rvmmin on a variant of the generalized Rosenbrock function
+maxtestJN       Test optimx with maximizing rather than minimizing
+onepar_test     Test optimx with a function of one parameter
+poissmix_test       Test optimx on a Poisson mixture problem
+rosbkext_test       Test optimx on the Rosenbrock function (extended)
+sc2_test       Test optimx on the SC2 function (SLOW!)
+trig_test       Test optimx on the trigonometric test function
+valley_test       Test optimx on the valley function
+vmmix_test       Test optimx on the mixture function
+ox               Try interactivity

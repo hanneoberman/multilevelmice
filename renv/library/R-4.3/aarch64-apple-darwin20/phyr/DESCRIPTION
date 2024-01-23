@@ -1,0 +1,44 @@
+Package: phyr
+Type: Package
+Title: Model Based Phylogenetic Analysis
+Version: 1.1.0
+Authors@R: c(
+    person("Anthony", "Ives", , "arives@wisc.edu", role = c("aut")),
+    person("Russell", "Dinnage", , "r.dinnage@gmail.com", role = c("aut"), comment = c(ORCID = "0000-0003-0846-2819")),
+    person(c("Lucas", "A."), "Nell", , "lucas@lucasnell.com", role = c("aut"), comment = c(ORCID = "0000-0003-3209-0517")),
+    person("Matthew", "Helmus", , "mrhelmus@temple.edu", role = c("aut")),
+    person("Daijiang", "Li", , "daijianglee@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-0925-3421")))
+Description: A collection of functions to do model-based phylogenetic analysis. 
+    It includes functions to calculate community phylogenetic diversity,
+    to estimate correlations among functional traits while accounting for 
+    phylogenetic relationships, and to fit phylogenetic generalized linear
+    mixed models. The Bayesian phylogenetic generalized linear mixed models
+    are fitted with the 'INLA' package (<https://www.r-inla.org>).
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.1)
+Imports: stats, ape, Rcpp, Matrix, methods, graphics, dplyr, lme4,
+        nloptr, gridExtra, mvtnorm, latticeExtra, tidyr
+RoxygenNote: 7.1.1
+LinkingTo: Rcpp, RcppArmadillo
+Suggests: testthat, pez, knitr, rmarkdown, covr, picante, rbenchmark,
+        INLA, MCMCglmm, logistf, phylolm, ggplot2, ggridges, DHARMa,
+        rr2
+VignetteBuilder: knitr
+URL: https://daijiang.github.io/phyr/,
+        https://github.com/daijiang/phyr/
+BugReports: https://github.com/daijiang/phyr/issues
+Additional_repositories: https://inla.r-inla-download.org/R/stable/
+NeedsCompilation: yes
+Packaged: 2020-12-18 04:35:45 UTC; dli
+Author: Anthony Ives [aut],
+  Russell Dinnage [aut] (<https://orcid.org/0000-0003-0846-2819>),
+  Lucas A. Nell [aut] (<https://orcid.org/0000-0003-3209-0517>),
+  Matthew Helmus [aut],
+  Daijiang Li [aut, cre] (<https://orcid.org/0000-0002-0925-3421>)
+Maintainer: Daijiang Li <daijianglee@gmail.com>
+Repository: CRAN
+Date/Publication: 2020-12-18 07:30:05 UTC
+Built: R 4.3.0; aarch64-apple-darwin20; 2023-07-10 03:56:15 UTC; unix
+Archs: phyr.so.dSYM

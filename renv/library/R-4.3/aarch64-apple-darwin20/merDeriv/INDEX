@@ -1,0 +1,19 @@
+bread.glmerMod          Extract Bread Component for Huber-White
+                        Sandwich Estimator of Generalized Linear Mixed
+                        Effects Models
+bread.lmerMod           Extract Bread Component for Huber-White
+                        Sandwich Estimator of Linear Mixed Effects
+                        Models
+estfun.glmerMod         Extract Cluster-wise Derivatives for
+                        Generalized Linear Mixed Effects Models
+estfun.lmerMod          Extract Case-wise and Cluster-wise Derivatives
+                        for Linear Mixed Effects Models
+llcont.glmerMod         Extract Cluster-wise Log Likelihoods for
+                        Generalized Linear Mixed Effects Models
+llcont.lmerMod          Extract Case-wise Log Likelihoods for Linear
+                        Mixed Effects Models
+vcov.glmerMod           Extract Variance-Covariance Matrix of all
+                        Parameters for Generalized Linear Mixed Effects
+                        Models
+vcov.lmerMod            Extract Variance-Covariance Matrix of all
+                        Parameters for Linear Mixed Effects Models

@@ -1,0 +1,11 @@
+R2                      Calculate R2_lik, R2_resid, and R2_pred
+R2_lik                  Calculate R2_lik
+R2_pred                 Calculate R2_pred
+R2_resid                Calculate R2_resid
+binaryPGLMM             Phylogenetic GLM for binary data
+inv.logit               Invert logit function
+partialR2               Partial R2
+partialR2adj            Adjusted partial R2
+rr2                     rr2: An R package to calculate R2s for
+                        regression models
+transf_phy              Transform a phylogeny based on a phylolm model

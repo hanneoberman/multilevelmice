@@ -1,0 +1,35 @@
+Package: optimx
+Version: 2023-10.21
+Date: 2023-10-21
+Title: Expanded Replacement and Extension of the 'optim' Function
+Authors@R: c( person(given = c("John", "C"), family = "Nash", role =
+    c("aut", "cre"), email = "nashjc@uottawa.ca"), person(given =
+    "Ravi", family = "Varadhan", role = "aut", email =
+    "RVaradhan@jhmi.edu"), person(given = "Gabor", family =
+    "Grothendieck", role = "ctb", email =
+    "ggrothendieck@gmail.com") )
+Author: John C Nash [aut, cre],
+  Ravi Varadhan [aut],
+  Gabor Grothendieck [ctb]
+Maintainer: John C Nash <nashjc@uottawa.ca>
+Description: Provides a replacement and extension of the optim()
+    function to call to several function minimization codes in R in a single
+    statement. These methods handle smooth, possibly box constrained functions 
+    of several or many parameters. Note that function 'optimr()' was prepared to
+    simplify the incorporation of minimization codes going forward. Also implements some
+    utility codes and some extra solvers, including safeguarded Newton methods.
+    Many methods previously separate are now included here.
+    This is the version for CRAN.
+License: GPL-2
+LazyLoad: Yes
+Imports: numDeriv, nloptr, pracma
+NeedsCompilation: no
+Suggests: knitr, rmarkdown, setRNG, BB, ucminf, minqa, dfoptim,
+        lbfgsb3c, lbfgs, subplex, marqLevAlg, testthat (>= 3.0.0),
+        R.rsp
+VignetteBuilder: R.rsp
+Config/testthat/edition: 3
+Packaged: 2023-10-24 12:58:46 UTC; john
+Repository: CRAN
+Date/Publication: 2023-10-24 13:50:02 UTC
+Built: R 4.3.1; ; 2023-10-24 15:42:01 UTC; unix

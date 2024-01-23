@@ -1,0 +1,32 @@
+#  Calling the dynamic library
+useDynLib(statmod, .registration=TRUE)
+
+importFrom("graphics", "abline", "legend", "lines", "plot", "points")
+
+importFrom("stats", "Gamma", "binomial", "chisq.test", "dbinom",
+           "fisher.test", "fitted", "glm", "glm.fit", ".lm.fit", "lm.fit",
+           "lm.wfit", "make.link", "median", "model.matrix",
+           "model.response", "model.weights", "p.adjust", "pbeta",
+           "pbinom", "pchisq", "pgamma", "pnorm", "ppois",
+           "printCoefmat", "qchisq", "qgamma", "qnorm", "quantile", "quasi", "rbinom",
+           "rchisq", "rnorm", "residuals", "runif", "var", "weighted.mean")
+
+export("canonic.digamma", "compareGrowthCurves", 
+  "compareTwoGrowthCurves", "cumulant.digamma", "d2cumulant.digamma", 
+  "Digamma", "dinvgauss", "elda", 
+  "eldaOneGroup", "expectedDeviance", "fitNBP", "forward", 
+  "gauss.quad", "gauss.quad.prob", 
+  "glm.scoretest", "glmgam.fit", "glmnb.fit", 
+  "hommel.test", "limdil", "logmdigamma", 
+  "matvec", "meanT", "meanval.digamma", "mixedModel2", "mixedModel2Fit", 
+  "mscale",   "permp", "pinvgauss", "plotGrowthCurves", "power.fisher.test",
+  "qinvgauss", "qres.binom", "qres.default", 
+  "qres.gamma", "qres.invgauss", "qres.nbinom", 
+  "qres.pois", "qres.tweedie", "qresid", 
+  "qresiduals", "randomizedBlock", "randomizedBlockFit", 
+  "remlscore", "remlscoregamma", "rinvgauss", 
+  "sage.test", "tweedie", "unitdeviance.digamma", 
+  "varfun.digamma", "vecmat")
+
+S3method(print,limdil)
+S3method(plot,limdil)

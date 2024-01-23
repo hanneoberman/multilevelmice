@@ -1,0 +1,27 @@
+R2                      R-squared
+RVIF                    Root Variance Inflation Factors
+VIF                     Generalised Variance Inflation Factors
+avgEst                  Weighted Average of Model Estimates
+bootCI                  Bootstrap Confidence Intervals
+bootEff                 Bootstrap Effects
+getData                 Get Model Data
+getEff                  Get SEM Effects
+getX                    Get Model Design Matrix
+getY                    Get Model Response Variable
+glt                     Generalised Link Transformation
+pSapply                 Parallel 'sapply()'
+predEff                 Predict Effects
+print.bootCI            Print '"bootCI"' Objects
+print.semEff            Print '"semEff"' Objects
+rMapply                 Recursive 'mapply()'
+sdW                     Weighted Standard Deviation
+semEff                  SEM Effects
+shipley                 Simulated Data from Shipley (2009)
+shipley.growth          Candidate Model Set from Shipley 'Growth' Model
+shipley.sem             Hypothesised SEM from Shipley (2009)
+shipley.sem.boot        Bootstrapped Estimates for Shipley SEM
+shipley.sem.eff         Effects for Shipley SEM
+stdEff                  Standardised Effects
+summary.semEff          Summarise SEM Effects
+varW                    Weighted Variance
+xNam                    Get Model Term Names

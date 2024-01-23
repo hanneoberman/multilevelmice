@@ -1,0 +1,45 @@
+CHEM97Na                An incomplete two-level dataset which consists
+                        of A/AS-level examination data from England
+IPDNa                   A simulated Individual Patient Data (IPD)
+                        meta-analysis with missing values.
+Obesity                 A two-level incomplete dataset based on an
+                        online obesity survey
+find.defaultMethod      Suggestion of conditional imputation models to
+                        use accordingly to the incomplete dataset
+mice.impute.2l.2stage.bin
+                        Imputation by a two-level logistic model based
+                        on a two-stage estimator
+mice.impute.2l.2stage.heckman
+                        Imputation based on Heckman model for
+                        multilevel data.
+mice.impute.2l.2stage.norm
+                        Imputation by a two-level heteroscedastic
+                        normal model based on a two-stage estimator
+mice.impute.2l.2stage.pmm
+                        Predictive mean matching imputation for
+                        two-level variable
+mice.impute.2l.2stage.pois
+                        Imputation by a two-level Poisson model based
+                        on a two-stage estimator
+mice.impute.2l.glm.bin
+                        Imputation of univariate missing data using a
+                        Bayesian logistic mixed model based on
+                        non-informative prior distributions
+mice.impute.2l.glm.norm
+                        Imputation of univariate missing data using a
+                        Bayesian linear mixed model based on
+                        non-informative prior distributions
+mice.impute.2l.glm.pois
+                        Imputation of count variable using a Bayesian
+                        mixed model based on non-informative prior
+                        distributions
+mice.impute.2l.jomo     Imputation of univariate missing data by a
+                        Bayesian multivariate generalized model based
+                        on conjugate priors
+mice.par                Parallel calculations for Multivariate
+                        Imputation by Chained Equations
+micemd-package          Multiple Imputation by Chained Equations with
+                        Multilevel Data
+overimpute              Overimputation diagnostic plot
+plot.mira               Graphical investigation for the number of
+                        generated datasets
