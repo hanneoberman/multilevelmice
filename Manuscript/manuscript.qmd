@@ -212,7 +212,7 @@ The selection of each strategy depends mainly on the assumptions in the main ana
 <!-- Also, this info is also mentioned in ##### Clustering Inclusion -->
 Regarding the restrictions imposed by the nature of the data, i.e., the sample size, the use of cluster indicator variables is restricted in datasets where there are not many clusters and many observations per cluster (Graham, 2009). The last restriction is also required when imputations are performed on each cluster separately.  When this restriction cannot be achieved, one can use an imputation model that simultaneously imputes all clusters using a hierarchical model (Allison 2002).
 
-Under this hierarchical imputation model, observations within clusters are correlated and this correlation is modeled by a random effect so the hierarchical model can be estimated even when there are few observations per cluster. However, this strategy is best suited for balanced data (Grund, 2017) and when the number of clusters is adequate sufficient for the random effects model (Austin,2018).
+Under this hierarchical imputation model, observations within clusters are correlated and this correlation is modelled by a random effect so the hierarchical model can be estimated even when there are few observations per cluster. However, this strategy is best suited for balanced data (Grund, 2017) and when the number of clusters is adequate sufficient for the random effects model (Austin,2018).
 
 Here it is important to evaluate the assumptions imposed by the main model, for instance the cluster indicator strategy bias the estimator when the model is based on a hierarchical model (Taaljard,2008). Although an imputation strategy congenial with the main model is preferred, it is important to consider whether a complex imputation model is appropriate for the data, as a less complex imputation strategies may also lead to unbiased estimates in certain scenarios (Bailey 2020).
 Below we provide a imputation workflow that can be used in general to impute cluster data.
@@ -229,10 +229,10 @@ Check the missing patterns at cluster level, this can help you to select the mos
 
 
 ### Assess Estimation Procedure Robustness to Missing Data
-Before diving into imputation, make sure your estimation model can handle missing data. Sometimes, simpler methods like complete case analysis might be suffice, especially if your missingness is low (usually <5%). There are scenarios in which specific Maximum Likelihood (ML) estimation methods outperform Multiple Imputation (MI) methods, for instance when the response variable is the sole incomplete variable, mixed models demonstrate robustness to missing data under the Missing at Random (MAR) assumption and with a correct variance-covariance specification.\cite{molenberghs2007}.
+Before diving into imputation, make sure your main model can handle missing data. Sometimes, simpler methods like complete case analysis might be suffice, especially if your missingness is low (usually <5%). There are scenarios in which specific Maximum Likelihood (ML) estimation methods outperform Multiple Imputation (MI) methods, for instance when the response variable is the sole incomplete variable, mixed models demonstrate robustness to missing data under the Missing at Random (MAR) assumption and with a correct variance-covariance specification.\cite{molenberghs2007}.
 
-<!-- What does it mean if an estimation model is not able to handle missing data? there are models that implicitaly are able to manage the missingness like the FML where in the likelihood it is used the information of the completed observations and the incomplete ones.  What do you mean with estimation model? the main model you use to analyse the data-->
-<!-- AFAIK, when only the outcome is missing, MI and a ML based method lead to similar results. The text appears to suggest that in that case ML based methods are better. what i understood is ML are better in that case but please check it.-->
+<!-- What does it mean if an estimation model is not able to handle missing data? there are models that implicitely are able to manage the missingness like the FML where computation of the likelihood uses the information from the completed observations and also from the incomplete ones.  What do you mean with estimation model? the main model used to analyse the data-->
+<!-- AFAIK, when only the outcome is missing, MI and a ML based method lead to similar results. The text appears to suggest that in that case ML based methods are better. what i understood is ML are better cause they lead to efficient results, user do not have to make a lot of choises and it provides a determinist result. check this: https://missingdata.org/why-multiple-imputation-is-better-than-maximum-likelihood/#:~:text=Maximum%20likelihood%20is%20faster%20and,every%20time%20you%20run%20it. -->
 
 
 ### Pre-imputation
@@ -249,7 +249,7 @@ Deductive imputation is also useful for getting values for level-1 variables fro
 
 When it comes to handling clusters during the imputation process, you've got a few options. You can use a cluster indicator variable, run separate imputation for each cluster, or go for a simultaneous imputation method that takes clustering into account \cite{eddings}.
 
-<!-- most of this subsection is also mentioned at the start of #sec-workflow -->
+<!-- most of this subsection is also mentioned at the start of #sec-workflow agree i dont know how Hanne wants to integrate this as she wrote the start section after we completed this section. -->
 
 Which strategy you choose depends on the assumptions in your main analysis and the limitations of your data. If your analysis do not use a hierarchical model (like a descriptive approach) and you have a small number of clusters with lots of observations in each, using a cluster indicator or separate imputation might be the way to go \cite{graham2009}. Conversely, if you have more clusters or fewer observations per cluster, you might want to try a simultaneous hierarchical imputation model \cite{Allison_2002}.
 
@@ -278,23 +278,6 @@ y_{ij} =& (\beta_0 + b_{0_i})+ \beta_1x_{1_{ij}}+\beta_2x_{2_{i.}} \nonumber \\
 +& \beta_4x_{4_{ij}} + \beta_{m4}\overline{x_{4_{i.}}}\nonumber \\
 +& (\beta_5 +  b_{5_i})x_{5_{ij}} +\beta_{m5}\overline{x_{5_{i.}}}\nonumber \\
 \end{align}
-
-
-\begin{tabular}{ll}
-     \toprule
-Type & Definition \\
-  \midrule
--2  & Cluster variable, in this case the one defined by j index  \\
- 1  & Fixed variable, e.g., level-1  $x_{1_{ij}}$ or  level-2 $x_{2_{i.}}$ \\
- 2  & Random variable, e.g., $x_{3_{ij}}$\\
- 3  & *Fixed variable with cluster mean $x_{4_{ij}}$\\
- 4  & *Random variable with cluster mean $x_{5_{ij}}$\\
--3. & Random variable only included on selection model (Heckman model)\\
--4. & Random variable only included on main model (Heckman model)\\
-      \bottomrule
-\end{tabular}
-
-<!-- Can we reorder this table? It starts from -2, then -1 and 0 are missing, 1 to 4 and then again 2 negative numbers. What about the following?  -->
 
 \begin{tabular}{ll}
      \toprule
@@ -742,9 +725,7 @@ est$extra.pars |>
 
 ### Obesity data
 
-In this example, we demonstrate a multilevel imputation of random intercept and random slope model with a continuous response. We utilize the obesity dataset included in the `micemd`\@ package, a simulated dataset that emulates an electronic survey in which individuals are asked to provide information about their weight and consumption habits in different countries. We simulate data for 5 clusters so that the true values are known. We use the following variables from the dataset:
-
-<!-- What do you mean with "We simulate data for 5 clusters"? If this dataset is included in the package why do we need to simulate the data? -->
+In this example, we demonstrate a multilevel imputation of random intercept and random slope model with a continuous response. We utilize the obesity dataset included in the `micemd`\@ package, a simulated dataset that emulates an electronic survey in which individuals are asked to provide information about their weight and consumption habits in different countries. We use the following variables from the dataset:
 
 -   **Cluster:** Region of the patients' healthcare provider (Cluster variable),
 -   **Gender:** Subjects' Gender (0=male, 1=female),
@@ -953,15 +934,15 @@ plot_models(list_models,
 
 
 We note that there is minimal disparity in the age effect, FamObs, or  Gender across the various imputation models under consideration. An analysis of the intercept reveals that, under the MNAR assumption, a higher average BMI is anticipated compared to the MAR assumption.
-Nonetheless, with respect to precision of the estimates, we notice that in general assuming MNAR leads to wider confidence intervals. In this case it does not have any influence on the final result but there could be cases where variation in the assumed missing mechanism could lead also to differences on the significance of a statistical test and therefore lead to contradictory conclusions.   
+Nonetheless, with respect to precision of the estimates, we notice that in general assuming MNAR leads to wider confidence intervals. In this case it does not have any influence on the final result but there could be cases where variation in the assumed missing mechanism could lead also to differences on the significance of a statistical test and therefore lead to different conclusions.   
 
-<!-- Contradictory? Do you mean if the results from an imputation assuming MAR and one assuming MNAR disagree? -->
+<!-- Contradictory? Do you mean if the results from an imputation assuming MAR and one assuming MNAR disagree? yes indeed -->
 
 
 ## Conclusion
 This paper is dedicated to exploring the imputation process for incomplete datasets, with a primary focus on utilizing a hierarchical model for analysis. Initially, users are encouraged to consider the main analysis within the context of the incomplete dataset, along with insights provided by domain experts, to gain a better understanding of variable relationships. Employing clear data visualization is instrumental in comprehending the missing data patterns, establishing a missing mechanism, and aiding in the selection of suitable imputation methods.
 
-The "Mice" and "mice"-based R packages offer a range of imputation methods tailored for hierarchical data, easily adaptable to the dataset's structure. Before proceeding with the analysis of the imputed dataset, it is essential to assess the convergence of the imputation method. This evaluation can reveal issues such as circular problems, the need for additional iterations, or challenges associated with the chosen imputation method.
+The "Mice" and "Mice"-based R packages offer a range of imputation methods tailored for hierarchical data, easily adaptable to the dataset's structure. Before proceeding with the analysis of the imputed dataset, it is essential to assess the convergence of the imputation method. This evaluation can reveal issues such as circular problems, the need for additional iterations, or challenges associated with the chosen imputation method.
 
 <!-- What is the difference between Mice and mice? is there a Mice package? -->
 
